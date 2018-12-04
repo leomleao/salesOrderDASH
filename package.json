@@ -4,19 +4,20 @@
   "description": "Nest TypeScript starter repository",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node src/main",
+    "start": "ts-node src/server",
     "start:watch": "nodemon",
     "prestart:prod": "tsc",
-    "start:prod": "node dist/main.js"
+    "start:prod": "node dist/server.js"
   },
   "dependencies": {
     "@nestjs/common": "^5.3.0",
     "@nestjs/core": "^5.3.0",
-    "easysoap": "^2.0.2",
     "hbs": "^4.0.1",
     "pug": "^2.0.3",
     "reflect-metadata": "^0.1.12",
+    "rethinkdb": "^2.3.3",
     "rxjs": "^6.0.0",
+    "soap": "^0.25.0",
     "typescript": "^2.8.0"
   },
   "devDependencies": {
