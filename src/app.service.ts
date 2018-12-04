@@ -1,25 +1,34 @@
 import { Injectable } from '@nestjs/common';
-import * as soap from 'easysoap';
+import * as soap from 'soap';
 
 @Injectable()
 export class AppService {  
-  totalSalesOrders(){
-    const opts = { secure : false };
-    const params = { 
-      host: 'http://axerp0107.wago.local:8010/sap/bc/srt/xip/sap/ecc_salesorder009qr/100/ecc_salesorder009qr/ecc_salesorder009qr',
-      path: '../ws/soap.xml',
-      wsdl: '../ws/ecc_salesorder009qr.wsdl' 
-    };
-    const soapClient = soap(params, opts);
-
-    /*
-     * get all available functions
-     */
-    soapClient.getAllFunctions()
-       .then((functionArray) => { console.log(functionArray); })
-       .catch((err) => { throw new Error(err); });
-
-
-      return 5;
+  async totalSalesOrders(){
+      const soap = require('soap');
+      const url = './src/ws/ecc_salesorder009qr.wsdl';
+      let salesOrders = 0;
+      const args = { 
+        SalesOrderSelectionByElements: { 
+          SelectionBySalesOrganisationID: { 
+            IntervalBoundaryTypeCode: 1, 
+            LowerBoundarySalesOrganisationID:'0022'
+          },
+          SelectionByCreationDate: {
+            IntervalBoundaryTypeCode: 8,
+            LowerBoundaryCreationDate: '2018-12-02'
+          }
+        },
+        ProcessingConditions: {
+          QueryHitsMaximumNumberValue: 50
+        }
+      };
+      await soap.createClientAsync(url).then((client) => {
+        client.setSecurity(new soap.BasicAuthSecurity('u228820', 'cp1205rm28f='));  
+        return client.SalesOrderERPBasicDataByElementsQueryResponse_InAsync(args)
+      }).then((result) => {
+        console.log(result[0].SalesOrder.length);
+        salesOrders = result[0].SalesOrder.length
+      });
+      return salesOrders;
     }  
 }
