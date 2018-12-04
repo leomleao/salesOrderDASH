@@ -21,5 +21,4 @@ export class SalesOrdersController {
     return salesOrder;
   }
 
-
 }

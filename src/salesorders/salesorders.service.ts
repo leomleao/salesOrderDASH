@@ -78,20 +78,18 @@ export class SalesOrdersService {
     //   totalOrders = result[0].SalesOrder.length;
     // });
 
-    await r.table('sales_order').count().run(this.rethinkDB, function(err, result) {
-      if (err) throw err;
-      console.log(JSON.stringify(result, null, 2));
-      return JSON.stringify(result, null, 2);  
-    });
-    return 0;
-
-    // await r.table('sales_order').count().run(this.rethinkDB).then(function(err, result) {
+    // await r.table('sales_order').count().run(this.rethinkDB, function(err, result) {
+    //   if (err) throw err;
     //   console.log(JSON.stringify(result, null, 2));
-    //   const totalSalesOrders = JSON.stringify(result, null, 2);
-    // }).catch(function(err) {
-    //     // process error
+    //   return JSON.stringify(result, null, 2);  
     // });
-    //   return totalSalesOrders;
+    // return 0;
 
+    return await r.table('sales_order').count().run(this.rethinkDB)
+    .then((result) => {
+      return JSON.stringify(result, null, 2);     
+    }).catch(function(err) {
+        // process error
+    });
   }
 }
