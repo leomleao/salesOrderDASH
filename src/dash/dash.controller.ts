@@ -6,9 +6,16 @@ export class DashController {
   @Get()
   @Render('index')
   root() {  	
-	let today = new Date().toLocaleString('pt-BR', { timeZone:"America/Sao_Paulo" });
+  	const monthNames = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho",
+	  "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
+	];
 
-	let response = { message: today};
+  	const today = new Date();
+  	const response = { 
+		message: today.toLocaleString('pt-BR', { timeZone:"America/Sao_Paulo" }),
+		currentYear: today.getFullYear(),
+		currentMonth: monthNames[today.getMonth()],
+	};
 	
     return response;
   }

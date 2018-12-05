@@ -204,6 +204,296 @@ var mApp = function() {
     }
 
     /**
+    * Initializes Sales By Segment Chart
+    */
+    var initSalesBySegmentChart = function() {
+        var chartContainer = $('#m_chart_sales_by_segment');
+
+        if (chartContainer.length == 0) {
+            return;
+        }
+
+        var chartData = {
+            datasets: [{
+                data: [
+                    49,
+                    18,
+                    31,
+                    38,
+                    84,
+                ],
+                backgroundColor: [
+                    '#8E44AD',
+                    '#E87E04',
+                    '#26C281',
+                    '#4B77BE',
+                    '#D91E18',
+                ],
+                label: 'Dataset 1'
+                }],
+                labels: [
+                    'Red',
+                    'Orange',
+                    'Yellow',
+                    'Green',
+                    'Blue'
+                ]
+        };
+
+        var chart = new Chart(chartContainer, {
+            type: 'doughnut',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio : false,
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        generateLabels: function(chart) {
+                            var data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                return data.labels.map(function(label, i) {
+                                    var meta = chart.getDatasetMeta(0);
+                                    var ds = data.datasets[0];
+                                    var arc = meta.data[i];
+                                    var custom = arc && arc.custom || {};
+                                    var getValueAtIndexOrDefault = Chart.helpers.getValueAtIndexOrDefault;
+                                    var arcOpts = chart.options.elements.arc;
+                                    var fill = custom.backgroundColor ? custom.backgroundColor : getValueAtIndexOrDefault(ds.backgroundColor, i, arcOpts.backgroundColor);
+                                    var stroke = custom.borderColor ? custom.borderColor : getValueAtIndexOrDefault(ds.borderColor, i, arcOpts.borderColor);
+                                    var bw = custom.borderWidth ? custom.borderWidth : getValueAtIndexOrDefault(ds.borderWidth, i, arcOpts.borderWidth);
+
+                                    // We get the value of the current label
+                                    var value = chart.config.data.datasets[arc._datasetIndex].data[arc._index];
+
+                                    return {
+                                        // Instead of `text: label,`
+                                        // We add the value to the string
+                                        text: label + " : " + value,
+                                        fillStyle: fill,
+                                        strokeStyle: stroke,
+                                        lineWidth: bw,
+                                        hidden: isNaN(ds.data[i]) || meta.data[i].hidden,
+                                        index: i
+                                    };
+                                });
+                            } else {
+                                return [];
+                            }
+                        }                        
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            }
+        });
+    }
+
+    /**
+    * Initializes Sales History Chart
+    */
+    var initSalesHistoryChart = function() {
+    // Themes begin
+    am4core.useTheme(am4themes_animated);
+    // Themes end
+
+    // Create chart instance
+    var chart = am4core.create("m_chart_sales_history", am4charts.XYChart);
+
+    // Data for both series
+    var data = [ {
+      "month": "Jan",
+      "vendas": 679,
+      "meta": 21.1
+    }, {
+      "month": "Fev",
+      "vendas": 938,
+      "meta": 30.5
+    }, {
+      "month": "Mar",
+      "vendas": 63,
+      "meta": 34.9
+    }, {
+      "month": "Abr",
+      "vendas": 29.5,
+      "meta": 31.1
+    }, {
+      "month": "Mai",
+      "vendas": 30.6,
+      "meta": 28.2,
+      "lineDash": "5,5",
+    }, {
+      "month": "Jun",
+      "vendas": 30.6,
+      "meta": 28.2,
+      "lineDash": "5,5",
+    }, {
+      "month": "Jul",
+      "vendas": 30.6,
+      "meta": 28.2,
+      "lineDash": "5,5",
+    }, {
+      "month": "Ago",
+      "vendas": 30.6,
+      "meta": 28.2,
+      "lineDash": "5,5",
+    }, {
+      "month": "Set",
+      "vendas": 30.6,
+      "meta": 28.2,
+      "lineDash": "5,5",
+    }, {
+      "month": "Out",
+      "vendas": 30.6,
+      "meta": 28.2,
+      "lineDash": "5,5",
+    }, {
+      "month": "Nov",
+      "vendas": 30.6,
+      "meta": 28.2,
+      "lineDash": "5,5",
+    }, {
+      "month": "Dez",
+      "vendas": 30.6,
+      "meta": 28.2,
+      "lineDash": "5,5",
+    }];
+
+    /* Create axes */
+    var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+    categoryAxis.dataFields.category = "month";
+    categoryAxis.renderer.minGridDistance = 30;
+
+    /* Create value axis */
+    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+    /* Create series */
+    var columnSeries = chart.series.push(new am4charts.ColumnSeries());
+    columnSeries.name = "Vendas";
+    columnSeries.dataFields.valueY = "vendas";
+    columnSeries.dataFields.categoryX = "month";
+
+    columnSeries.columns.template.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
+    columnSeries.columns.template.propertyFields.fillOpacity = "fillOpacity";
+    columnSeries.columns.template.propertyFields.stroke = "stroke";
+    columnSeries.columns.template.propertyFields.strokeWidth = "strokeWidth";
+    columnSeries.columns.template.propertyFields.strokeDasharray = "columnDash";
+    columnSeries.tooltip.label.textAlign = "middle";
+
+    var lineSeries = chart.series.push(new am4charts.LineSeries());
+    lineSeries.name = "Meta";
+    lineSeries.dataFields.valueY = "meta";
+    lineSeries.dataFields.categoryX = "month";
+
+    lineSeries.stroke = am4core.color("#fdd400");
+    lineSeries.strokeWidth = 3;
+    lineSeries.propertyFields.strokeDasharray = "lineDash";
+    lineSeries.tooltip.label.textAlign = "middle";
+
+    var bullet = lineSeries.bullets.push(new am4charts.Bullet());
+    bullet.fill = am4core.color("#fdd400"); // tooltips grab fill from parent by default
+    bullet.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
+    var circle = bullet.createChild(am4core.Circle);
+    circle.radius = 4;
+    circle.fill = am4core.color("#fff");
+    circle.strokeWidth = 3;
+
+    chart.data = data;
+
+    }
+
+    /**
+    * Initializes dailySalesChart
+    */
+    var initDailySalesChart = function() {
+        var chartContainer = $('#m_chart_daily_sales');
+
+        if (chartContainer.length == 0) {
+            return;
+        }
+
+        var chartData = {
+            labels: [
+                "21/11",
+                "",
+                "",
+                "",
+                "25/11",
+                "",
+                "",
+                "",
+                "29/11",
+                "",
+                "",
+                "",
+                "03/12"
+            ],
+            datasets: [{
+                label: 'Ordens de Venda',
+                backgroundColor: mUtil.getColor('success'),
+                data: [
+                    80, 40, 25, 60, 123, 22, 15, 15, 20, 25, 30, 25, 20, 15
+                ]
+            }, {
+                label: 'Cotacoes',
+                backgroundColor: '#f3f3fb',
+                data: [
+                    15, 20, 25, 30, 25, 20, 15, 15, 20, 25, 30, 25, 20, 15
+                ]
+            }]
+        };
+
+        var chart = new Chart(chartContainer, {
+            type: 'bar',
+            data: chartData,
+            options: {
+                title: {
+                    display: false,
+                },
+                tooltips: {
+                    intersect: false,
+                    mode: 'nearest',
+                    xPadding: 10,
+                    yPadding: 10,
+                    caretPadding: 10
+                },
+                legend: {
+                    display: false,
+                    position: 'bottom'                    
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+                barRadius: 4,
+                scales: {
+                    xAxes: [{
+                        gridLines: false,
+                        stacked: true,
+                        ticks: {
+                            padding: 10  
+                        }
+                    }],
+                    yAxes: [{
+                        display: false,
+                        stacked: true,
+                        gridLines: false
+                    }]
+                },
+                layout: {
+                    padding: {
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        bottom: 10
+                    }
+                }
+            }
+        });
+    }
+
+
+    /**
     * Initializes bootstrap collapse for Metronic's accordion feature
     */
     var initAccordions = function(el) {
@@ -265,14 +555,38 @@ var mApp = function() {
             initAccordions();
             initCustomTabs();
             initPopulateData();
+            initDailySalesChart();
+            initSalesBySegmentChart();
+            initSalesHistoryChart();
         },
 
         /**
-        * Init custom tabs
+        * Init Sales History Chart
+        */
+        initSalesHistoryChart: function() {
+            initSalesHistoryChart();
+        },
+        /**
+        * Init Sales by Segment Chart
+        */
+        initSalesBySegmentChart: function() {
+            initSalesBySegmentChart();
+        },
+
+        /**
+        * Init Daily Sales Chart
+        */
+        initDailySalesChart: function() {
+            initPopulateData();
+        },
+
+        /**
+        * Init Populate Data
         */
         initPopulateData: function() {
             initPopulateData();
         },
+
 
         /**
         * Init custom tabs

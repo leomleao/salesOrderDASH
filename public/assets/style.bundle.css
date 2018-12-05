@@ -19532,20 +19532,50 @@ body.m-portlet--fullscreen {
   margin-left: 1.8rem;
   margin-top: 3.21rem;
   display: inline-block;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   font-weight: 600; }
 
 .m-widget24 .m-widget24__item .m-widget24__desc {
-  margin-left: 1.8rem;
+  margin-left: 2.8rem;
   font-size: 1rem;
-  font-weight: 300; }
+  font-weight: 300;
+  padding-top: 1rem;
+   padding-bottom: 1rem; }
 
 .m-widget24 .m-widget24__item .m-widget24__stats {
-  float: right;
+/*  float: right;
   margin-right: 1.8rem;
-  margin-top: -1.43rem;
+  margin-top: -1.43rem;*/
   font-size: 1.75rem;
-  font-weight: 600; }
+  font-weight: 600;
+  margin-top: 0.4rem;
+  margin-left: 5rem; }
+
+.m-widget24__value {
+  position: absolute;
+  right: 2.5rem;
+}
+
+/*.m-widget14__salesChart {
+  height:120px;
+  width: 75%;
+  margin: auto;    
+}*/
+
+.m-widget24__change-indicator {
+  font-size: 1.8rem;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
+}
+
+.fa-caret-down {
+  color: rgba(255, 0, 0, 0.5);
+  vertical-align: text-top;
+}
+
+.fa-caret-up{
+  color: rgba(0, 255, 0, 0.5);
+}
 
 .m-widget24 .m-widget24__item .progress {
   margin-top: 2.14rem;
