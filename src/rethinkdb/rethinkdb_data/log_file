@@ -73,3 +73,29 @@
 2018-12-04T18:45:53.906012301 0.057387s notice: Server ready, "PC228902_5dz" 0b498661-c386-4f21-81b6-1afdb0eb9838
 2018-12-04T18:45:54.919012800 1.069917s info: Table 0fa4a7ea-a50c-440b-a9df-858616b0660b: Starting a new Raft election for term 4.
 2018-12-04T18:45:54.928012100 1.079308s info: Table 0fa4a7ea-a50c-440b-a9df-858616b0660b: This server is Raft leader for term 4. Latest log index is 9.
+2018-12-04T19:02:27.899910100 0.014106s notice: Running rethinkdb 2.3.6-windows (MSC 190024215)...
+2018-12-04T19:02:27.899910101 0.014209s notice: Running on 6.2.9200 (Windows 8, Server 2012)
+2018-12-04T19:02:27.899910102 0.014231s notice: Loading data from directory C:\\npm\\salesOrderDASH\\src\\rethinkdb\\rethinkdb_data
+2018-12-04T19:02:27.911909400 0.025495s info: Automatically using cache size of 3701 MB
+2018-12-04T19:02:27.916911100 0.030624s notice: Listening for intracluster connections on port 29015
+2018-12-04T19:02:27.936909000 0.051306s notice: Listening for client driver connections on port 28015
+2018-12-04T19:02:27.937911700 0.051601s notice: Listening for administrative HTTP connections on port 8080
+2018-12-04T19:02:27.938909800 0.052486s notice: Listening on cluster addresses: 127.0.0.1, 10.0.75.1, 192.168.159.1, 192.168.174.1, 192.168.1.4, 172.20.117.161, 2804:7f0:a18f:ed17:4822:dbc:a471:2a77, 2804:7f0:a18f:ed17:65db:8835:2a88:8f20, fe80::20ef:861e:ad26:9562%15, fe80::65db:8835:2a88:8f20%16, fe80::9562:44df:7545:c21c%10, fe80::b0f1:55de:6fa1:8583%9, fe80::edf9:4e8c:9a50:3f3a%14
+2018-12-04T19:02:27.939911200 0.053484s notice: Listening on driver addresses: 127.0.0.1, 10.0.75.1, 192.168.159.1, 192.168.174.1, 192.168.1.4, 172.20.117.161, 2804:7f0:a18f:ed17:4822:dbc:a471:2a77, 2804:7f0:a18f:ed17:65db:8835:2a88:8f20, fe80::20ef:861e:ad26:9562%15, fe80::65db:8835:2a88:8f20%16, fe80::9562:44df:7545:c21c%10, fe80::b0f1:55de:6fa1:8583%9, fe80::edf9:4e8c:9a50:3f3a%14
+2018-12-04T19:02:27.939911201 0.053804s notice: Listening on http addresses: 127.0.0.1, 10.0.75.1, 192.168.159.1, 192.168.174.1, 192.168.1.4, 172.20.117.161, 2804:7f0:a18f:ed17:4822:dbc:a471:2a77, 2804:7f0:a18f:ed17:65db:8835:2a88:8f20, fe80::20ef:861e:ad26:9562%15, fe80::65db:8835:2a88:8f20%16, fe80::9562:44df:7545:c21c%10, fe80::b0f1:55de:6fa1:8583%9, fe80::edf9:4e8c:9a50:3f3a%14
+2018-12-04T19:02:27.939911202 0.053814s notice: Server ready, "PC228902_5dz" 0b498661-c386-4f21-81b6-1afdb0eb9838
+2018-12-04T19:02:29.838911600 1.952523s info: Table 0fa4a7ea-a50c-440b-a9df-858616b0660b: Starting a new Raft election for term 5.
+2018-12-04T19:02:29.848911300 1.962340s info: Table 0fa4a7ea-a50c-440b-a9df-858616b0660b: This server is Raft leader for term 5. Latest log index is 12.
+2018-12-04T22:52:43.307899300 0.018217s notice: Running rethinkdb 2.3.6-windows (MSC 190024215)...
+2018-12-04T22:52:43.307899301 0.018335s notice: Running on 6.2.9200 (Windows 8, Server 2012)
+2018-12-04T22:52:43.307899302 0.018362s notice: Loading data from directory C:\\npm\\salesOrderDASH\\src\\rethinkdb\\rethinkdb_data
+2018-12-04T22:52:43.323522200 0.031729s info: Automatically using cache size of 3631 MB
+2018-12-04T22:52:43.323522201 0.035829s notice: Listening for intracluster connections on port 29015
+2018-12-04T22:52:43.339151600 0.047992s notice: Listening for client driver connections on port 28015
+2018-12-04T22:52:43.339151601 0.048172s notice: Listening for administrative HTTP connections on port 8080
+2018-12-04T22:52:43.339151602 0.048878s notice: Listening on cluster addresses: 127.0.0.1, 10.0.75.1, 192.168.159.1, 192.168.174.1, 192.168.1.4, 172.20.117.161, 2804:7f0:a18f:ed17:4822:dbc:a471:2a77, 2804:7f0:a18f:ed17:65db:8835:2a88:8f20, fe80::20ef:861e:ad26:9562%15, fe80::65db:8835:2a88:8f20%16, fe80::9562:44df:7545:c21c%10, fe80::b0f1:55de:6fa1:8583%9, fe80::edf9:4e8c:9a50:3f3a%14
+2018-12-04T22:52:43.339151603 0.049682s notice: Listening on driver addresses: 127.0.0.1, 10.0.75.1, 192.168.159.1, 192.168.174.1, 192.168.1.4, 172.20.117.161, 2804:7f0:a18f:ed17:4822:dbc:a471:2a77, 2804:7f0:a18f:ed17:65db:8835:2a88:8f20, fe80::20ef:861e:ad26:9562%15, fe80::65db:8835:2a88:8f20%16, fe80::9562:44df:7545:c21c%10, fe80::b0f1:55de:6fa1:8583%9, fe80::edf9:4e8c:9a50:3f3a%14
+2018-12-04T22:52:43.339151604 0.050100s notice: Listening on http addresses: 127.0.0.1, 10.0.75.1, 192.168.159.1, 192.168.174.1, 192.168.1.4, 172.20.117.161, 2804:7f0:a18f:ed17:4822:dbc:a471:2a77, 2804:7f0:a18f:ed17:65db:8835:2a88:8f20, fe80::20ef:861e:ad26:9562%15, fe80::65db:8835:2a88:8f20%16, fe80::9562:44df:7545:c21c%10, fe80::b0f1:55de:6fa1:8583%9, fe80::edf9:4e8c:9a50:3f3a%14
+2018-12-04T22:52:43.339151605 0.050110s notice: Server ready, "PC228902_5dz" 0b498661-c386-4f21-81b6-1afdb0eb9838
+2018-12-04T22:52:44.820183500 1.525188s info: Table 0fa4a7ea-a50c-440b-a9df-858616b0660b: Starting a new Raft election for term 6.
+2018-12-04T22:52:44.824183600 1.529547s info: Table 0fa4a7ea-a50c-440b-a9df-858616b0660b: This server is Raft leader for term 6. Latest log index is 15.

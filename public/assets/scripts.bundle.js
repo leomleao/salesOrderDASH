@@ -207,201 +207,142 @@ var mApp = function() {
     * Initializes Sales By Segment Chart
     */
     var initSalesBySegmentChart = function() {
-        var chartContainer = $('#m_chart_sales_by_segment');
+        // Themes begin
+        am4core.useTheme(am4themes_animated);
+        // Themes end
 
-        if (chartContainer.length == 0) {
-            return;
-        }
+        var chart = am4core.create("m_chart_sales_by_segment", am4charts.PieChart);
+        chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
 
-        var chartData = {
-            datasets: [{
-                data: [
-                    49,
-                    18,
-                    31,
-                    38,
-                    84,
-                ],
-                backgroundColor: [
-                    '#8E44AD',
-                    '#E87E04',
-                    '#26C281',
-                    '#4B77BE',
-                    '#D91E18',
-                ],
-                label: 'Dataset 1'
-                }],
-                labels: [
-                    'Red',
-                    'Orange',
-                    'Yellow',
-                    'Green',
-                    'Blue'
-                ]
-        };
+        chart.data = [
+          {
+            division: "Interconnection",
+            sales: 22104362
+          },          
+          {
+            division: "Automation",
+            sales: 9872912
+          }
+        ];
 
-        var chart = new Chart(chartContainer, {
-            type: 'doughnut',
-            data: chartData,
-            options: {
-                responsive: true,
-                maintainAspectRatio : false,
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        generateLabels: function(chart) {
-                            var data = chart.data;
-                            if (data.labels.length && data.datasets.length) {
-                                return data.labels.map(function(label, i) {
-                                    var meta = chart.getDatasetMeta(0);
-                                    var ds = data.datasets[0];
-                                    var arc = meta.data[i];
-                                    var custom = arc && arc.custom || {};
-                                    var getValueAtIndexOrDefault = Chart.helpers.getValueAtIndexOrDefault;
-                                    var arcOpts = chart.options.elements.arc;
-                                    var fill = custom.backgroundColor ? custom.backgroundColor : getValueAtIndexOrDefault(ds.backgroundColor, i, arcOpts.backgroundColor);
-                                    var stroke = custom.borderColor ? custom.borderColor : getValueAtIndexOrDefault(ds.borderColor, i, arcOpts.borderColor);
-                                    var bw = custom.borderWidth ? custom.borderWidth : getValueAtIndexOrDefault(ds.borderWidth, i, arcOpts.borderWidth);
+        chart.innerRadius = am4core.percent(40);
+        chart.depth = 120;
 
-                                    // We get the value of the current label
-                                    var value = chart.config.data.datasets[arc._datasetIndex].data[arc._index];
+        chart.legend = new am4charts.Legend();
 
-                                    return {
-                                        // Instead of `text: label,`
-                                        // We add the value to the string
-                                        text: label + " : " + value,
-                                        fillStyle: fill,
-                                        strokeStyle: stroke,
-                                        lineWidth: bw,
-                                        hidden: isNaN(ds.data[i]) || meta.data[i].hidden,
-                                        index: i
-                                    };
-                                });
-                            } else {
-                                return [];
-                            }
-                        }                        
-                    }
-                },
-                animation: {
-                    animateScale: true,
-                    animateRotate: true
-                }
-            }
-        });
+        var series = chart.series.push(new am4charts.PieSeries());
+        series.dataFields.value = "sales";
+        series.dataFields.depthValue = "sales";
+        series.dataFields.category = "division";
+        series.slices.template.cornerRadius = 5;
+        series.colors.step = 3;
     }
 
     /**
     * Initializes Sales History Chart
     */
     var initSalesHistoryChart = function() {
-    // Themes begin
-    am4core.useTheme(am4themes_animated);
-    // Themes end
+        // Themes begin
+        am4core.useTheme(am4themes_animated);
+        // Themes end
 
-    // Create chart instance
-    var chart = am4core.create("m_chart_sales_history", am4charts.XYChart);
+        // Create chart instance
+        var chart = am4core.create("m_chart_sales_history", am4charts.XYChart);
 
-    // Data for both series
-    var data = [ {
-      "month": "Jan",
-      "vendas": 679,
-      "meta": 21.1
-    }, {
-      "month": "Fev",
-      "vendas": 938,
-      "meta": 30.5
-    }, {
-      "month": "Mar",
-      "vendas": 63,
-      "meta": 34.9
-    }, {
-      "month": "Abr",
-      "vendas": 29.5,
-      "meta": 31.1
-    }, {
-      "month": "Mai",
-      "vendas": 30.6,
-      "meta": 28.2,
-      "lineDash": "5,5",
-    }, {
-      "month": "Jun",
-      "vendas": 30.6,
-      "meta": 28.2,
-      "lineDash": "5,5",
-    }, {
-      "month": "Jul",
-      "vendas": 30.6,
-      "meta": 28.2,
-      "lineDash": "5,5",
-    }, {
-      "month": "Ago",
-      "vendas": 30.6,
-      "meta": 28.2,
-      "lineDash": "5,5",
-    }, {
-      "month": "Set",
-      "vendas": 30.6,
-      "meta": 28.2,
-      "lineDash": "5,5",
-    }, {
-      "month": "Out",
-      "vendas": 30.6,
-      "meta": 28.2,
-      "lineDash": "5,5",
-    }, {
-      "month": "Nov",
-      "vendas": 30.6,
-      "meta": 28.2,
-      "lineDash": "5,5",
-    }, {
-      "month": "Dez",
-      "vendas": 30.6,
-      "meta": 28.2,
-      "lineDash": "5,5",
-    }];
+             
+        // Data for both series
+        var data = [ {
+          "month": "Jan",
+          "vendas": 1235652,
+          "meta": 2799782
+        }, {
+          "month": "Fev",
+          "vendas": 2511050,
+          "meta": 2407456
+        }, {
+          "month": "Mar",
+          "vendas": 3113518,
+          "meta": 2689173
+        }, {
+          "month": "Abr",
+          "vendas": 2512398,
+          "meta": 2685002
+        }, {
+          "month": "Mai",
+          "vendas": 2199185,
+          "meta": 2618203,
+        }, {
+          "month": "Jun",
+          "vendas": 3144824,
+          "meta": 2611241,
+        }, {
+          "month": "Jul",
+          "vendas": 3051131,
+          "meta": 2729059,
+        }, {
+          "month": "Ago",
+          "vendas": 3332526,
+          "meta": 2696364,
+        }, {
+          "month": "Set",
+          "vendas": 3522030,
+          "meta": 2544288,
+        }, {
+          "month": "Out",
+          "vendas": 3578862,
+          "meta": 2896470,
+        }, {
+          "month": "Nov",
+          "vendas": 3768395,
+          "meta": 2923295,
+          "lineDash": "5,5",
+        }, {
+          "month": "Dez",
+          "vendas": 95974,
+          "meta": 1688017,
+          "lineDash": "5,5",
+        }];
 
-    /* Create axes */
-    var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-    categoryAxis.dataFields.category = "month";
-    categoryAxis.renderer.minGridDistance = 30;
+        /* Create axes */
+        var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+        categoryAxis.dataFields.category = "month";
+        categoryAxis.renderer.minGridDistance = 30;
 
-    /* Create value axis */
-    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+        /* Create value axis */
+        var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 
-    /* Create series */
-    var columnSeries = chart.series.push(new am4charts.ColumnSeries());
-    columnSeries.name = "Vendas";
-    columnSeries.dataFields.valueY = "vendas";
-    columnSeries.dataFields.categoryX = "month";
+        /* Create series */
+        var columnSeries = chart.series.push(new am4charts.ColumnSeries());
+        columnSeries.name = "Vendas";
+        columnSeries.dataFields.valueY = "vendas";
+        columnSeries.dataFields.categoryX = "month";
 
-    columnSeries.columns.template.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
-    columnSeries.columns.template.propertyFields.fillOpacity = "fillOpacity";
-    columnSeries.columns.template.propertyFields.stroke = "stroke";
-    columnSeries.columns.template.propertyFields.strokeWidth = "strokeWidth";
-    columnSeries.columns.template.propertyFields.strokeDasharray = "columnDash";
-    columnSeries.tooltip.label.textAlign = "middle";
+        columnSeries.columns.template.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
+        columnSeries.columns.template.propertyFields.fillOpacity = "fillOpacity";
+        columnSeries.columns.template.propertyFields.stroke = "stroke";
+        columnSeries.columns.template.propertyFields.strokeWidth = "strokeWidth";
+        columnSeries.columns.template.propertyFields.strokeDasharray = "columnDash";
+        columnSeries.tooltip.label.textAlign = "middle";
 
-    var lineSeries = chart.series.push(new am4charts.LineSeries());
-    lineSeries.name = "Meta";
-    lineSeries.dataFields.valueY = "meta";
-    lineSeries.dataFields.categoryX = "month";
+        var lineSeries = chart.series.push(new am4charts.LineSeries());
+        lineSeries.name = "Meta";
+        lineSeries.dataFields.valueY = "meta";
+        lineSeries.dataFields.categoryX = "month";
 
-    lineSeries.stroke = am4core.color("#fdd400");
-    lineSeries.strokeWidth = 3;
-    lineSeries.propertyFields.strokeDasharray = "lineDash";
-    lineSeries.tooltip.label.textAlign = "middle";
+        lineSeries.stroke = am4core.color("#fdd400");
+        lineSeries.strokeWidth = 3;
+        lineSeries.propertyFields.strokeDasharray = "lineDash";
+        lineSeries.tooltip.label.textAlign = "middle";
 
-    var bullet = lineSeries.bullets.push(new am4charts.Bullet());
-    bullet.fill = am4core.color("#fdd400"); // tooltips grab fill from parent by default
-    bullet.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
-    var circle = bullet.createChild(am4core.Circle);
-    circle.radius = 4;
-    circle.fill = am4core.color("#fff");
-    circle.strokeWidth = 3;
+        var bullet = lineSeries.bullets.push(new am4charts.Bullet());
+        bullet.fill = am4core.color("#fdd400"); // tooltips grab fill from parent by default
+        bullet.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
+        var circle = bullet.createChild(am4core.Circle);
+        circle.radius = 4;
+        circle.fill = am4core.color("#fff");
+        circle.strokeWidth = 3;
 
-    chart.data = data;
-
+        chart.data = data;
     }
 
     /**

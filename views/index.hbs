@@ -94,7 +94,7 @@
 														total cotacoes
 													</span>
 													<span class="m-widget24__stats m--font-brand m-widget24__value">
-														$
+														R$ 35,02 mi
 													</span>
 												</div>			
 												<div class="row m-row--col-separator-xl">
@@ -102,7 +102,7 @@
 														total ordens de venda
 													</span>
 													<span class="m-widget24__stats m--font-brand m-widget24__value">
-														$
+														R$ 31,97 mi
 													</span>
 												</div>										
 												<div class="m--space-10"></div>
@@ -132,7 +132,7 @@
 														total cotacoes
 													</span>
 													<span class="m-widget24__stats m--font-brand m-widget24__value">
-														$
+														R$ 584.586
 													</span>
 												</div>			
 												<div class="row m-row--col-separator-xl">
@@ -140,7 +140,7 @@
 														total ordens de venda
 													</span>
 													<span class="m-widget24__stats m--font-brand m-widget24__value">
-														$
+														R$ 345.256
 													</span>
 												</div>	
 												<div class="m--space-10"></div>
@@ -169,7 +169,7 @@
 													<span class="m-widget24__desc">
 														total acumulado de ordens
 													</span>
-													<span data-api_path="salesorders/totalMonth" class="m-widget24__stats m--font-success ws_populated">
+													<span data-api_path="salesorders/totalMonth" class="m-widget24__stats m--font-success ws_populated m-widget24__value">
 													</span>
 												</div>
 												<div class="m--space-10"></div>
@@ -192,7 +192,7 @@
 													<span class="m-widget24__desc">
 														total cadastros {{ currentMonth}}
 													</span>
-													<span class="m-widget24__stats m--font-danger">
+													<span class="m-widget24__stats m--font-danger m-widget24__value">
 														276
 													</span>
 												</div>
@@ -225,7 +225,7 @@
 
 						<!--Begin::Main Portlet-->
 						<div class="row">
-							<div class="col-xl-3">
+							<div class="col-xl-4">
 								<!--begin:: Widgets/Sales States-->
 								<div class="m-portlet m-portlet--full-height ">
 									<div class="m-portlet__head">
@@ -238,14 +238,12 @@
 										</div>
 									</div>
 									<div class="m-portlet__body">
-										<div class="m-widget14__chart m-widget14__salesBySegment">
-											<canvas id="m_chart_sales_by_segment" style="height: 300px"/>
-										</div>
+										<div id="m_chart_sales_by_segment" style="height: 250px;"></div>
 									</div>
 								</div>
 								<!--end:: Widgets/Sales States-->
 							</div>
-							<div class="col-xl-9">
+							<div class="col-xl-8">
 								<!--begin:: Widgets/User Progress -->
 								<div class="m-portlet m-portlet--full-height ">
 									<div class="m-portlet__head">
@@ -261,7 +259,7 @@
 										</div>
 									</div>
 									<div class="m-portlet__body">
-										<div id="m_chart_sales_history" style="height: 500px;"></div>
+										<div id="m_chart_sales_history" style="height: 500px; width: 100%;"></div>
 									</div>
 								</div>
 								<!--end:: Widgets/User Progress -->
