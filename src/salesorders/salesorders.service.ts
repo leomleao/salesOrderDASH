@@ -1,10 +1,18 @@
-import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import { Inject, Injectable, BadRequestException, LoggerService } from '@nestjs/common';
 import * as soap from 'soap';
 import * as r from 'rethinkdb';
+import * as fs from 'fs';
+import * as cheerio from 'cheerio';
+
+import { InjectConfig  } from 'nestjs-config';
 
 @Injectable()
 export class SalesOrdersService {
-  constructor( @Inject('rethinkDB') private readonly rethinkDB) { }
+  constructor( 
+    @Inject('rethinkDB') private readonly rethinkDB, 
+    @InjectConfig() private readonly config
+  ) { }
+
   /**
    * @param contact Simple Interface.
    * @param ownerId The UserID of who's trying to add a new contact.
@@ -33,6 +41,26 @@ export class SalesOrdersService {
       salesOrder = result
     });
     return salesOrder;
+  }
+
+  async updateData(path: string) {
+    // r.dbCreate('salesDASH').run(this.rethinkDB)
+    // .then((result) => {
+    //    console.info(JSON.stringify(result, null, 2));     
+    // }).catch(function(err) {
+    //     console.info(JSON.stringify(err, null, 2));
+    // });
+
+    console.log("gotcha ya");
+    const $ = cheerio.load(fs.readFileSync(path));
+
+    $('table').each( function(i, elem) {
+      $(this).children('tbody').next().find('tr').each( function(i, elem) {
+        $(this).find('td').each( function(i, elem) {
+          // console.info($(this).children().children().text());
+        })
+      })
+    })
   }
 
   async findTotalThisMonth() {

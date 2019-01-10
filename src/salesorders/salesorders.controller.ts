@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, HttpCode, UseFilters} from '@nestjs/common';
+import { Body, Controller, Get, Param, HttpCode, UseFilters, LoggerService} from '@nestjs/common';
 import { SalesOrdersService } from './salesorders.service';
 import { HttpExceptionFilter } from '../common/http-exception.filter';
 

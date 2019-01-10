@@ -10,4 +10,5 @@ const dbProvider = {
   components: [dbProvider],
   exports: [dbProvider],
 })
+
 export class DBModule { }
