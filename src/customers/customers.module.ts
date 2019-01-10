@@ -1,26 +1,26 @@
 import { Module, Inject } from '@nestjs/common';
-import { DashController } from './dash.controller';
-import { DashService } from './dash.service';
+import { CustomersController } from './customers.controller';
+import { CustomersService } from './customers.service';
 import { DBModule } from '../db/db.module';
 import * as r from 'rethinkdb';
 
 @Module({
   modules: [DBModule],
-  controllers: [DashController],
+  controllers: [CustomersController],
   providers: [
-      DashService,
+      CustomersService,
   ],
-  exports: [DashService],
+  exports: [CustomersService],
 })
-export class DashModule {
+export class CustomersModule {
 	constructor( 
 	    @Inject('rethinkDB') private readonly rethinkDB, 
   	) { 
-		r.db('salesDASH').tableCreate('dash', {primaryKey: 'field'}).run(this.rethinkDB)
+		r.db('salesDASH').tableCreate('customers', {primaryKey: 'Customer'}).run(this.rethinkDB)
 	    .then((result) => {
 	       console.info(JSON.stringify(result, null, 2)); 
 	    }).catch(function(err) {
 	        console.info(JSON.stringify(err, null, 2));
 	    })
-	} 
+	}
 }

@@ -1,7 +1,11 @@
-import { Controller, Get, Render } from '@nestjs/common';
+import { Controller, Get, Render, HttpCode, UseFilters } from '@nestjs/common';
+import { DashService } from './dash.service';
+import { HttpExceptionFilter } from '../common/http-exception.filter';
 
 @Controller()
+@UseFilters(new HttpExceptionFilter())
 export class DashController {
+	constructor(private readonly dashService: DashService) { }
 	
   @Get()
   @Render('index')
@@ -19,4 +23,13 @@ export class DashController {
 	
     return response;
   }
+
+  @Get('dash/update')
+  @HttpCode(200)
+  async getNewData() {   
+    const data = await this.dashService.getNewData();
+    console.info(data);
+    return data;
+  }
+
 }

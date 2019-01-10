@@ -7,7 +7,7 @@ import * as cheerio from 'cheerio';
 import { InjectConfig  } from 'nestjs-config';
 
 @Injectable()
-export class SalesOrdersService {
+export class CustomersService {
   constructor( 
     @Inject('rethinkDB') private readonly rethinkDB, 
     @InjectConfig() private readonly config
@@ -43,24 +43,47 @@ export class SalesOrdersService {
     return salesOrder;
   }
 
-  async updateData(path: string) {
-    // r.dbCreate('salesDASH').run(this.rethinkDB)
-    // .then((result) => {
-    //    console.info(JSON.stringify(result, null, 2));     
-    // }).catch(function(err) {
-    //     console.info(JSON.stringify(err, null, 2));
-    // });
+  async updateDash() {
+    let data = [];
+    r.db('salesDASH').table('customers').count().run(this.rethinkDB)
+    .then((result) => {
+      const totalCustomers = result;
+      // console.info('total customer --- ', totalCustomers);
+      r.db('salesDASH').table('customers').filter((row) => {
+        return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
+      }).orderBy(r.desc('Date')).run(this.rethinkDB)
+      .then((result) => {
+        // console.info('total new customer --- ', result.length);
+        data.push({ field: 'newCustomers', value: result.length });
+        r.db('salesDASH').table('dash').insert(data, {conflict: "update"}).run(this.rethinkDB)
+        .then((result) => {
+          // console.info(JSON.stringify(result, null, 2));  
+        })
+      });                 
+    }).catch(function(err) {
+      console.info(JSON.stringify(err, null, 2));   
+    });
 
+
+
+
+
+    // return await r.db('salesDASH').table('customers').orderBy(r.desc('Date')).run(this.rethinkDB)
+    // .then((result) => {
+    //   // console.info(JSON.stringify(result, null, 2)); 
+    //   console.info(JSON.stringify(result.filter((row) => {
+    //     return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 14 days
+    //   });
+    //   ))    
+    // }).catch(function(err) {
+    //   console.info(JSON.stringify(err, null, 2));   
+    // });
+    
+  }  
+
+  async updateData(path: string) {
     console.log("gotcha ya");
     const $ = cheerio.load(fs.readFileSync(path));
-
-    // $('table').each( function(i, elem) {
-    //   $(this).children('tbody').next().find('tr').each( function(i, elem) {
-    //     $(this).find('td').each( function(i, elem) {
-    //       // console.info($(this).children().children().text());
-    //     })
-    //   })
-    // })
 
     //get header
     let header = [];
@@ -68,36 +91,40 @@ export class SalesOrdersService {
     $('tbody').first().children().find('nobr').each( function(i, elem) {
       header.push($(this).text().replace(/^\s+|\s+$/g, ''));
     });
-    //console.info(JSON.stringify(header));
 
     $('tbody').each( function(i, elem) {
       $(this).next().find('tr').each( function(i, elem) {
         let row = {};
 
         $(this).find('nobr').each( function(i, elem) {
-        // console.info($(this).children().children().text());         
-          row[header[i]] = $(this).text().replace(/^\s+|\s+$/g, '');
+        // console.info($(this).children().children().text());
+          if (header[i] == "Date"){
+            console.info($(this).text().replace(/^\s+|\s+$/g, ''));
+            const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split(".");
+            row[header[i]] = new Date(year, month - 1, day);            
+          } else {        
+            row[header[i]] = $(this).text().replace(/^\s+|\s+$/g, '');
+          }
         })
         data.push(row);
       })
-    })
+    });
 
-    return await r.db('salesDASH').table('customers').delete().run(this.rethinkDB)
-    .then((result) => {
-      console.info(JSON.stringify(result, null, 2)); 
-      r.db('salesDASH').table('customers').insert(data, {conflict: "update"}).run(this.rethinkDB)
+    console.log("data treated");
+
+    return await r.db('salesDASH').table('customers').insert(data, {conflict: "update"}).run(this.rethinkDB)
       .then((result) => {
         console.info(JSON.stringify(result, null, 2)); 
-        fs.stat(path, (err, stats) => {
-          if (err) throw err;
-          console.log(`stats: ${JSON.stringify(stats)}`);
-        });    
+        // fs.stat(path, (err, stats) => {
+        //   if (err) throw err;
+        //   console.log(`stats: ${JSON.stringify(stats)}`);
+        // });    
+
+        console.log("file would have been deleted now");
       }).catch(function(err) {
         console.info(JSON.stringify(err, null, 2));  
       });    
-    }).catch(function(err) {
-      console.info(JSON.stringify(err, null, 2));  
-    });
+      
 
     console.info(JSON.stringify(data))
     

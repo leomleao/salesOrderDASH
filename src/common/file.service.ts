@@ -19,7 +19,7 @@ export class FileService {
 	        var filename = path.join(folderPath,files[i]);
 	        var stat = fs.lstatSync(filename);
 	        if (filename.indexOf(filter)>=0) {
-	        	foundFiles.push( { type: filename.substring(filename.indexOf('BR_DB') + 6, filename.indexOf(',')), path: filename } )
+	        	foundFiles.push( { type: filename.substring(filename.indexOf('Job BR_DB') + 10, filename.indexOf(',')), path: filename } )
 	            console.log('-- found: ', filename);
 	        };
 		}

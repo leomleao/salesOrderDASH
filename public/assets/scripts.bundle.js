@@ -173,34 +173,19 @@ var mApp = function() {
     * Initializes data populate
     */
     var initPopulateData = function() {
-        $( ".ws_populated" ).each(function( index ) {
-            let currentTag = $(this);
-            console.info(currentTag.data("api_path"));
-            $.ajax({
-                type: "GET",
-                url: currentTag.data("api_path"),
-                success: function(data)
-                {
-                    currentTag.text(data);
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    console.error(xhr.status);
-                    console.error(thrownError);
-                }
-            });
-            // $.get($((this).data("api_path"), function(data) {
-            //   $(this).text(data);
-            // })
-            // .done(function() {
-            //     alert( "second success" );
-            // })
-            // .fail(function() {
-            //     alert( "error" );
-            // })
-            // .always(function() {
-            //     alert( "finished" );
-            // });
-        });        
+        $.ajax({
+            type: "GET",
+            url: "dash/update",
+            success: function(data)
+            {
+                console.info(data);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.error(xhr.status);
+                console.error(thrownError);
+            }
+        }); 
+                
     }
 
     /**
@@ -441,6 +426,44 @@ var mApp = function() {
        
     }
 
+    /**
+    * Initializes websockets services
+    */
+    var initWebSockets = function() {
+        const socket = io('http://localhost');
+        socket.on('connect', function () {
+            console.log('Connected');            
+            socket.emit('identity', 0, (response) => console.log('Identity:', response));
+        });
+        socket.on('changes', function (data) {
+            initDataUpdate(data);
+        });
+        socket.on('exception', function (data) {
+            console.log('event', data);
+        });
+        socket.on('disconnect', function () {
+            console.log('Disconnected');
+        });       
+    }
+
+    /**
+    * Initializes data update services
+    */
+    var initDataUpdate = function(data) {       
+        console.info("YAY", data);
+
+        $("#" + data.newData.field).value
+
+        // $({someValue: 0}).animate({someValue: 110}, {
+        //     duration: 1000,
+        //     easing:'swing', // can be anything
+        //     step: function() { // called on every step
+        //         // Update the element's text with rounded-up value:
+        //         $('#el').text(Math.ceil(this.someValue) + "%");
+        //     }
+        // });
+    }
+
 	var hideTouchWarning = function() {
 		jQuery.event.special.touchstart = {
 			setup: function(_, ns, handle) {
@@ -499,13 +522,25 @@ var mApp = function() {
             initDailySalesChart();
             initSalesBySegmentChart();
             initSalesHistoryChart();
+            initWebSockets();
         },
-
+        /**
+        * Init Sales History Chart
+        */
+        initWebSockets: function() {
+            initWebSockets();
+        },
         /**
         * Init Sales History Chart
         */
         initSalesHistoryChart: function() {
             initSalesHistoryChart();
+        },        
+        /**
+        * Init Daily Sales Chart
+        */
+        initDailySalesChart: function() {
+            initDailySalesChart();
         },
         /**
         * Init Sales by Segment Chart
@@ -513,14 +548,6 @@ var mApp = function() {
         initSalesBySegmentChart: function() {
             initSalesBySegmentChart();
         },
-
-        /**
-        * Init Daily Sales Chart
-        */
-        initDailySalesChart: function() {
-            initPopulateData();
-        },
-
         /**
         * Init Populate Data
         */
