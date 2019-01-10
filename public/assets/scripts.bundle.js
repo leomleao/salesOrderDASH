@@ -145,28 +145,90 @@ var mApp = function() {
     */
     var initCustomTabs = function() {
         // init bootstrap popover
-        $('[data-tab-target]').each(function() {
-            if ($(this).data('tabs-initialized') == true ) {
-                return;
-            }
+        // $('[data-tab-target]').each(function() {
+        //     if ($(this).data('tabs-initialized') == true ) {
+        //         return;
+        //     }
+        var next = 1;
 
-            $(this).click(function(e) {
-                e.preventDefault();
-                
-                var tab = $(this);
-                var tabs = tab.closest('[data-tabs="true"]');
-                var contents = $( tabs.data('tabs-contents') );
-                var content = $( tab.data('tab-target') );
+        // Set a timeout
+        var timeOut = setTimeout(nextTab, 10000);
 
-                tabs.find('.m-tabs__item.m-tabs__item--active').removeClass('m-tabs__item--active');
-                tab.addClass('m-tabs__item--active');
+        // $("#m_widget11_tab" + 2 + "_content").fadeOut(300);          
+        // $("#m_widget11_tab" + 1 + "_content").fadeIn("slow",function(){
+        // });
 
-                contents.find('.m-tabs-content__item.m-tabs-content__item--active').removeClass('m-tabs-content__item--active');
-                content.addClass('m-tabs-content__item--active');         
-            });
-
-            $(this).data('tabs-initialized', true);
+        // pause on hover
+        $('#recentFactsPortlet').hover(
+        function() {
+            clearTimeout(timeOut);
+        }, function() {
+            timeOut = setTimeout(nextTab, 5000);
         });
+
+        var flag = true;
+        function nextTab(event) {
+            if(!flag){
+                return false;
+            }
+            clearTimeout(timeOut);
+            
+            flag = false;           
+
+            if (next == 1) {
+                $("#recentFacts").fadeOut(200, function() {
+                    $(this).html("Ultimos Clientes").fadeIn("slow");
+                })
+                $("#m_widget11_tab" + 2 + "_content").fadeOut(300);          
+                $("#m_widget11_tab" + 1 + "_content").fadeIn("slow",function(){
+                    flag = true;
+                });
+                next = 2;
+                timeOut = setTimeout(nextTab, 5000);
+            } else {
+                $("#recentFacts").fadeOut(200, function() {
+                    $(this).html("Ultimas vendas").fadeIn("slow");
+                })
+                $("#m_widget11_tab" + 1 + "_content").fadeOut(300);          
+                $("#m_widget11_tab" + 2 + "_content").fadeIn("slow",function(){
+                    flag = true;
+                });
+                next = 1;
+                timeOut = setTimeout(nextTab, 10000);
+            }            
+            return false;
+        }
+
+            // function cycleTabs(){
+            //     // do whatever you like here
+            //     $("#m_widget11_tab1_content").removeClass('m-tabs__item--active');            
+            //     $("#m_widget12_tab1_content").tab.addClass('m-tabs__item--active');
+
+            //     setTimeout(cycleTabs, 5000);
+            // }
+
+            // yourFunction();
+
+            // $(this).click(function(e) {
+            //     e.preventDefault();
+                
+            //     var tab = $(this);
+            //     var tabs = tab.closest('[data-tabs="true"]');
+            //     var contents = $( tabs.data('tabs-contents') );
+            //     var content = $( tab.data('tab-target') );
+
+            //     tabs.find('.m-tabs__item.m-tabs__item--active').removeClass('m-tabs__item--active');
+            //     tab.addClass('m-tabs__item--active');
+
+            //     contents.find('.m-tabs-content__item.m-tabs-content__item--active').removeClass('m-tabs-content__item--active');
+            //     content.addClass('m-tabs-content__item--active');         
+            // });
+
+
+
+
+            // $(this).data('tabs-initialized', true);
+        // });
     }
 
     /**
@@ -177,8 +239,11 @@ var mApp = function() {
             type: "GET",
             url: "dash/update",
             success: function(data)
-            {
-                console.info(data);
+            {   
+                for (var i = data.length - 1; i >= 0; i--) {
+                     console.info($("#" + data[i].field));
+                    $("#" + data[i].field).hide().html(data[i].value).fadeIn(1500); 
+                }
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 console.error(xhr.status);
@@ -451,8 +516,7 @@ var mApp = function() {
     */
     var initDataUpdate = function(data) {       
         console.info("YAY", data);
-
-        $("#" + data.newData.field).value
+        $("#" + data.new_val.field).hide().html(data.new_val.value).fadeIn(1500);
 
         // $({someValue: 0}).animate({someValue: 110}, {
         //     duration: 1000,
@@ -520,7 +584,7 @@ var mApp = function() {
             initCustomTabs();
             initPopulateData();
             initDailySalesChart();
-            initSalesBySegmentChart();
+            // initSalesBySegmentChart();
             initSalesHistoryChart();
             initWebSockets();
         },

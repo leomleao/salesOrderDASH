@@ -13,14 +13,14 @@ import * as r from 'rethinkdb';
   exports: [SalesOrdersService],
 })
 export class SalesOrdersModule {
-	// constructor( 
-	//     @Inject('rethinkDB') private readonly rethinkDB, 
- //  	) { 
-	// 	r.db('salesDASH').tableCreate('customers').run(this.rethinkDB)
-	//     .then((result) => {
-	//        console.info(JSON.stringify(result, null, 2)); 
-	//     }).catch(function(err) {
-	//         console.info(JSON.stringify(err, null, 2));
-	//     })
-	// }
+	constructor( 
+	    @Inject('rethinkDB') private readonly rethinkDB, 
+  	) { 
+		r.tableCreate('customers').run(this.rethinkDB)
+	    .then((result) => {
+	       console.info(JSON.stringify(result, null, 2)); 
+	    }).catch(function(err) {
+	        console.info(JSON.stringify(err, null, 2));
+	    })
+	}
 }

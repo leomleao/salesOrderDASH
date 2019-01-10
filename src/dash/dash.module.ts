@@ -16,7 +16,7 @@ export class DashModule {
 	constructor( 
 	    @Inject('rethinkDB') private readonly rethinkDB, 
   	) { 
-		r.db('salesDASH').tableCreate('dash', {primaryKey: 'field'}).run(this.rethinkDB)
+		r.tableCreate('dash', {primaryKey: 'field'}).run(this.rethinkDB)
 	    .then((result) => {
 	       console.info(JSON.stringify(result, null, 2)); 
 	    }).catch(function(err) {

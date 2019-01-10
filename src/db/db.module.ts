@@ -3,7 +3,7 @@ import * as r from 'rethinkdb';
 
 const dbProvider = {
   provide: 'rethinkDB',
-  useValue: r.connect({ host: 'localhost', port: 28015 }),
+  useValue: r.connect({ host: 'localhost', port: 28015, db: 'salesDASH' }),
 };
 
 @Module({

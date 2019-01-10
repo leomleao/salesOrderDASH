@@ -225,22 +225,204 @@
 						<!--Begin::Main Portlet-->
 						<div class="row">
 							<div class="col-xl-4">
-								<!--begin:: Widgets/Sales States-->
-								<div class="m-portlet m-portlet--full-height ">
+								<!--begin:: Widgets/Sale Reports-->
+								<div id="recentFactsPortlet" class="m-portlet m-portlet--full-height ">
 									<div class="m-portlet__head">
 										<div class="m-portlet__head-caption">
 											<div class="m-portlet__head-title">
-												<h3 class="m-portlet__head-text">
-													Vendas por segmento
+												<h3 id="recentFacts" class="m-portlet__head-text" style="font-size: 1.5rem;">
+												Ultimas vendas												
 												</h3>
 											</div>
-										</div>
+										</div>										
 									</div>
-									<div class="m-portlet__body">
-										<div id="m_chart_sales_by_segment" style="height: 250px;"></div>
+									<div class="m-portlet__body" style="padding: 1.2rem 2.2rem;">
+										<!--Begin::Tab Content-->
+										<div class="tab-content">
+											<!--begin::tab 1 content-->
+											<div class="tab-pane" id="m_widget11_tab1_content">
+												<!--begin::Widget 11-->
+												<div class="m-widget11">
+													<div class="table-responsive">
+														<!--begin::Table-->
+														<table class="table">
+															<!--begin::Thead-->
+															<thead>
+																<tr>
+																	<td class="m-widget11__app">
+																		Cliente
+																	</td>																	
+																	<td class="m-widget11__total m--align-right">
+																		total a vender?
+																	</td>
+																</tr>
+															</thead>
+															<!--end::Thead-->
+															<!--begin::Tbody-->
+															<tbody>
+																<tr>
+																	<td>
+																		<span class="m-widget11__title">
+																			Qualitycabos LTDA
+																		</span>
+																		<span class="m-widget11__sub">
+																			2200270
+																		</span>
+																	</td>																	
+																	<td class="m--align-right m--font-brand">
+																		$14,740
+																	</td>
+																</tr>
+																<tr>
+																	<td>
+																		<span class="m-widget11__title">
+																			Elétrica Dinâmica LTDA
+																		</span>
+																		<span class="m-widget11__sub">
+																			2203839
+																		</span>
+																	</td>																	
+																	<td class="m--align-right m--font-brand">
+																		$16,010
+																	</td>
+																</tr>
+																<tr>
+																	<td>
+																		<span class="m-widget11__title">
+																			A G C Eletro Eletrônica LTDA
+																		</span>
+																		<span class="m-widget11__sub">
+																			2200004
+																		</span>
+																	</td>																	
+																	<td class="m--align-right m--font-brand">
+																		$37,200
+																	</td>
+																</tr>
+																<tr>
+																	<td>
+																		<span class="m-widget11__title">
+																			Benchmark Electronics LTDA 
+																		</span>
+																		<span class="m-widget11__sub">
+																			2200026
+																		</span>
+																	</td>																	
+																	<td class="m--align-right m--font-brand">
+																		$8,520
+																	</td>
+																</tr>
+															</tbody>
+															<!--end::Tbody-->
+														</table>
+														<!--end::Table-->
+													</div>
+												</div>
+												<!--end::Widget 11-->
+											</div>
+											<!--end::tab 1 content-->
+											<!--begin::tab 2 content-->
+											<div class="tab-pane" id="m_widget11_tab2_content" style="display: block;">
+												<!--begin::Widget 11-->
+												<div class="m-widget11">
+													<div class="table-responsive">
+														<!--begin::Table-->
+														<table class="table">
+															<!--begin::Thead-->
+															<thead>
+																<tr>
+																	<td class="m-widget11__app">
+																		Cliente
+																	</td>
+																	<td class="m-widget11__sales">
+																		Data
+																	</td>
+																	<td class="m-widget11__total m--align-right">
+																		Total
+																	</td>
+																</tr>
+															</thead>
+															<!--end::Thead-->
+															<!--begin::Tbody-->
+															<tbody>
+																<tr>
+																	<td>
+																		<span class="m-widget11__title">
+																			Rumo Malha Sul S.A
+																		</span>
+																		<span class="m-widget11__sub">
+																			2200016
+																		</span>
+																	</td>
+																	<td>
+																		08/01/2019
+																	</td>
+																	<td class="m--align-right m--font-brand">
+																		R$34,740
+																	</td>
+																</tr>
+																<tr>
+																	<td>
+																		<span class="m-widget11__title">
+																			Brascabos Componentes 
+																		</span>
+																		<span class="m-widget11__sub">
+																			2200035 
+																		</span>
+																	</td>
+																	<td>
+																		07/01/2019
+																	</td>
+																	<td class="m--align-right m--font-brand">
+																		R$46,010
+																	</td>
+																</tr>
+																<tr>
+																	<td>
+																		<span class="m-widget11__title">
+																			CCN Automação Ltda
+																		</span>
+																		<span class="m-widget11__sub">
+																			2208092
+																		</span>
+																	</td>																	
+																	<td>
+																		07/01/2019
+																	</td>
+																	<td class="m--align-right m--font-brand">
+																		R$67,800
+																	</td>
+																</tr>
+																<tr>
+																	<td>
+																		<span class="m-widget11__title">
+																			AC Mecatrônica LTDA
+																		</span>
+																		<span class="m-widget11__sub">
+																			2200003
+																		</span>
+																	</td>																	
+																	<td>
+																		07/01/2019
+																	</td>
+																	<td class="m--align-right m--font-brand">
+																		R$18,520
+																	</td>
+																</tr>
+															</tbody>
+															<!--end::Tbody-->
+														</table>
+														<!--end::Table-->
+													</div>
+												</div>
+												<!--end::Widget 11-->
+											</div>
+											<!--end::tab 2 content-->
+										</div>
+										<!--End::Tab Content-->
 									</div>
 								</div>
-								<!--end:: Widgets/Sales States-->
+								<!--end:: Widgets/Sale Reports-->
 							</div>
 							<div class="col-xl-8">
 								<!--begin:: Widgets/User Progress -->
@@ -724,7 +906,7 @@
 							</div>
 						</div>
 						<!--End::Main Portlet-->
-<!--Begin::Main Portlet-->
+						<!--Begin::Main Portlet-->
 						<div class="row">
 							<div class="col-xl-6">
 								<!--begin:: Widgets/Sale Reports-->
@@ -783,7 +965,7 @@
 																</tr>
 															</thead>
 															<!--end::Thead-->
-							<!--begin::Tbody-->
+															<!--begin::Tbody-->
 															<tbody>
 																<tr>
 																	<td>
@@ -899,7 +1081,7 @@
 												<!--end::Widget 11-->
 											</div>
 											<!--end::tab 1 content-->
-			<!--begin::tab 2 content-->
+											<!--begin::tab 2 content-->
 											<div class="tab-pane" id="m_widget11_tab2_content">
 												<!--begin::Widget 11-->
 												<div class="m-widget11">
@@ -930,7 +1112,7 @@
 																</tr>
 															</thead>
 															<!--end::Thead-->
-							<!--begin::Tbody-->
+															<!--begin::Tbody-->
 															<tbody>
 																<tr>
 																	<td>
@@ -1058,9 +1240,6 @@
 												<!--end::Widget 11-->
 											</div>
 											<!--end::tab 2 content-->
-			<!--begin::tab 3 content-->
-											<div class="tab-pane" id="m_widget11_tab3_content"></div>
-											<!--end::tab 3 content-->
 										</div>
 										<!--End::Tab Content-->
 									</div>

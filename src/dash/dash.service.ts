@@ -20,7 +20,7 @@ export class DashService implements OnGatewayInit {
 
   afterInit() {
     const socketInstance = this.server;
-    r.db('salesDASH').table('dash').changes().run(this.rethinkDB, function(err, cursor) {
+    r.table('dash').changes().run(this.rethinkDB, function(err, cursor) {
         if (err) throw err;
         cursor.each(function(err, row) {
             if (err) throw err;
@@ -31,19 +31,19 @@ export class DashService implements OnGatewayInit {
   }
   
   async getNewData() {
-    return await r.db('salesDASH').table('dash').run(this.rethinkDB)
+    return await r.table('dash').run(this.rethinkDB)
     .then((result) => {
-      console.info(JSON.stringify(result, null, 2))
-      return JSON.stringify(result, null, 2);     
+      return result.toArray();     
     }).catch(function(err) {
+      console.info(err);     
         // process error
-    });
+    }); 
   }
 
   async findTotalThisMonth() {
     return await r.table('sales_order').count().run(this.rethinkDB)
     .then((result) => {
-      return JSON.stringify(result, null, 2);     
+      return result.toArray();     
     }).catch(function(err) {
         // process error
     });

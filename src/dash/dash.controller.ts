@@ -28,7 +28,6 @@ export class DashController {
   @HttpCode(200)
   async getNewData() {   
     const data = await this.dashService.getNewData();
-    console.info(data);
     return data;
   }
 
