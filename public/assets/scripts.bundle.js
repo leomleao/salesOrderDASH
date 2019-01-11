@@ -495,7 +495,7 @@ var mApp = function() {
     * Initializes websockets services
     */
     var initWebSockets = function() {
-        const socket = io('http://localhost');
+        const socket = io('http://10.222.17.47');
         socket.on('connect', function () {
             console.log('Connected');            
             socket.emit('identity', 0, (response) => console.log('Identity:', response));

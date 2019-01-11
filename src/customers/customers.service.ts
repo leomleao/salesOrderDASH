@@ -81,45 +81,70 @@ export class CustomersService {
     
   }  
 
-  async updateData(path: string) {
+  async updateData(path: string, type: string) {
     console.log("gotcha ya");
     const $ = cheerio.load(fs.readFileSync(path));
 
     //get header
     let header = [];
     let data = [];
-    $('tbody').first().children().find('nobr').each( function(i, elem) {
-      header.push($(this).text().replace(/^\s+|\s+$/g, ''));
-    });
+    if (type == ".htm") {
+      $('tbody').first().children().find('nobr').each( function(i, elem) {
+        header.push($(this).text().replace(/^\s+|\s+$/g, ''));
+      });
 
-    $('tbody').each( function(i, elem) {
-      $(this).next().find('tr').each( function(i, elem) {
-        let row = {};
+      $('tbody').each( function(i, elem) {
+        $(this).next().find('tr').each( function(i, elem) {
+          let row = {};
 
-        $(this).find('nobr').each( function(i, elem) {
-        // console.info($(this).children().children().text());
-          if (header[i] == "Date"){
-            console.info($(this).text().replace(/^\s+|\s+$/g, ''));
-            const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split(".");
-            row[header[i]] = new Date(year, month - 1, day);            
-          } else {        
-            row[header[i]] = $(this).text().replace(/^\s+|\s+$/g, '');
-          }
+          $(this).find('nobr').each( function(i, elem) {
+          // console.info($(this).children().children().text());
+            if (header[i] == "Customer"){            
+              row[header[i]] = parseInt($(this).text().replace(/^\s+|\s+$/g, ''));              
+            } if (header[i] == "Date"){ 
+              const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split(".");
+              row[header[i]] = new Date(year, month - 1, day); 
+            } else {        
+              row[header[i]] = $(this).text().replace(/^\s+|\s+$/g, '');
+            }
+          })
+          data.push(row);
         })
-        data.push(row);
-      })
-    });
+      });
+    } else if (type == ".HTM"){
+      $('tbody').first().find('tr').find('td').each( function(i, elem) {
+        header.push($(this).text().replace(/^\s+|\s+$/g, ''));
+      });
+
+      $('tbody').first().find('tr').each( function(i, elem) {
+
+        let row = {};
+        if (i != 0) {
+          $(this).find('td').each( function(i, elem) {
+          // console.info($(this).children().children().text());
+            if (header[i] == "Customer"){            
+              row[header[i]] = parseInt($(this).text().replace(/^\s+|\s+$/g, ''));              
+            } if (header[i] == "Date"){ 
+              const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split(".");
+              row[header[i]] = new Date(year, month - 1, day); 
+            } else {        
+              row[header[i]] = $(this).text().replace(/^\s+|\s+$/g, '');
+            }
+          })
+          data.push(row);
+        }
+      });  
+    }
 
     console.log("data treated");
 
     return await r.db('salesDASH').table('customers').insert(data, {conflict: "update"}).run(this.rethinkDB)
       .then((result) => {
         console.info(JSON.stringify(result, null, 2)); 
-        // fs.stat(path, (err, stats) => {
-        //   if (err) throw err;
-        //   console.log(`stats: ${JSON.stringify(stats)}`);
-        // });    
-
+        fs.unlink(path, (err) => {
+          if (err) throw err;
+          console.info("file deleted");
+        });    
         console.log("file would have been deleted now");
       }).catch(function(err) {
         console.info(JSON.stringify(err, null, 2));  
