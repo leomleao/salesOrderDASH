@@ -13,6 +13,7 @@
     "@nestjs/common": "^5.5.0",
     "@nestjs/core": "^5.5.0",
     "@nestjs/websockets": "^5.5.0",
+    "big.js": "^5.2.2",
     "cheerio": "^1.0.0-rc.2",
     "hbs": "^4.0.1",
     "nest-schedule": "^0.4.4",

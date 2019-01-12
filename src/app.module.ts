@@ -2,6 +2,7 @@ import { Module, Inject } from '@nestjs/common';
 import { DashModule } from './dash/dash.module';
 import { SalesOrdersModule } from './salesorders/salesorders.module';
 import { CustomersModule } from './customers/customers.module';
+import { InvoicesModule } from './invoices/invoices.module';
 import { ConfigModule } from "nestjs-config";
 import { ScheduleService } from './common/schedule.service'
 import { FileService } from './common/file.service'
@@ -15,9 +16,9 @@ import * as path from 'path';
         SalesOrdersModule,
         CustomersModule,
         DashModule,
-
+        InvoicesModule
     ],
-    modules: [SalesOrdersModule, CustomersModule, DashModule],
+    modules: [SalesOrdersModule, CustomersModule, DashModule, InvoicesModule],
     providers: [ ScheduleService, FileService],
 })
 
