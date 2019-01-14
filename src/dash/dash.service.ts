@@ -15,7 +15,9 @@ import { map } from 'rxjs/operators';
 export class DashService implements OnGatewayInit {
   @WebSocketServer() 
   server;
-  constructor( @Inject('rethinkDB') private readonly rethinkDB) { } 
+  constructor( 
+    @Inject('rethinkDB') private readonly rethinkDB, 
+    ) { } 
 
 
   afterInit() {

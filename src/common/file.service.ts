@@ -23,10 +23,10 @@ export class FileService {
 	        console.info("------------------------------------------------------");
 
 	        if (filename.indexOf(filter)>=0) {
-	        	if (filename.indexOf("TREATED") < 0) {
+	        	if (filename.indexOf("TREATED") < 0 && filename.indexOf('Job BR_DB') >= 0) {
 		        	console.info(filename);
 		        	const type = filename.substring(filename.indexOf('Job BR_DB') + 10, filename.indexOf(','));
-		        	const newFileName = filename.replace(filename.substring(filename.indexOf('Job BR_DB') + 10, filename.indexOf(',')), 'TREATED');
+		        	const newFileName = filename.replace(filename.substring(filename.indexOf('Job BR_DB') + 10, filename.indexOf(',')), type + 'TREATED');
 
 		        	fs.renameSync(filename, newFileName);	        	
 				    foundFiles.push( { type: type, path: newFileName } )

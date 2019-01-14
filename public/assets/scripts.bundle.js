@@ -176,6 +176,7 @@ var mApp = function() {
             flag = false;           
 
             if (next == 1) {
+                //New data array
                 $("#recentFacts").fadeOut(200, function() {
                     $(this).html("Ultimos Clientes").fadeIn("slow");
                 })
@@ -297,73 +298,91 @@ var mApp = function() {
         // Themes end
 
         // Create chart instance
-        var chart = am4core.create("m_chart_sales_history", am4charts.XYChart);
+        mApp.chart = am4core.create("m_chart_sales_history", am4charts.XYChart);
 
              
         // Data for both series
         var data = [ {
           "month": "Jan",
           "vendas": 1235652,
+          "vendasPast": 1235652,
           "meta": 2799782
         }, {
           "month": "Fev",
           "vendas": 2511050,
+          "vendasPast": 1235652,
           "meta": 2407456
         }, {
           "month": "Mar",
           "vendas": 3113518,
+          "vendasPast": 1235652,
           "meta": 2689173
         }, {
           "month": "Abr",
           "vendas": 2512398,
+          "vendasPast": 1235652,
           "meta": 2685002
         }, {
           "month": "Mai",
           "vendas": 2199185,
+          "vendasPast": 1235652,
           "meta": 2618203,
+          "lineDash": "5,5",
         }, {
           "month": "Jun",
           "vendas": 3144824,
+          "vendasPast": 1235652,
           "meta": 2611241,
+          "lineDash": "5,5",
         }, {
           "month": "Jul",
           "vendas": 3051131,
+          "vendasPast": 1235652,
           "meta": 2729059,
+          "lineDash": "5,5",
         }, {
           "month": "Ago",
           "vendas": 3332526,
+          "vendasPast": 1235652,
           "meta": 2696364,
+          "lineDash": "5,5",
         }, {
           "month": "Set",
           "vendas": 3522030,
+          "vendasPast": 1235652,
           "meta": 2544288,
+          "lineDash": "5,5",
         }, {
           "month": "Out",
           "vendas": 3578862,
+          "vendasPast": 1235652,
           "meta": 2896470,
+          "lineDash": "5,5",
         }, {
           "month": "Nov",
           "vendas": 3768395,
+          "vendasPast": 1235652,
           "meta": 2923295,
           "lineDash": "5,5",
         }, {
           "month": "Dez",
           "vendas": 95974,
+          "vendasPast": 1235652,
           "meta": 1688017,
           "lineDash": "5,5",
         }];
 
         /* Create axes */
-        var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+        var categoryAxis = mApp.chart.xAxes.push(new am4charts.CategoryAxis());
         categoryAxis.dataFields.category = "month";
         categoryAxis.renderer.minGridDistance = 30;
 
         /* Create value axis */
-        var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+        var valueAxis = mApp.chart.yAxes.push(new am4charts.ValueAxis());
 
         /* Create series */
-        var columnSeries = chart.series.push(new am4charts.ColumnSeries());
-        columnSeries.name = "Vendas";
+        var columnSeries = mApp.chart.series.push(new am4charts.ColumnSeries());
+        columnSeries.name = "2019";
         columnSeries.dataFields.valueY = "vendas";
         columnSeries.dataFields.categoryX = "month";
 
@@ -374,7 +393,22 @@ var mApp = function() {
         columnSeries.columns.template.propertyFields.strokeDasharray = "columnDash";
         columnSeries.tooltip.label.textAlign = "middle";
 
-        var lineSeries = chart.series.push(new am4charts.LineSeries());
+        /* Create series */
+        var columnSeries2 = mApp.chart.series.push(new am4charts.ColumnSeries());
+        columnSeries2.name = "2018";
+        columnSeries2.dataFields.valueY = "vendasPast";
+        columnSeries2.dataFields.categoryX = "month";
+
+        columnSeries2.columns.template.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
+        columnSeries2.columns.template.propertyFields.fillOpacity = "fillOpacity";
+        columnSeries2.columns.template.propertyFields.stroke = "stroke";
+        columnSeries2.columns.template.propertyFields.strokeWidth = "strokeWidth";
+        columnSeries2.columns.template.propertyFields.strokeDasharray = "columnDash";
+        columnSeries2.tooltip.label.textAlign = "middle";
+
+
+
+        var lineSeries = mApp.chart.series.push(new am4charts.LineSeries());
         lineSeries.name = "Meta";
         lineSeries.dataFields.valueY = "meta";
         lineSeries.dataFields.categoryX = "month";
@@ -384,6 +418,11 @@ var mApp = function() {
         lineSeries.propertyFields.strokeDasharray = "lineDash";
         lineSeries.tooltip.label.textAlign = "middle";
 
+        mApp.chart.legend = new am4charts.Legend();
+        mApp.chart.legend.position = "bottom";
+        mApp.chart.legend.valign = "bottom";
+        // chart.legend.margin(5,5,20,5);
+
         var bullet = lineSeries.bullets.push(new am4charts.Bullet());
         bullet.fill = am4core.color("#fdd400"); // tooltips grab fill from parent by default
         bullet.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
@@ -392,7 +431,7 @@ var mApp = function() {
         circle.fill = am4core.color("#fff");
         circle.strokeWidth = 3;
 
-        chart.data = data;
+        mApp.chart.data = data;
     }
 
     /**
@@ -516,7 +555,13 @@ var mApp = function() {
     */
     var initDataUpdate = function(data) {       
         console.info("YAY", data);
-        $("#" + data.new_val.field).hide().html(data.new_val.value).fadeIn(1500);
+        if (data.new_val.field === "chartData") {
+            updateChartData(data.new_val.value)
+        } else if (data.new_val.field === "tabData") {
+            updateTabData(data.new_val.value)            
+        } else {
+            $("#" + data.new_val.field).hide().html(data.new_val.value).fadeIn(1500);            
+        }
 
         // $({someValue: 0}).animate({someValue: 110}, {
         //     duration: 1000,
@@ -526,6 +571,23 @@ var mApp = function() {
         //         $('#el').text(Math.ceil(this.someValue) + "%");
         //     }
         // });
+    }
+
+    /**
+    * Updates Sales History Chart
+    */
+    var updateChartData = function(newData) {
+        mApp.chart.data = newData;
+        //Updating the graph to show the new data
+        mApp.chart.validateData();       
+    }
+
+    /**
+    * Update tabs of last Sales
+    */
+    var updateTabData = function(newData) {
+        $("#" + newData.value.tab)
+               
     }
 
 	var hideTouchWarning = function() {
