@@ -7,7 +7,9 @@
     "start": "ts-node src/server",
     "start:watch": "nodemon",
     "prestart:prod": "tsc",
-    "start:prod": "node dist/server.js"
+    "start:prod": "node dist/server.js",
+    "build": "tslint -p tsconfig.json -c tslint.json",
+    "clean": "shx rm -rf dist/ node_modules/"
   },
   "dependencies": {
     "@nestjs/common": "^5.5.0",
@@ -15,10 +17,14 @@
     "@nestjs/websockets": "^5.5.0",
     "@types/mathjs": "^4.4.4",
     "cheerio": "^1.0.0-rc.2",
+    "fastify": "^1.13.4",
+    "fastify-formbody": "^2.0.3",
+    "fastify-static": "^1.1.0",
     "hbs": "^4.0.1",
     "mathjs": "^5.4.1",
     "nest-schedule": "^0.4.4",
     "nestjs-config": "^1.2.9",
+    "point-of-view": "^2.1.0",
     "pug": "^2.0.3",
     "reflect-metadata": "^0.1.12",
     "rethinkdb": "^2.3.3",
@@ -30,6 +36,7 @@
     "@types/node": "^8.10.39",
     "nodemon": "^1.18.9",
     "ts-node": "^6.0.0",
-    "tslint": "^5.12.1"
+    "tslint": "^5.12.1",
+    "shx": "^0.2.2"
   }
 }
