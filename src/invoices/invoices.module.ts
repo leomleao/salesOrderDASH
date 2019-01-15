@@ -12,24 +12,4 @@ import * as r from 'rethinkdb';
   ],
   exports: [InvoicesService],
 })
-export class InvoicesModule {
-	constructor( 
-	    @Inject('rethinkDB') private readonly rethinkDB, 
-  	) { 
-		r.db('salesDASH').tableCreate('invoices', { primaryKey: 'docNumber'} ).run(this.rethinkDB)
-		// r.db('salesDASH').tableCreate('invoices').run(this.rethinkDB)
-	    .then((result) => {
-	       console.info(JSON.stringify(result, null, 2)); 
-	    }).catch(function(err) {
-	        console.info(JSON.stringify(err, null, 2));
-	    });
-
-	    r.db('salesDASH').tableCreate('invoiceTotals', { primaryKey: 'monthYear'} ).run(this.rethinkDB)
-		// r.db('salesDASH').tableCreate('invoices').run(this.rethinkDB)
-	    .then((result) => {
-	       console.info(JSON.stringify(result, null, 2)); 
-	    }).catch(function(err) {
-	        console.info(JSON.stringify(err, null, 2));
-	    });
-	}
-}
+export class InvoicesModule { }

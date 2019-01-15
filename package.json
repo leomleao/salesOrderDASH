@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "description": "Nest TypeScript starter repository",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "start": "ts-node src/server",
     "start:watch": "nodemon",
-    "prestart:prod": "tsc",
+    "postbuild": "tsc",
     "start:prod": "node dist/server.js",
     "build": "tslint -p tsconfig.json -c tslint.json",
     "clean": "shx rm -rf dist/ node_modules/"
   },
   "dependencies": {
+    "@amcharts/amcharts4": "^4.0.21",
     "@nestjs/common": "^5.5.0",
     "@nestjs/core": "^5.5.0",
     "@nestjs/websockets": "^5.5.0",
@@ -25,18 +27,20 @@
     "nest-schedule": "^0.4.4",
     "nestjs-config": "^1.2.9",
     "point-of-view": "^2.1.0",
+    "pretty-error": "^2.1.1",
     "pug": "^2.0.3",
     "reflect-metadata": "^0.1.12",
     "rethinkdb": "^2.3.3",
     "rxjs": "^6.3.3",
     "soap": "^0.25.0",
-    "typescript": "^2.8.0"
+    "typescript": "^2.8.0",
+    "winston": "^3.1.0"
   },
   "devDependencies": {
     "@types/node": "^8.10.39",
     "nodemon": "^1.18.9",
+    "shx": "^0.2.2",
     "ts-node": "^6.0.0",
-    "tslint": "^5.12.1",
-    "shx": "^0.2.2"
+    "tslint": "^5.12.1"
   }
 }

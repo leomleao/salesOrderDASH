@@ -9,7 +9,7 @@ export class SalesOrdersController {
 
   @Get('totalMonth')
   @HttpCode(200)
-  async findTotalThisMonth() {   
+  async findTotalThisMonth() {
     const salesOrders = await this.salesOrdersService.findTotalThisMonth();
     return salesOrders;
   }

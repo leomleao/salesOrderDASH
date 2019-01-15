@@ -1,17 +1,17 @@
-import { Injectable, Inject } from "@nestjs/common";
-import { Interval, NestSchedule } from "nest-schedule";
-import { CustomersService } from "../customers/customers.service";
-import { InvoicesService } from "../invoices/invoices.service";
-import { FileService } from "./file.service";
+import { Injectable, Inject } from '@nestjs/common';
+import { Interval, NestSchedule } from 'nest-schedule';
+import { CustomersService } from '../customers/customers.service';
+import { InvoicesService } from '../invoices/invoices.service';
+import { FilesService } from './files.service';
 import { InjectConfig  } from 'nestjs-config';
 
 @Injectable()
 export class ScheduleService extends NestSchedule {
   public constructor(
-    @Inject(CustomersService) private readonly CustomersService: CustomersService,
-    @Inject(FileService) private readonly FileService: FileService,
-    @Inject(InvoicesService) private readonly InvoicesService: InvoicesService,
-    @InjectConfig() private readonly config
+    @Inject(CustomersService) private readonly customerService: CustomersService,
+    @Inject(FilesService) private readonly fileService: FilesService,
+    @Inject(InvoicesService) private readonly invoiceService: InvoicesService,
+    @InjectConfig() private readonly config,
   ) {
     super();
   }
@@ -24,35 +24,30 @@ export class ScheduleService extends NestSchedule {
   @Interval(10000)
   async findNewFiles() {
     let type = '.htm';
-    await this.FileService.findNewFiles(this.config.get('common.folderPROCESSING'), type)
-    .then( async(foundFiles) => {
+    await this.fileService.findNewFiles(this.config.get('common.folderPROCESSING'), type)
+    .then( async (foundFiles) => {
 
-      if (Array.isArray(foundFiles) && foundFiles.length == 0) {
+      if (Array.isArray(foundFiles) && foundFiles.length === 0) {
         type = '.HTM';
-        foundFiles = await this.FileService.findNewFiles(this.config.get('common.folderPROCESSING'), type)
-      } 
+        foundFiles = await this.fileService.findNewFiles(this.config.get('common.folderPROCESSING'), type);
+      }
 
-      if (foundFiles !== undefined || foundFiles.length != 0) {
-        console.info("-----____--__--_--");
-        console.info(foundFiles);
-        console.info("-----____--__--_--");
+      if (foundFiles !== undefined || foundFiles.length !== 0) {
 
-        for (var i = foundFiles.length - 1; i >= 0; i--) {
-          if (foundFiles[i].type == "CUSTOMERDATA") {
-            console.log('started data update for ', foundFiles[i].path);
-            this.CustomersService.updateData(foundFiles[i].path, type)
-            .then(() =>{
-              this.CustomersService.updateDash();
+        for (let i = foundFiles.length - 1; i >= 0; i--) {
+          if (foundFiles[i].type === 'CUSTOMERDATA') {
+            this.customerService.updateData(foundFiles[i].path, type)
+            .then(() => {
+              this.customerService.updateDash();
             });
-          } else if (foundFiles[i].type == "NFEDATA") {
-            console.log('started data update for ', foundFiles[i].path);
-            this.InvoicesService.updateData(foundFiles[i].path, type)
-            .then(() =>{
+          } else if (foundFiles[i].type === 'NFEDATA') {
+            this.invoiceService.updateData(foundFiles[i].path, type)
+            .then(() => {
               // this.InvoicesService.updateInvoiceTotals();
             });
           }
         }
-      } 
+      }
     });
   }
 

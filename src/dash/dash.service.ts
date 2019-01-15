@@ -13,40 +13,39 @@ import { map } from 'rxjs/operators';
 @Injectable()
 @WebSocketGateway()
 export class DashService implements OnGatewayInit {
-  @WebSocketServer() 
+  @WebSocketServer()
   server;
-  constructor( 
-    @Inject('rethinkDB') private readonly rethinkDB, 
-    ) { } 
-
+  constructor(
+    @Inject('rethinkDB') private readonly rethinkDB,
+    ) { }
 
   afterInit() {
     const socketInstance = this.server;
-    r.table('dash').changes().run(this.rethinkDB, function(err, cursor) {
+    r.table('dash').changes().run(this.rethinkDB, (err, cursor) => {
         if (err) throw err;
-        cursor.each(function(err, row) {
-            if (err) throw err;
-            console.log(JSON.stringify(row, null, 2));
+        cursor.each((error, row) => {
+            if (error) throw error;
+            // console.log(JSON.stringify(row, null, 2));
             socketInstance.emit('changes', row);
         });
     });
   }
-  
+
   async getNewData() {
     return await r.table('dash').run(this.rethinkDB)
     .then((result) => {
-      return result.toArray();     
-    }).catch(function(err) {
-      console.info(err);     
+      return result.toArray();
+    }).catch((err) => {
+      // console.info(err);
         // process error
-    }); 
+    });
   }
 
   async findTotalThisMonth() {
     return await r.table('sales_order').count().run(this.rethinkDB)
     .then((result) => {
-      return result.toArray();     
-    }).catch(function(err) {
+      return result.toArray();
+    }).catch((err) => {
         // process error
     });
   }

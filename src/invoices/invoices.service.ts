@@ -3,25 +3,35 @@ import * as soap from 'soap';
 import * as r from 'rethinkdb';
 import * as fs from 'fs';
 import * as cheerio from 'cheerio';
-import * as math from 'mathjs'
+import * as math from 'mathjs';
 
 import { InjectConfig  } from 'nestjs-config';
 
 math.config({
   number: 'BigNumber', // Default type of number:
   // 'number' (default), 'BigNumber', or 'Fraction'
-  precision: 20 // Number of significant digits for BigNumbers
-})
+  precision: 20, // Number of significant digits for BigNumbers
+});
+
+interface InvoiceItem {
+  docNumber: any;
+  totalTax: any;
+  postDate: any;
+  totalValue: any;
+  partnerID: any;
+  dirMovement: any;
+  cancelDate: any;
+}
 
 @Injectable()
 export class InvoicesService implements OnModuleInit {
-  constructor( 
-    @Inject('rethinkDB') private readonly rethinkDB, 
-    @InjectConfig() private readonly config
-  ) { }  
+  constructor(
+    @Inject('rethinkDB') private readonly rethinkDB,
+    @InjectConfig() private readonly config,
+  ) { }
 
   onModuleInit() {
-    console.log(`Initialization...`);
+    // console.log(`Initialization...`);
     // r.table('dash').changes().run(this.rethinkDB, function(err, cursor) {
     //     if (err) throw err;
     //     this.InvoicesServices.updateInvoiceTotals();
@@ -29,99 +39,98 @@ export class InvoicesService implements OnModuleInit {
   }
 
   async updateDash() {
-    let data = [];
-    r.db('salesDASH').table('invoices').count().run(this.rethinkDB)
-    .then((result) => {
-      const totalCustomers = result;
-      // console.info('total customer --- ', totalCustomers);
-      r.db('salesDASH').table('customers').filter((row) => {
-        return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
-      }).orderBy(r.desc('Date')).run(this.rethinkDB)
-      .then((result) => {
-        // console.info('total new customer --- ', result.length);
-        data.push({ field: 'newCustomers', value: result.length });
-        r.db('salesDASH').table('dash').insert(data, {conflict: "update"}).run(this.rethinkDB)
-        .then((result) => {
-          // console.info(JSON.stringify(result, null, 2));  
-        })
-      });                 
-    }).catch(function(err) {
-      console.info(JSON.stringify(err, null, 2));   
-    });    
-  }  
+    // const data = [];
+    // r.db('salesDASH').table('invoices').count().run(this.rethinkDB)
+    // .then((result) => {
+    //   const totalCustomers = result;
+    //   // console.info('total customer --- ', totalCustomers);
+    //   r.db('salesDASH').table('customers').filter((row) => {
+    //     return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
+    //   }).orderBy(r.desc('Date')).run(this.rethinkDB)
+    //   .then((result) => {
+    //     // console.info('total new customer --- ', result.length);
+    //     data.push({ field: 'newCustomers', value: result.length });
+    //     r.db('salesDASH').table('dash').insert(data, {conflict: 'update'}).run(this.rethinkDB)
+    //     .then((result) => {
+    //       // console.info(JSON.stringify(result, null, 2));
+    //     });
+    //   });
+    // }).catch((err) => {
+    //   // console.info(JSON.stringify(err, null, 2));
+    // });
+  }
 
   async updateInvoiceTotals() {
 
-    r.db('salesDASH').table('invoices').group([r.row('postDate').month(), r.row('postDate').year()]).sum(function(invoice) {
-      return invoice('totalValue').coerceTo("NUMBER")
+    r.db('salesDASH').table('invoices').group([r.row('postDate').month(), r.row('postDate').year()]).sum((invoice) => {
+      return invoice('totalValue').coerceTo('NUMBER');
     }).then((result) => {
-      let data = []; 
-      for (var i = result.length - 1; i >= 0; i--) { 
-        data.push({ period: result[i].group[0] + "." + result[i].group[1], value: result[i].reduction})
+      const data = [];
+      for (let i = result.length - 1; i >= 0; i--) {
+        data.push({ period: result[i].group[0] + '.' + result[i].group[1], value: result[i].reduction});
       }
-      return data
+      return data;
     }).then((totals) => {
-      r.db('salesDASH').table('invoices').insert(totals, {conflict: "update"}).run(this.rethinkDB).then((result) => {        
-        console.info(JSON.stringify(result, null, 2));                  
-      })
-    }).catch(function(err) {
-      console.info(JSON.stringify(err, null, 2));  
-    });    
-  }  
+      r.db('salesDASH').table('invoices').insert(totals, {conflict: 'update'}).run(this.rethinkDB).then((result) => {
+        // console.info(JSON.stringify(result, null, 2));
+      });
+    }).catch((err) => {
+      // console.info(JSON.stringify(err, null, 2));
+    });
+  }
 
-  
   async updateData(path: string, type: string) {
-    console.log("gotcha ya");
+    // console.log('gotcha ya');
     const $ = cheerio.load(fs.readFileSync(path));
 
-    //get header
-    let header = [];
-    let data = [];
-    if (type == ".htm") {
+    // get header
+    const header = [];
+    const data = [];
+    if (type === '.htm') {
       $('tbody').first().children().find('nobr').each( function(i, elem) {
-        let columnHeader = $(this).text().replace(/^\s+|\s+$/g, '');
-        if (columnHeader == "Material") {
-          header.push("Material");
-          header.push("ID");
-        } else {          
+        const columnHeader = $(this).text().replace(/^\s+|\s+$/g, '');
+        if (columnHeader === 'Material') {
+          header.push('Material');
+          header.push('ID');
+        } else {
           header.push(columnHeader);
         }
       });
 
       header.push('totalTax');
 
-      $('tbody').each( function(i, elem) {
-        $(this).next().find('tr').each( function(i, elem) {
-          let row = {};
-          row['totalTax'] = 0;
+      $('tbody').each( function(i, tbodyElem) {
+        $(this).next().find('tr').each( function(j, trElem) {
+          let row: InvoiceItem;
+          row.totalTax = 0;
 
-          $(this).find('nobr').each( function(i, elem) {
+          $(this).find('nobr').each( function(y, nobrElem) {
           // console.info($(this).children().children().text());
-            let currentCell = $(this).text().replace(/^\s+|\s+$/g, '');
+            const currentCell = $(this).text().replace(/^\s+|\s+$/g, '');
 
-            if (header[i].indexOf('Doc. No.') >=0){        
-              row['docNumber'] = parseInt(currentCell);              
-            } else if (header[i].indexOf('Post.date') >=0) {
-              const [day, month, year] = currentCell.split(".");
-              row['postDate'] = r.time(parseInt(year), parseInt(month), parseInt(day), '-03:00');
-            } else if (header[i].indexOf('Taxva') >=0){        
-              row['totalTax'] = math.format(math.add(math.bignumber(row['totalTax']), math.bignumber(currentCell.replace(/\./g,'').replace(/\,/g,'.'))));              
-            } else if (header[i].indexOf('Total NF') >=0) {        
-              row['totalValue'] = currentCell.replace(/\./g,'').replace(/\,/g,'.');
-            } else if (header[i].indexOf('Partner') >=0) {        
-              row['partnerID'] = currentCell;
-            } else if (header[i].indexOf('Dir.movem.') >=0) {        
-              row['dirMovement'] = currentCell;
-            } else if (header[i].indexOf('Canc. Date') >=0 && currentCell != "") {        
-              row['cancelDate'] = currentCell;
-            } else if (currentCell != "") {        
+            if (header[i].indexOf('Doc. No.') >= 0){
+              row.docNumber = parseInt(currentCell, 10);
+            } else if (header[i].indexOf('Post.date') >= 0) {
+              const [day, month, year] = currentCell.split('.');
+              row.postDate = r.time(parseInt(year, 10), parseInt(month, 10), parseInt(day, 10), '-03:00');
+            } else if (header[i].indexOf('Taxva') >= 0){
+              row.totalTax = math.format(math.add(math.bignumber(row.totalTax), math.bignumber(currentCell.replace(/\./g, '').replace(/\,/g, '.'))));
+            } else if (header[i].indexOf('Total NF') >= 0) {
+              row.totalValue = currentCell.replace(/\./g, '').replace(/\,/g, '.');
+            } else if (header[i].indexOf('Partner') >= 0) {
+              row.partnerID = currentCell;
+            } else if (header[i].indexOf('Dir.movem.') >= 0) {
+              row.dirMovement = currentCell;
+            } else if (header[i].indexOf('Canc. Date') >= 0 && currentCell !== '') {
+              row.cancelDate = currentCell;
+            } else if (currentCell !== '') {
               row[header[i]] = currentCell;
             }
-          })
+          });
           data.push(row);
-        })
+        });
       });
-    } else if (type == ".HTM"){
+    } else if (type === '.HTM'){
       // $('tbody').first().find('tr').find('td').each( function(i, elem) {
       //   header.push($(this).text().replace(/^\s+|\s+$/g, ''));
       // });
@@ -132,52 +141,51 @@ export class InvoicesService implements OnModuleInit {
       //   if (i != 0) {
       //     $(this).find('td').each( function(i, elem) {
       //     // console.info($(this).children().children().text());
-      //       if (header[i] == "Customer"){            
-      //         row[header[i]] = parseInt($(this).text().replace(/^\s+|\s+$/g, ''));              
-      //       } if (header[i] == "Date"){ 
+      //       if (header[i] == "Customer"){
+      //         row[header[i]] = parseInt($(this).text().replace(/^\s+|\s+$/g, ''));
+      //       } if (header[i] == "Date"){
       //         const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split(".");
-      //         row[header[i]] = new Date(year, month - 1, day); 
-      //       } else {        
+      //         row[header[i]] = new Date(year, month - 1, day);
+      //       } else {
       //         row[header[i]] = $(this).text().replace(/^\s+|\s+$/g, '');
       //       }
       //     })
       //     data.push(row);
       //   }
-      // });  
+      // });
     }
 
-    console.info(data);
+    // console.info(data);
 
-    console.log("data treated");
+    // console.log('data treated');
     // console.info(JSON.stringify(data));
     return this.groupBy(data, this.demoComparator, this.demoOnDublicate).then(async (groupedInvoices) => {
-      return await r.db('salesDASH').table('invoices').insert(groupedInvoices, {conflict: "update"}).run(this.rethinkDB)
+      return await r.db('salesDASH').table('invoices').insert(groupedInvoices, {conflict: 'update'}).run(this.rethinkDB)
       .then((result) => {
-        console.info(JSON.stringify(result, null, 2)); 
+        // console.info(JSON.stringify(result, null, 2));
         fs.unlink(path, (err) => {
           if (err) throw err;
-          console.info("file deleted");
-        });    
-        console.log("file would have been deleted now");
-      }).catch(function(err) {
-        console.info(JSON.stringify(err, null, 2));  
-      });       
+          // console.info('file deleted');
+        });
+        // console.log('file would have been deleted now');
+      }).catch((err) => {
+        // console.info(JSON.stringify(err, null, 2));
+      });
     });
 
-    // console.info(JSON.stringify(invoices)) 
+    // console.info(JSON.stringify(invoices))
     // return await r.db('salesDASH').table('customers').insert(invoices, {conflict: "update"}).run(this.rethinkDB)
     //   .then((result) => {
-    //     console.info(JSON.stringify(result, null, 2)); 
+    //     console.info(JSON.stringify(result, null, 2));
     //     // fs.unlink(path, (err) => {
     //     //   if (err) throw err;
     //     //   console.info("file deleted");
-    //     // });    
+    //     // });
     //     console.log("file would have been deleted now");
     //   }).catch(function(err) {
-    //     console.info(JSON.stringify(err, null, 2));  
-    //   });        
+    //     console.info(JSON.stringify(err, null, 2));
+    //   });
 
-       
   }
 
   private demoComparator = (v1: any, v2: any) => {
@@ -185,18 +193,18 @@ export class InvoicesService implements OnModuleInit {
   }
 
   private demoOnDublicate = (uniqueRow, dublicateRow) => {
-    uniqueRow.totalTax = math.format(math.add(math.bignumber(uniqueRow.totalTax), math.bignumber(dublicateRow.totalTax)));    
-  };
+    uniqueRow.totalTax = math.format(math.add(math.bignumber(uniqueRow.totalTax), math.bignumber(dublicateRow.totalTax)));
+  }
 
   private async groupBy(data: any[], comparator: (v1: any, v2: any) => boolean, onDublicate: (uniqueRow: any, dublicateRow: any) => void) {
-    return data.reduce(function (reducedRows, currentlyReducedRow) {
-      let processedRow = reducedRows.find(searchedRow => comparator(searchedRow, currentlyReducedRow));
+    return data.reduce((reducedRows, currentlyReducedRow) => {
+      const processedRow = reducedRows.find(searchedRow => comparator(searchedRow, currentlyReducedRow));
       if (processedRow) {
         // currentlyReducedRow is a dublicateRow when processedRow is not null.
-        // processedRow.totalValue = processedRow.totalValue.minus(currentlyReducedRow.taxValue); 
-        // processedRow.totalValue = processedRow.totalValue.minus(currentlyReducedRow.taxValue);  
+        // processedRow.totalValue = processedRow.totalValue.minus(currentlyReducedRow.taxValue);
+        // processedRow.totalValue = processedRow.totalValue.minus(currentlyReducedRow.taxValue);
         processedRow.totalValue = math.format(math.subtract(math.bignumber(processedRow.totalValue), math.bignumber(currentlyReducedRow.totalTax)));
-        onDublicate(processedRow, currentlyReducedRow)
+        onDublicate(processedRow, currentlyReducedRow);
       } else {
         // currentlyReducedRow is unique and must be pushed in the reducedRows collection.
         // currentlyReducedRow.totalValue = currentlyReducedRow.totalValue.minus(currentlyReducedRow.taxValue);
@@ -206,6 +214,6 @@ export class InvoicesService implements OnModuleInit {
       }
       return reducedRows;
     }, []);
-  };
+  }
 
 }

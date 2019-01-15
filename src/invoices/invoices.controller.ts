@@ -9,7 +9,7 @@ export class InvoicesController {
 
   // @Get('totalMonth')
   // @HttpCode(200)
-  // async findTotalThisMonth() {   
+  // async findTotalThisMonth() {
   //   const invoices = await this.invoicesService.findTotalThisMonth();
   //   return invoices;
   // }

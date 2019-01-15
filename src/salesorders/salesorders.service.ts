@@ -8,9 +8,9 @@ import { InjectConfig  } from 'nestjs-config';
 
 @Injectable()
 export class SalesOrdersService {
-  constructor( 
-    @Inject('rethinkDB') private readonly rethinkDB, 
-    @InjectConfig() private readonly config
+  constructor(
+    @Inject('rethinkDB') private readonly rethinkDB,
+    @InjectConfig() private readonly config,
   ) { }
 
   /**
@@ -19,88 +19,67 @@ export class SalesOrdersService {
    * @return Returns the created contact.
    */
   async find(salesOrderID: string) {
-    const soap = require('soap');
-    const url = './src/ws/ecc_salesorder009qr.wsdl';
-    let salesOrder = 0;
-    const args = { 
-      SalesOrderSelectionByElements: { 
-        SelectionByID: { 
-          IntervalBoundaryTypeCode: 1, 
-          LowerBoundarySalesOrganisationID: salesOrderID
-        }
-      },
-      ProcessingConditions: {
-        QueryHitsMaximumNumberValue: 1
-      }
-    };
-    await soap.createClientAsync(url).then((client) => {
-      client.setSecurity(new soap.BasicAuthSecurity('u228820', 'cp1205rm28f='));  
-      return client.SalesOrderERPBasicDataByElementsQueryResponse_InAsync(args)
-    }).then((result) => {
-      console.log(result);
-      salesOrder = result
-    });
-    return salesOrder;
+    // const soap = require('soap');
+    // const url = './src/ws/ecc_salesorder009qr.wsdl';
+    // let salesOrder = 0;
+    // const args = {
+    //   SalesOrderSelectionByElements: {
+    //     SelectionByID: {
+    //       IntervalBoundaryTypeCode: 1,
+    //       LowerBoundarySalesOrganisationID: salesOrderID,
+    //     },
+    //   },
+    //   ProcessingConditions: {
+    //     QueryHitsMaximumNumberValue: 1,
+    //   },
+    // };
+    // await soap.createClientAsync(url).then((client) => {
+    //   client.setSecurity(new soap.BasicAuthSecurity('u228820', 'cp1205rm28f='));
+    //   return client.SalesOrderERPBasicDataByElementsQueryResponse_InAsync(args);
+    // }).then((result) => {
+    //   console.log(result);
+    //   salesOrder = result;
+    // });
+    // return salesOrder;
   }
 
   async updateData(path: string) {
-    // r.dbCreate('salesDASH').run(this.rethinkDB)
-    // .then((result) => {
-    //    console.info(JSON.stringify(result, null, 2));     
-    // }).catch(function(err) {
-    //     console.info(JSON.stringify(err, null, 2));
-    // });
 
-    console.log("gotcha ya");
     const $ = cheerio.load(fs.readFileSync(path));
 
-    // $('table').each( function(i, elem) {
-    //   $(this).children('tbody').next().find('tr').each( function(i, elem) {
-    //     $(this).find('td').each( function(i, elem) {
-    //       // console.info($(this).children().children().text());
-    //     })
-    //   })
-    // })
-
-    //get header
-    let header = [];
-    let data = [];
+    // get header
+    const header = [];
+    const data = [];
     $('tbody').first().children().find('nobr').each( function(i, elem) {
       header.push($(this).text().replace(/^\s+|\s+$/g, ''));
     });
-    //console.info(JSON.stringify(header));
+    // console.info(JSON.stringify(header));
 
-    $('tbody').each( function(i, elem) {
-      $(this).next().find('tr').each( function(i, elem) {
-        let row = {};
+    $('tbody').each( function(i, tbodyElem) {
+      $(this).next().find('tr').each( function(j, trElem) {
+        const row = {};
 
-        $(this).find('nobr').each( function(i, elem) {
-        // console.info($(this).children().children().text());         
-          row[header[i]] = $(this).text().replace(/^\s+|\s+$/g, '');
-        })
+        $(this).find('nobr').each( function(y, nobrElem) {
+        // console.info($(this).children().children().text());
+          row[header[y]] = $(this).text().replace(/^\s+|\s+$/g, '');
+        });
         data.push(row);
-      })
-    })
-
-    return await r.db('salesDASH').table('customers').delete().run(this.rethinkDB)
-    .then((result) => {
-      console.info(JSON.stringify(result, null, 2)); 
-      r.db('salesDASH').table('customers').insert(data, {conflict: "update"}).run(this.rethinkDB)
-      .then((result) => {
-        console.info(JSON.stringify(result, null, 2)); 
-        fs.stat(path, (err, stats) => {
-          if (err) throw err;
-          console.log(`stats: ${JSON.stringify(stats)}`);
-        });    
-      }).catch(function(err) {
-        console.info(JSON.stringify(err, null, 2));  
-      });    
-    }).catch(function(err) {
-      console.info(JSON.stringify(err, null, 2));  
+      });
     });
 
-    console.info(JSON.stringify(data))
-    
+    // console.info(JSON.stringify(result, null, 2));
+    r.db('salesDASH').table('customers').insert(data, {conflict: 'update'}).run(this.rethinkDB)
+    .then((result) => {
+      // console.info(JSON.stringify(result, null, 2));
+      fs.stat(path, (err, stats) => {
+        if (err) throw err;
+        // console.log(`stats: ${JSON.stringify(stats)}`);
+      });
+    }).catch((err) => {
+      // console.info(JSON.stringify(err, null, 2));
+    });
+    // console.info(JSON.stringify(data));
+
   }
 
   async findTotalThisMonth() {
@@ -110,10 +89,10 @@ export class SalesOrdersService {
     // let totalOrders = 0;
     // const soap = require('soap');
     // const url = './src/ws/ecc_salesorder009qr.wsdl';
-    // const args = { 
-    //   SalesOrderSelectionByElements: { 
-    //     SelectionBySalesOrganisationID: { 
-    //       IntervalBoundaryTypeCode: 1, 
+    // const args = {
+    //   SalesOrderSelectionByElements: {
+    //     SelectionBySalesOrganisationID: {
+    //       IntervalBoundaryTypeCode: 1,
     //       LowerBoundarySalesOrganisationID: '0022'
     //     },
     //     SelectionByCreationDate: {
@@ -128,7 +107,7 @@ export class SalesOrdersService {
     // };
 
     // await soap.createClientAsync(url).then((client) => {
-    //     client.setSecurity(new soap.BasicAuthSecurity('u228820', 'cp1205rm28f='));  
+    //     client.setSecurity(new soap.BasicAuthSecurity('u228820', 'cp1205rm28f='));
     //     return client.SalesOrderERPBasicDataByElementsQueryResponse_InAsync(args)
     // }).then((result) => {
     //   // console.log(result);
@@ -149,14 +128,14 @@ export class SalesOrdersService {
     // await r.table('sales_order').count().run(this.rethinkDB, function(err, result) {
     //   if (err) throw err;
     //   console.log(JSON.stringify(result, null, 2));
-    //   return JSON.stringify(result, null, 2);  
+    //   return JSON.stringify(result, null, 2);
     // });
     // return 0;
 
     return await r.table('sales_order').count().run(this.rethinkDB)
     .then((result) => {
-      return JSON.stringify(result, null, 2);     
-    }).catch(function(err) {
+      return JSON.stringify(result, null, 2);
+    }).catch((err) => {
         // process error
     });
   }

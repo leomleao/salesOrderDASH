@@ -1,5 +1,5 @@
-import { Inject, Injectable, BadRequestException, LoggerService } from '@nestjs/common';
-import * as soap from 'soap';
+import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import * as soapLib from 'soap';
 import * as r from 'rethinkdb';
 import * as fs from 'fs';
 import * as cheerio from 'cheerio';
@@ -8,9 +8,9 @@ import { InjectConfig  } from 'nestjs-config';
 
 @Injectable()
 export class CustomersService {
-  constructor( 
-    @Inject('rethinkDB') private readonly rethinkDB, 
-    @InjectConfig() private readonly config
+  constructor(
+    @Inject('rethinkDB') private readonly rethinkDB,
+    @InjectConfig() private readonly config,
   ) { }
 
   /**
@@ -19,197 +19,126 @@ export class CustomersService {
    * @return Returns the created contact.
    */
   async find(salesOrderID: string) {
-    const soap = require('soap');
+    const soap = require('soapLib');
     const url = './src/ws/ecc_salesorder009qr.wsdl';
     let salesOrder = 0;
-    const args = { 
-      SalesOrderSelectionByElements: { 
-        SelectionByID: { 
-          IntervalBoundaryTypeCode: 1, 
-          LowerBoundarySalesOrganisationID: salesOrderID
-        }
+    const args = {
+      SalesOrderSelectionByElements: {
+        SelectionByID: {
+          IntervalBoundaryTypeCode: 1,
+          LowerBoundarySalesOrganisationID: salesOrderID,
+        },
       },
       ProcessingConditions: {
-        QueryHitsMaximumNumberValue: 1
-      }
+        QueryHitsMaximumNumberValue: 1,
+      },
     };
     await soap.createClientAsync(url).then((client) => {
-      client.setSecurity(new soap.BasicAuthSecurity('u228820', 'cp1205rm28f='));  
-      return client.SalesOrderERPBasicDataByElementsQueryResponse_InAsync(args)
+      client.setSecurity(new soap.BasicAuthSecurity('u228820', 'cp1205rm28f='));
+      return client.SalesOrderERPBasicDataByElementsQueryResponse_InAsync(args);
     }).then((result) => {
-      console.log(result);
-      salesOrder = result
+      salesOrder = result;
     });
     return salesOrder;
   }
 
   async updateDash() {
-    let data = [];
-    r.db('salesDASH').table('customers').count().run(this.rethinkDB)
-    .then((result) => {
-      const totalCustomers = result;
-      // console.info('total customer --- ', totalCustomers);
-      r.db('salesDASH').table('customers').filter((row) => {
-        return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
-      }).orderBy(r.desc('Date')).run(this.rethinkDB)
+    const data = [];
+    r.db('salesDASH').table('customers').filter((row) => {
+      return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
+    }).orderBy(r.desc('Date')).count().run(this.rethinkDB)
+    .then((newCustomers) => {
+      data.push({ field: 'newCustomers', value: newCustomers });
+      r.db('salesDASH').table('dash').insert(data, {conflict: 'update'}).run(this.rethinkDB)
       .then((result) => {
-        // console.info('total new customer --- ', result.length);
-        data.push({ field: 'newCustomers', value: result.length });
-        r.db('salesDASH').table('dash').insert(data, {conflict: "update"}).run(this.rethinkDB)
-        .then((result) => {
-          // console.info(JSON.stringify(result, null, 2));  
-        })
-      });                 
-    }).catch(function(err) {
-      console.info(JSON.stringify(err, null, 2));   
+        // console.info(JSON.stringify(result, null, 2));
+      });
+    }).catch((err) => {
+
     });
-
-
-
-
 
     // return await r.db('salesDASH').table('customers').orderBy(r.desc('Date')).run(this.rethinkDB)
     // .then((result) => {
-    //   // console.info(JSON.stringify(result, null, 2)); 
+    //   // console.info(JSON.stringify(result, null, 2));
     //   console.info(JSON.stringify(result.filter((row) => {
     //     return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 14 days
     //   });
-    //   ))    
+    //   ))
     // }).catch(function(err) {
-    //   console.info(JSON.stringify(err, null, 2));   
+    //   console.info(JSON.stringify(err, null, 2));
     // });
-    
-  }  
+
+  }
 
   async updateData(path: string, type: string) {
-    console.log("gotcha ya");
+    // console.log('gotcha ya');
     const $ = cheerio.load(fs.readFileSync(path));
 
-    //get header
-    let header = [];
-    let data = [];
-    if (type == ".htm") {
+    // get header
+    const header = [];
+    const data = [];
+    if (type === '.htm') {
       $('tbody').first().children().find('nobr').each( function(i, elem) {
         header.push($(this).text().replace(/^\s+|\s+$/g, ''));
       });
 
-      $('tbody').each( function(i, elem) {
-        $(this).next().find('tr').each( function(i, elem) {
-          let row = {};
+      $('tbody').each( function(i, tbodyElem) {
+        $(this).next().find('tr').each( function(k, trElem) {
+          const row = {};
 
-          $(this).find('nobr').each( function(i, elem) {
+          $(this).find('nobr').each( function(y, nobrElem) {
           // console.info($(this).children().children().text());
-            if (header[i] == "Customer"){            
-              row[header[i]] = parseInt($(this).text().replace(/^\s+|\s+$/g, ''));              
-            } if (header[i] == "Date"){ 
-              const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split(".");
-              row[header[i]] = new Date(year, month - 1, day); 
-            } else {        
-              row[header[i]] = $(this).text().replace(/^\s+|\s+$/g, '');
+            if (header[y] === 'Customer') {
+              row[header[y]] = parseInt($(this).text().replace(/^\s+|\s+$/g, ''), 10);
+            } else if (header[y] === 'Date') {
+              const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split('.');
+              row[header[y]] = new Date(year, month - 1, day);
+            } else {
+              row[header[y]] = $(this).text().replace(/^\s+|\s+$/g, '');
             }
-          })
+          });
           data.push(row);
-        })
+        });
       });
-    } else if (type == ".HTM"){
-      $('tbody').first().find('tr').find('td').each( function(i, elem) {
+    } else if (type === '.HTM'){
+      $('tbody').first().find('tr').find('td').each( function(i, tdElem) {
         header.push($(this).text().replace(/^\s+|\s+$/g, ''));
       });
 
-      $('tbody').first().find('tr').each( function(i, elem) {
+      $('tbody').first().find('tr').each( function(k, trElem) {
 
-        let row = {};
-        if (i != 0) {
-          $(this).find('td').each( function(i, elem) {
+        const row = {};
+        if (k !== 0) {
+          $(this).find('td').each( function(y, tdElem) {
           // console.info($(this).children().children().text());
-            if (header[i] == "Customer"){            
-              row[header[i]] = parseInt($(this).text().replace(/^\s+|\s+$/g, ''));              
-            } if (header[i] == "Date"){ 
-              const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split(".");
-              row[header[i]] = new Date(year, month - 1, day); 
-            } else {        
-              row[header[i]] = $(this).text().replace(/^\s+|\s+$/g, '');
+            if (header[y] === 'Customer'){
+              row[header[y]] = parseInt($(this).text().replace(/^\s+|\s+$/g, ''), 10);
+            } else if (header[y] === 'Date'){
+              const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split('.');
+              row[header[y]] = new Date(year, month - 1, day);
+            } else {
+              row[header[y]] = $(this).text().replace(/^\s+|\s+$/g, '');
             }
-          })
+          });
           data.push(row);
         }
-      });  
+      });
     }
 
-    console.log("data treated");
+    // console.log('data treated');
 
-    return await r.db('salesDASH').table('customers').insert(data, {conflict: "update"}).run(this.rethinkDB)
+    return await r.db('salesDASH').table('customers').insert(data, {conflict: 'update'}).run(this.rethinkDB)
       .then((result) => {
-        console.info(JSON.stringify(result, null, 2)); 
+        // console.info(JSON.stringify(result, null, 2));
         fs.unlink(path, (err) => {
           if (err) throw err;
-          console.info("file deleted");
-        });    
-        console.log("file would have been deleted now");
-      }).catch(function(err) {
-        console.info(JSON.stringify(err, null, 2));  
-      });    
-      
-
-    console.info(JSON.stringify(data))
-    
+          // console.info('file deleted');
+        });
+        // console.log('file would have been deleted now');
+      }).catch((err) => {
+        // console.info(JSON.stringify(err, null, 2));
+      });
+    // console.info(JSON.stringify(data));
   }
 
-  async findTotalThisMonth() {
-    // const date = new Date();
-    // const firstDay = new Date(date.getFullYear(), date.getMonth() - 5, 1);
-    // const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    // let totalOrders = 0;
-    // const soap = require('soap');
-    // const url = './src/ws/ecc_salesorder009qr.wsdl';
-    // const args = { 
-    //   SalesOrderSelectionByElements: { 
-    //     SelectionBySalesOrganisationID: { 
-    //       IntervalBoundaryTypeCode: 1, 
-    //       LowerBoundarySalesOrganisationID: '0022'
-    //     },
-    //     SelectionByCreationDate: {
-    //       IntervalBoundaryTypeCode: 3,
-    //       LowerBoundaryCreationDate: firstDay.toISOString().slice(0,10),
-    //       UpperBoundaryCreationDate: lastDay.toISOString().slice(0,10)
-    //     }
-    //   },
-    //   ProcessingConditions: {
-    //     QueryHitsMaximumNumberValue: 50
-    //   }
-    // };
-
-    // await soap.createClientAsync(url).then((client) => {
-    //     client.setSecurity(new soap.BasicAuthSecurity('u228820', 'cp1205rm28f='));  
-    //     return client.SalesOrderERPBasicDataByElementsQueryResponse_InAsync(args)
-    // }).then((result) => {
-    //   // console.log(result);
-    //   r.connect({ host: 'localhost', port: 28015 }, function(err, conn){
-    //     if(err) throw err;
-    //     r.db('test').tableCreate('sales_order').run(conn, function(err, res){
-    //       if(err) throw err;
-    //       console.log(res);
-    //       r.table('sales_order').insert(result[0].SalesOrder).run(conn, function(err, res){
-    //         if (err) throw err;
-    //         console.log(res);
-    //       })
-    //     })
-    //   })
-    //   totalOrders = result[0].SalesOrder.length;
-    // });
-
-    // await r.table('sales_order').count().run(this.rethinkDB, function(err, result) {
-    //   if (err) throw err;
-    //   console.log(JSON.stringify(result, null, 2));
-    //   return JSON.stringify(result, null, 2);  
-    // });
-    // return 0;
-
-    return await r.table('sales_order').count().run(this.rethinkDB)
-    .then((result) => {
-      return JSON.stringify(result, null, 2);     
-    }).catch(function(err) {
-        // process error
-    });
-  }
 }

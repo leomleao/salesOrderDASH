@@ -1,4 +1,4 @@
-import { Module, Inject } from '@nestjs/common';
+import { Module, Inject, OnModuleInit } from '@nestjs/common';
 import * as r from 'rethinkdb';
 
 const dbProvider = {
@@ -11,15 +11,21 @@ const dbProvider = {
   exports: [dbProvider],
 })
 
-export class DBModule { 	
-	constructor( 
-	    @Inject('rethinkDB') private readonly rethinkDB, 
-  	) { 
+export class DBModule implements OnModuleInit {
+	constructor(
+	    @Inject('rethinkDB') private readonly rethinkDB,
+  	) { }
+
+	onModuleInit() {
 		r.dbCreate('salesDASH').run(this.rethinkDB)
 	    .then((result) => {
-	       console.info(JSON.stringify(result, null, 2)); 
-	    }).catch(function(err) {
-	        console.info(JSON.stringify(err, null, 2));
-	    })
+	    	r.db('salesDASH').tableCreate('invoices', { primaryKey: 'docNumber'} ).run(this.rethinkDB);
+ 		    r.db('salesDASH').tableCreate('invoiceTotals', { primaryKey: 'monthYear'} ).run(this.rethinkDB);
+ 		    r.db('salesDASH').tableCreate('dash', {primaryKey: 'field'}).run(this.rethinkDB);
+ 		    r.db('salesDASH').tableCreate('customers', {primaryKey: 'Customer'}).run(this.rethinkDB);
+	 	}).catch((err) =>{
+
+	 	})
+
 	}
 }
