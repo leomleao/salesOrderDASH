@@ -10,19 +10,11 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<!--begin::Web font -->
-		<script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
-		<script>
-          WebFont.load({
-            google: {"families":["Poppins:300,400,500,600,700","Roboto:300,400,500,600,700"]},
-            active: function() {
-                sessionStorage.fonts = true;
-            }
-          });
-		</script>
+		<link href="https://fonts.googleapis.com/css?family=Poppins|Roboto" rel="stylesheet">		
 		<!--end::Web font -->
         <!--begin::Base Styles -->
-		<link href="../assets/vendors.bundle.css" rel="stylesheet" type="text/css" />
-		<link href="../assets/style.bundle.css" rel="stylesheet" type="text/css" />
+		<link href="../assets/css/vendors.bundle.css" rel="stylesheet" type="text/css" />
+		<link href="../assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
 		<!--end::Base Styles -->
 		<link rel="shortcut icon" href="../assets/img/logos/favicon.ico" />
 	</head>
@@ -2034,13 +2026,19 @@
 		</div>
 		<!-- end::Scroll Top -->		    
     	<!--begin::Base Scripts -->
+		<script src="../assets/vendors/jquery-3.3.1.min.js" type="text/javascript"></script>
+		<script src="../assets/vendors/bootstrap.bundle.min.js" type="text/javascript"></script>
+		<script src="../assets/vendors/js.cookie.min.js" type="text/javascript"></script>
+		<script src="../assets/vendors/jquery.blockUI.min.js" type="text/javascript"></script>
+		<script src="../assets/vendors/chart.bundle.min.js" type="text/javascript"></script>
+
 		<script src="../assets/vendors/socket.io.js" type="text/javascript"></script>
-		<script src="../assets/vendors.bundle.js" type="text/javascript"></script>
+		<!--<script src="../assets/vendors.bundle.js" type="text/javascript"></script>-->
 		<script src="../assets/scripts.bundle.js" type="text/javascript"></script>
 		<!--end::Base Scripts -->
-		<script src="https://www.amcharts.com/lib/4/core.js"></script>
-		<script src="https://www.amcharts.com/lib/4/charts.js"></script>
-		<script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+		<script src="../assets/vendors/core.js"></script>
+		<script src="../assets/vendors/charts.js"></script>
+		<script src="../assets/vendors/animated.js"></script>
 
 	</body>
 	<!-- end::Body -->
