@@ -3,11 +3,12 @@ import * as soapLib from 'soap';
 import * as r from 'rethinkdb';
 import * as fs from 'fs';
 import * as cheerio from 'cheerio';
-
+import { LoggerService } from '../common/logging.service';
 import { InjectConfig  } from 'nestjs-config';
 
 @Injectable()
 export class CustomersService {
+  private readonly logger: LoggerService = new LoggerService(CustomersService.name);
   constructor(
     @Inject('rethinkDB') private readonly rethinkDB,
     @InjectConfig() private readonly config,
@@ -44,17 +45,18 @@ export class CustomersService {
 
   async updateDash() {
     const data = [];
+    this.logger.log("Updating dash -- total Customers" );
     r.db('salesDASH').table('customers').filter((row) => {
       return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
     }).orderBy(r.desc('Date')).count().run(this.rethinkDB)
-    .then((newCustomers) => {
+    .then((newCustomers) => {      
       data.push({ field: 'newCustomers', value: newCustomers });
       r.db('salesDASH').table('dash').insert(data, {conflict: 'update'}).run(this.rethinkDB)
       .then((result) => {
-        // console.info(JSON.stringify(result, null, 2));
+        this.logger.log("Updating dash -- " + newCustomers + "new customers");
       });
     }).catch((err) => {
-
+      this.logger.error(err, err.stack());
     });
 
     // return await r.db('salesDASH').table('customers').orderBy(r.desc('Date')).run(this.rethinkDB)
@@ -71,7 +73,7 @@ export class CustomersService {
   }
 
   async updateData(path: string, type: string) {
-    // console.log('gotcha ya');
+    this.logger.log("Gotcha ya!");
     const $ = cheerio.load(fs.readFileSync(path));
 
     // get header
@@ -125,18 +127,18 @@ export class CustomersService {
       });
     }
 
-    // console.log('data treated');
+    this.logger.log("Customer data treated.");
 
     return await r.db('salesDASH').table('customers').insert(data, {conflict: 'update'}).run(this.rethinkDB)
       .then((result) => {
-        // console.info(JSON.stringify(result, null, 2));
+        this.logger.log("Data uploaded to DB.");
         fs.unlink(path, (err) => {
           if (err) throw err;
-          // console.info('file deleted');
+          this.logger.warn("Treated file deleted: " + path);
         });
         // console.log('file would have been deleted now');
       }).catch((err) => {
-        // console.info(JSON.stringify(err, null, 2));
+        this.logger.error(err, err.stack());
       });
     // console.info(JSON.stringify(data));
   }

@@ -1,4 +1,5 @@
 import { Module, Inject, OnModuleInit } from '@nestjs/common';
+import { LoggerService } from '../common/logging.service';
 import * as r from 'rethinkdb';
 
 const dbProvider = {
@@ -12,6 +13,7 @@ const dbProvider = {
 })
 
 export class DBModule implements OnModuleInit {
+	private readonly logger: LoggerService = new LoggerService(DBModule.name);
 	constructor(
 	    @Inject('rethinkDB') private readonly rethinkDB,
   	) { }
@@ -19,13 +21,26 @@ export class DBModule implements OnModuleInit {
 	onModuleInit() {
 		r.dbCreate('salesDASH').run(this.rethinkDB)
 	    .then((result) => {
-	    	r.db('salesDASH').tableCreate('invoices', { primaryKey: 'docNumber'} ).run(this.rethinkDB);
- 		    r.db('salesDASH').tableCreate('invoiceTotals', { primaryKey: 'monthYear'} ).run(this.rethinkDB);
- 		    r.db('salesDASH').tableCreate('dash', {primaryKey: 'field'}).run(this.rethinkDB);
- 		    r.db('salesDASH').tableCreate('customers', {primaryKey: 'Customer'}).run(this.rethinkDB);
+	    	
 	 	}).catch((err) =>{
 
 	 	})
+	 	r.db('salesDASH').tableCreate('invoices', { primaryKey: 'docNumber'} ).run(this.rethinkDB)
+	 	.catch((err) =>{
+
+	 	});
+	    r.db('salesDASH').tableCreate('invoiceTotals', { primaryKey: 'period'} ).run(this.rethinkDB)
+	    .catch((err) =>{
+
+	 	});
+	    r.db('salesDASH').tableCreate('dash', {primaryKey: 'field'}).run(this.rethinkDB)
+	    .catch((err) =>{
+
+	 	});
+	    r.db('salesDASH').tableCreate('customers', {primaryKey: 'Customer'}).run(this.rethinkDB)
+	    .catch((err) =>{
+
+	 	});
 
 	}
 }
