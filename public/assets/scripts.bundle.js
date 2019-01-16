@@ -304,70 +304,70 @@ var mApp = function() {
         // Data for both series
         var data = [ {
           "month": "Jan",
-          "vendas": 1235652,
-          "vendasPast": 1235652,
+          "sales": 1235652,
+          "salesPast": 1235652,
           "meta": 2799782
         }, {
           "month": "Fev",
-          "vendas": 2511050,
-          "vendasPast": 1235652,
+          "sales": 2511050,
+          "salesPast": 1235652,
           "meta": 2407456
         }, {
           "month": "Mar",
-          "vendas": 3113518,
-          "vendasPast": 1235652,
+          "sales": 3113518,
+          "salesPast": 1235652,
           "meta": 2689173
         }, {
           "month": "Abr",
-          "vendas": 2512398,
-          "vendasPast": 1235652,
+          "sales": 2512398,
+          "salesPast": 1235652,
           "meta": 2685002
         }, {
           "month": "Mai",
-          "vendas": 2199185,
-          "vendasPast": 1235652,
+          "sales": 2199185,
+          "salesPast": 1235652,
           "meta": 2618203,
           "lineDash": "5,5",
         }, {
           "month": "Jun",
-          "vendas": 3144824,
-          "vendasPast": 1235652,
+          "sales": 3144824,
+          "salesPast": 1235652,
           "meta": 2611241,
           "lineDash": "5,5",
         }, {
           "month": "Jul",
-          "vendas": 3051131,
-          "vendasPast": 1235652,
+          "sales": 3051131,
+          "salesPast": 1235652,
           "meta": 2729059,
           "lineDash": "5,5",
         }, {
           "month": "Ago",
-          "vendas": 3332526,
-          "vendasPast": 1235652,
+          "sales": 3332526,
+          "salesPast": 1235652,
           "meta": 2696364,
           "lineDash": "5,5",
         }, {
           "month": "Set",
-          "vendas": 3522030,
-          "vendasPast": 1235652,
+          "sales": 3522030,
+          "salesPast": 1235652,
           "meta": 2544288,
           "lineDash": "5,5",
         }, {
           "month": "Out",
-          "vendas": 3578862,
-          "vendasPast": 1235652,
+          "sales": 3578862,
+          "salesPast": 1235652,
           "meta": 2896470,
           "lineDash": "5,5",
         }, {
           "month": "Nov",
-          "vendas": 3768395,
-          "vendasPast": 1235652,
+          "sales": 3768395,
+          "salesPast": 1235652,
           "meta": 2923295,
           "lineDash": "5,5",
         }, {
           "month": "Dez",
-          "vendas": 95974,
-          "vendasPast": 1235652,
+          "sales": 95974,
+          "salesPast": 1235652,
           "meta": 1688017,
           "lineDash": "5,5",
         }];
@@ -382,8 +382,8 @@ var mApp = function() {
 
         /* Create series */
         var columnSeries = mApp.chart.series.push(new am4charts.ColumnSeries());
-        columnSeries.name = "2019";
-        columnSeries.dataFields.valueY = "vendas";
+        columnSeries.name = "2018";
+        columnSeries.dataFields.valueY = "sales";
         columnSeries.dataFields.categoryX = "month";
 
         columnSeries.columns.template.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
@@ -395,8 +395,8 @@ var mApp = function() {
 
         /* Create series */
         var columnSeries2 = mApp.chart.series.push(new am4charts.ColumnSeries());
-        columnSeries2.name = "2018";
-        columnSeries2.dataFields.valueY = "vendasPast";
+        columnSeries2.name = "2019";
+        columnSeries2.dataFields.valueY = "salesPast";
         columnSeries2.dataFields.categoryX = "month";
 
         columnSeries2.columns.template.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
@@ -555,7 +555,7 @@ var mApp = function() {
     */
     var initDataUpdate = function(data) {       
         console.info("YAY", data);
-        if (data.new_val.field === "chartData") {
+        if (data.new_val.field === "graphData") {
             updateChartData(data.new_val.value)
         } else if (data.new_val.field === "tabData") {
             updateTabData(data.new_val.value)            

@@ -21,7 +21,7 @@ export class DashService implements OnGatewayInit {
 
   afterInit() {
     const socketInstance = this.server;
-    r.table('dash').changes().run(this.rethinkDB, (err, cursor) => {
+    r.db('salesDASH').table('dash').changes().run(this.rethinkDB, (err, cursor) => {
         if (err) throw err;
         cursor.each((error, row) => {
             if (error) throw error;
@@ -32,7 +32,7 @@ export class DashService implements OnGatewayInit {
   }
 
   async getNewData() {
-    return await r.table('dash').run(this.rethinkDB)
+    return await r.db('salesDASH').table('dash').run(this.rethinkDB)
     .then((result) => {
       return result.toArray();
     }).catch((err) => {
@@ -42,7 +42,7 @@ export class DashService implements OnGatewayInit {
   }
 
   async findTotalThisMonth() {
-    return await r.table('sales_order').count().run(this.rethinkDB)
+    return await r.db('salesDASH').table('sales_order').count().run(this.rethinkDB)
     .then((result) => {
       return result.toArray();
     }).catch((err) => {

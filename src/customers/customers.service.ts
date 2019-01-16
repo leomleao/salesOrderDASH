@@ -45,7 +45,7 @@ export class CustomersService {
 
   async updateDash() {
     const data = [];
-    this.logger.log("Updating dash -- total Customers" );
+    this.logger.log("Updating dash -- total customers." );
     r.db('salesDASH').table('customers').filter((row) => {
       return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
     }).orderBy(r.desc('Date')).count().run(this.rethinkDB)
@@ -53,7 +53,7 @@ export class CustomersService {
       data.push({ field: 'newCustomers', value: newCustomers });
       r.db('salesDASH').table('dash').insert(data, {conflict: 'update'}).run(this.rethinkDB)
       .then((result) => {
-        this.logger.log("Updating dash -- " + newCustomers + "new customers");
+        this.logger.log("Updating dash -- " + newCustomers + " new customers.");
       });
     }).catch((err) => {
       this.logger.error(err, err.stack());

@@ -18,12 +18,12 @@ export class ScheduleService extends NestSchedule {
     super();
   }
 
-  // @Interval(5000)
-  // async findNewF123123iles() {
-  //   await this.InvoicesService.groupInvoices();
-  // }
+  @Interval(5000)
+  async findNewF123123iles() {
+    await this.invoiceService.updateDash();
+  }
 
-  @Interval(10000)
+  // @Interval(10000)
   async findNewFiles() {
     this.logger.log("Finding new files!");
     let type = '.htm';
@@ -48,7 +48,10 @@ export class ScheduleService extends NestSchedule {
             this.logger.log("Treating data of invoices!");
             this.invoiceService.updateData(foundFiles[i].path, type)
             .then(() => {
-              this.invoiceService.updateInvoiceTotals();
+              this.invoiceService.updateInvoiceTotals()
+              .then(() => {
+                this.invoiceService.updateDash();
+              });;
             });
           }
         }

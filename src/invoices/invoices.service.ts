@@ -24,6 +24,13 @@ interface InvoiceItem {
   cancelDate: any;
 }
 
+interface GraphColumn {
+  month: string;
+  sales: any;
+  salesPast: any;
+  meta: any;
+}
+
 @Injectable()
 export class InvoicesService implements OnModuleInit {
   private readonly logger: LoggerService = new LoggerService(InvoicesService.name);
@@ -41,6 +48,35 @@ export class InvoicesService implements OnModuleInit {
   }
 
   async updateDash() {
+    const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+       
+    this.logger.log("Updating dash -- total sales." );
+    r.db('salesDASH').table('invoiceTotals').run(this.rethinkDB).then((cursor) => {
+        return cursor.toArray()
+    }).then((invoiceTotals) => {
+      // console.info(invoiceTotals);
+        // process the results  
+      const data = []; 
+      const year = new Date().getFullYear();      
+
+      for (let i = 0; i <= 11; i++) {
+        let current : GraphColumn = <GraphColumn>{};
+        let test;
+        current.month = months[i];
+        current.sales = (typeof (test = invoiceTotals.find((sales) => sales.period ===  ( i + 1 )  + "." + year)) === "object") ? test.value : 0;
+        current.salesPast = (typeof (test = invoiceTotals.find((sales) => sales.period ===  ( i + 1 ) + "." + (year-1))) === "object") ? test.value : 0;
+        current.meta = (current.salesPast > 0) ? current.salesPast * 1.1 : 0;
+        data.push(current);  
+      }          
+
+      r.db('salesDASH').table('dash').insert([{ field: 'graphData', value: data }], {conflict: 'update'}).run(this.rethinkDB)
+      .then((result) => {
+        this.logger.log("Sales graph data updated.");
+      });
+    }).catch((err) => {
+      this.logger.error(err, err.stack);
+    });
+
     // const data = [];
     // r.db('salesDASH').table('invoices').count().run(this.rethinkDB)
     // .then((result) => {
@@ -69,7 +105,7 @@ export class InvoicesService implements OnModuleInit {
     }).run(this.rethinkDB).then((result) => {
       const data = [];
       for (let i = result.length - 1; i >= 0; i--) {
-        data.push({ period: result[i].group[0] + '.' + result[i].group[1], value: result[i].reduction});
+        data.push({ period: result[i].group[0] + '.' + result[i].group[1], value: math.number(math.format(result[i].reduction,  {notation: 'fixed', precision: 2}))});
       }
       return data;
     }).then((totals) => {
@@ -77,7 +113,7 @@ export class InvoicesService implements OnModuleInit {
         this.logger.log("Invoice totals updated on dash.");
       });
     }).catch((err) => {
-      this.logger.error(err, err.stack());
+      this.logger.error(err, err.stack);
     });
   }
 
@@ -175,7 +211,7 @@ export class InvoicesService implements OnModuleInit {
         });
         // console.log('file would have been deleted now');
       }).catch((err) => {
-        this.logger.error(err, err.stack());
+        this.logger.error(err, err.stack);
       });
     });
 
