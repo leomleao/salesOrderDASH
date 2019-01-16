@@ -77,6 +77,18 @@ export class InvoicesService implements OnModuleInit {
       this.logger.error(err, err.stack);
     });
 
+    this.logger.log("Updating dash -- last five." );
+    r.db('salesDASH').table('invoices').orderBy(r.desc('postDate')).limit(5).run(this.rethinkDB).then((cursor) => {
+        return cursor.toArray()
+    }).then((lastFive) => {
+      r.db('salesDASH').table('dash').insert([{ field: 'lastFive', value: lastFive }], {conflict: 'update'}).run(this.rethinkDB)
+      .then((result) => {
+        this.logger.log("Sales graph data updated.");
+      });
+    }).catch((err) => {
+      this.logger.error(err, err.stack);
+    });
+
     // const data = [];
     // r.db('salesDASH').table('invoices').count().run(this.rethinkDB)
     // .then((result) => {

@@ -18,12 +18,12 @@ export class ScheduleService extends NestSchedule {
     super();
   }
 
-  @Interval(5000)
+  // @Interval(5000)
   async findNewF123123iles() {
     await this.invoiceService.updateDash();
   }
 
-  // @Interval(10000)
+  @Interval(10000)
   async findNewFiles() {
     this.logger.log("Finding new files!");
     let type = '.htm';

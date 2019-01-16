@@ -188,7 +188,7 @@ var mApp = function() {
                 timeOut = setTimeout(nextTab, 5000);
             } else {
                 $("#recentFacts").fadeOut(200, function() {
-                    $(this).html("Ultimas vendas").fadeIn("slow");
+                    $(this).html("Ultimos faturamentos").fadeIn("slow");
                 })
                 $("#m_widget11_tab" + 1 + "_content").fadeOut(300);          
                 $("#m_widget11_tab" + 2 + "_content").fadeIn("slow",function(){
@@ -198,38 +198,7 @@ var mApp = function() {
                 timeOut = setTimeout(nextTab, 10000);
             }            
             return false;
-        }
-
-            // function cycleTabs(){
-            //     // do whatever you like here
-            //     $("#m_widget11_tab1_content").removeClass('m-tabs__item--active');            
-            //     $("#m_widget12_tab1_content").tab.addClass('m-tabs__item--active');
-
-            //     setTimeout(cycleTabs, 5000);
-            // }
-
-            // yourFunction();
-
-            // $(this).click(function(e) {
-            //     e.preventDefault();
-                
-            //     var tab = $(this);
-            //     var tabs = tab.closest('[data-tabs="true"]');
-            //     var contents = $( tabs.data('tabs-contents') );
-            //     var content = $( tab.data('tab-target') );
-
-            //     tabs.find('.m-tabs__item.m-tabs__item--active').removeClass('m-tabs__item--active');
-            //     tab.addClass('m-tabs__item--active');
-
-            //     contents.find('.m-tabs-content__item.m-tabs-content__item--active').removeClass('m-tabs-content__item--active');
-            //     content.addClass('m-tabs-content__item--active');         
-            // });
-
-
-
-
-            // $(this).data('tabs-initialized', true);
-        // });
+        }            
     }
 
     /**
@@ -242,7 +211,13 @@ var mApp = function() {
             success: function(data)
             {   
                 for (var i = data.length - 1; i >= 0; i--) {
+                    if (data[i].field === "graphData") {
+                        initSalesHistoryChart(data[i].value)
+                    } else if (data[i].field === "lastFive") {
+                        updateTabData(data[i].value)
+                    } else {                        
                      console.info($("#" + data[i].field));
+                    }
                     $("#" + data[i].field).hide().html(data[i].value).fadeIn(1500); 
                 }
             },
@@ -292,7 +267,7 @@ var mApp = function() {
     /**
     * Initializes Sales History Chart
     */
-    var initSalesHistoryChart = function() {
+    var initSalesHistoryChart = function(data) {
         // Themes begin
         am4core.useTheme(am4themes_animated);
         // Themes end
@@ -300,77 +275,7 @@ var mApp = function() {
         // Create chart instance
         mApp.chart = am4core.create("m_chart_sales_history", am4charts.XYChart);
 
-             
-        // Data for both series
-        var data = [ {
-          "month": "Jan",
-          "sales": 1235652,
-          "salesPast": 1235652,
-          "meta": 2799782
-        }, {
-          "month": "Fev",
-          "sales": 2511050,
-          "salesPast": 1235652,
-          "meta": 2407456
-        }, {
-          "month": "Mar",
-          "sales": 3113518,
-          "salesPast": 1235652,
-          "meta": 2689173
-        }, {
-          "month": "Abr",
-          "sales": 2512398,
-          "salesPast": 1235652,
-          "meta": 2685002
-        }, {
-          "month": "Mai",
-          "sales": 2199185,
-          "salesPast": 1235652,
-          "meta": 2618203,
-          "lineDash": "5,5",
-        }, {
-          "month": "Jun",
-          "sales": 3144824,
-          "salesPast": 1235652,
-          "meta": 2611241,
-          "lineDash": "5,5",
-        }, {
-          "month": "Jul",
-          "sales": 3051131,
-          "salesPast": 1235652,
-          "meta": 2729059,
-          "lineDash": "5,5",
-        }, {
-          "month": "Ago",
-          "sales": 3332526,
-          "salesPast": 1235652,
-          "meta": 2696364,
-          "lineDash": "5,5",
-        }, {
-          "month": "Set",
-          "sales": 3522030,
-          "salesPast": 1235652,
-          "meta": 2544288,
-          "lineDash": "5,5",
-        }, {
-          "month": "Out",
-          "sales": 3578862,
-          "salesPast": 1235652,
-          "meta": 2896470,
-          "lineDash": "5,5",
-        }, {
-          "month": "Nov",
-          "sales": 3768395,
-          "salesPast": 1235652,
-          "meta": 2923295,
-          "lineDash": "5,5",
-        }, {
-          "month": "Dez",
-          "sales": 95974,
-          "salesPast": 1235652,
-          "meta": 1688017,
-          "lineDash": "5,5",
-        }];
+        mApp.chart.language.locale = am4lang_pt_BR;
 
         /* Create axes */
         var categoryAxis = mApp.chart.xAxes.push(new am4charts.CategoryAxis());
@@ -383,10 +288,10 @@ var mApp = function() {
         /* Create series */
         var columnSeries = mApp.chart.series.push(new am4charts.ColumnSeries());
         columnSeries.name = "2018";
-        columnSeries.dataFields.valueY = "sales";
+        columnSeries.dataFields.valueY = "salesPast";
         columnSeries.dataFields.categoryX = "month";
 
-        columnSeries.columns.template.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
+        columnSeries.columns.template.tooltipText = "[#fff font-size: 15px]{name} em {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
         columnSeries.columns.template.propertyFields.fillOpacity = "fillOpacity";
         columnSeries.columns.template.propertyFields.stroke = "stroke";
         columnSeries.columns.template.propertyFields.strokeWidth = "strokeWidth";
@@ -396,10 +301,10 @@ var mApp = function() {
         /* Create series */
         var columnSeries2 = mApp.chart.series.push(new am4charts.ColumnSeries());
         columnSeries2.name = "2019";
-        columnSeries2.dataFields.valueY = "salesPast";
+        columnSeries2.dataFields.valueY = "sales";
         columnSeries2.dataFields.categoryX = "month";
 
-        columnSeries2.columns.template.tooltipText = "[#fff font-size: 15px]{name} in {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
+        columnSeries2.columns.template.tooltipText = "[#fff font-size: 15px]{name} em {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]"
         columnSeries2.columns.template.propertyFields.fillOpacity = "fillOpacity";
         columnSeries2.columns.template.propertyFields.stroke = "stroke";
         columnSeries2.columns.template.propertyFields.strokeWidth = "strokeWidth";
@@ -412,7 +317,7 @@ var mApp = function() {
         lineSeries.name = "Meta";
         lineSeries.dataFields.valueY = "meta";
         lineSeries.dataFields.categoryX = "month";
-
+ 
         lineSeries.stroke = am4core.color("#fdd400");
         lineSeries.strokeWidth = 3;
         lineSeries.propertyFields.strokeDasharray = "lineDash";
@@ -430,6 +335,7 @@ var mApp = function() {
         circle.radius = 4;
         circle.fill = am4core.color("#fff");
         circle.strokeWidth = 3;
+
 
         mApp.chart.data = data;
     }
@@ -557,7 +463,7 @@ var mApp = function() {
         console.info("YAY", data);
         if (data.new_val.field === "graphData") {
             updateChartData(data.new_val.value)
-        } else if (data.new_val.field === "tabData") {
+        } else if (data.new_val.field === "lastFive") {
             updateTabData(data.new_val.value)            
         } else {
             $("#" + data.new_val.field).hide().html(data.new_val.value).fadeIn(1500);            
@@ -586,7 +492,18 @@ var mApp = function() {
     * Update tabs of last Sales
     */
     var updateTabData = function(newData) {
-        $("#" + newData.value.tab)
+        // for (var i = newData.length - 1; i >= 0; i--) {
+        //     newData[i]
+        // }
+        $("#m_widget11_tab2_content").find("tbody").find("tr").each(function( index ){ 
+            const postDate = new Date(newData[index].postDate);
+            const totalValue = numeral(newData[index].totalValue)
+            $(this).children().first().children().first().html(newData[index].Name)             
+            $(this).children().first().children().first().next().html(newData[index].partnerID)  
+            $(this).children().first().next().html(postDate.getDate() + '/' + (postDate.getMonth() + 1) + '/' + postDate.getFullYear())           
+            $(this).children().first().next().next().html(totalValue.format('($0,00a)'))           
+              // console.log( index + ": " + $( this ).text() );
+        });
                
     }
 
@@ -646,7 +563,7 @@ var mApp = function() {
             initPopulateData();
             initDailySalesChart();
             // initSalesBySegmentChart();
-            initSalesHistoryChart();
+            // initSalesHistoryChart();
             initWebSockets();
         },
         /**
@@ -654,18 +571,18 @@ var mApp = function() {
         */
         initWebSockets: function() {
             initWebSockets();
+        },      
+        /**
+        * Init Daily Sales Chart
+        */
+        initDailySalesChart: function() {
+            initDailySalesChart();
         },
         /**
         * Init Sales History Chart
         */
         initSalesHistoryChart: function() {
             initSalesHistoryChart();
-        },        
-        /**
-        * Init Daily Sales Chart
-        */
-        initDailySalesChart: function() {
-            initDailySalesChart();
         },
         /**
         * Init Sales by Segment Chart
@@ -679,7 +596,6 @@ var mApp = function() {
         initPopulateData: function() {
             initPopulateData();
         },
-
 
         /**
         * Init custom tabs
@@ -1396,6 +1312,27 @@ jQuery.fn.extend({
     }
 });
 //== Set defaults
+
+numeral.register('locale', 'pt-br', {
+    delimiters: {
+        thousands: ' ',
+        decimal: '.'
+    },
+    abbreviations: {
+        thousand: 'mil',
+        million: 'mi',
+        billion: 'bi',
+        trillion: 'tri'
+    },
+    ordinal : function (number) {
+        return number === 1 ? 'er' : 'ème';
+    },    
+    currency: {
+        symbol: 'R$'
+    }
+});
+numeral.locale('pt-br');
+numeral.defaultFormat('$0,0.00');
 
 Chart.elements.Rectangle.prototype.draw = function() {    
     var ctx = this._chart.ctx;

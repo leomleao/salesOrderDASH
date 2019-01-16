@@ -21,11 +21,11 @@ export class DashService implements OnGatewayInit {
 
   afterInit() {
     const socketInstance = this.server;
-    r.db('salesDASH').table('dash').changes().run(this.rethinkDB, (err, cursor) => {
+    r.table('dash').changes().run(this.rethinkDB, function(err, cursor) {
         if (err) throw err;
-        cursor.each((error, row) => {
-            if (error) throw error;
-            // console.log(JSON.stringify(row, null, 2));
+        cursor.each(function(err, row) {
+            if (err) throw err;
+            console.log(JSON.stringify(row, null, 2));
             socketInstance.emit('changes', row);
         });
     });
