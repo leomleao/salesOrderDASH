@@ -22,6 +22,7 @@ interface InvoiceItem {
   partnerID: any;
   dirMovement: any;
   cancelDate: any;
+  freight: any;
 }
 
 interface GraphColumn {
@@ -155,10 +156,12 @@ export class InvoicesService implements OnModuleInit {
           $(this).next().find('tr').each( function(j, trElem) {
             const row: InvoiceItem = {} as InvoiceItem;
             row.totalTax = 0;
+            let reducingRate;
 
             $(this).find('nobr').each( function(y, nobrElem) {
             // console.info($(this).children().children().text());
               const currentCell = $(this).text().replace(/^\s+|\s+$/g, '');
+              
 
               if (header[y].indexOf('Doc. No.') >= 0){
                 row.docNumber = parseInt(currentCell, 10);
@@ -171,6 +174,11 @@ export class InvoicesService implements OnModuleInit {
                 row.totalValue = currentCell.replace(/\./g, '').replace(/\,/g, '.');
               } else if (header[y].indexOf('Partner') >= 0) {
                 row.partnerID = currentCell;
+              } else if (header[y].indexOf('Freight') >= 0) {
+                reducingRate = 100;
+                row.freight = currentCell.replace(/\./g, '').replace(/\,/g, '.');
+              } else if (header[y].indexOf('Rate') >= 0) {
+                reducingRate = math.subtract(math.bignumber(reducingRate), math.bignumber(currentCell.replace(/\./g, '').replace(/\,/g, '.')));
               } else if (header[y].indexOf('Dir.movem.') >= 0) {
                 row.dirMovement = currentCell;
               } else if (header[y].indexOf('Canc. Date') >= 0 && currentCell !== '') {
@@ -179,6 +187,18 @@ export class InvoicesService implements OnModuleInit {
                 row[header[y]] = currentCell;
               }
             });
+
+            if (row.freight && reducingRate) {
+              row.totalTax = math.format(
+                math.add(
+                  math.bignumber(row.totalTax),
+                  math.multiply(
+                    math.bignumber(row.freight),
+                    math.divide(reducingRate, 100)
+                  )
+                )
+              )
+            }
 
             data.push(row);
           });
@@ -218,10 +238,10 @@ export class InvoicesService implements OnModuleInit {
       return await r.db('salesDASH').table('invoices').insert(groupedInvoices, {conflict: 'update'}).run(this.rethinkDB)
       .then((result) => {
         this.logger.log('Data uploaded to DB.');
-        fs.unlink(path, (err) => {
-          if (err) throw err;
-          this.logger.warn('Treated file deleted: ' + path);
-        });
+        // fs.unlink(path, (err) => {
+        //   if (err) throw err;
+        //   this.logger.warn('Treated file deleted: ' + path);
+        // });
         // console.log('file would have been deleted now');
       }).catch((err) => {
         this.logger.error(err, err.stack);
@@ -258,12 +278,12 @@ export class InvoicesService implements OnModuleInit {
         // currentlyReducedRow is a dublicateRow when processedRow is not null.
         // processedRow.totalValue = processedRow.totalValue.minus(currentlyReducedRow.taxValue);
         // processedRow.totalValue = processedRow.totalValue.minus(currentlyReducedRow.taxValue);
-        processedRow.totalValue = math.format(math.subtract(math.bignumber(processedRow.totalValue), math.bignumber(currentlyReducedRow.totalTax)));
+        processedRow.totalValue = math.format(math.subtract(math.bignumber(processedRow.totalValue), math.bignumber(currentlyReducedRow.totalTax)), {notation: 'fixed', precision: 2 });
         onDublicate(processedRow, currentlyReducedRow);
       } else {
         // currentlyReducedRow is unique and must be pushed in the reducedRows collection.
         // currentlyReducedRow.totalValue = currentlyReducedRow.totalValue.minus(currentlyReducedRow.taxValue);
-        currentlyReducedRow.totalValue = math.format(math.subtract(math.bignumber(currentlyReducedRow.totalValue), math.bignumber(currentlyReducedRow.totalTax)));
+        currentlyReducedRow.totalValue = math.format(math.subtract(math.bignumber(currentlyReducedRow.totalValue), math.bignumber(currentlyReducedRow.totalTax)), {notation: 'fixed', precision: 2 });
 
         reducedRows.push(currentlyReducedRow);
       }
