@@ -8,20 +8,19 @@ import { Logger } from '@nestjs/common';
 
 export class LoggerService extends Logger {
   // private readonly logger: LoggerInstance;
-  private readonly prettyError = new PrettyError()
+  private readonly prettyError = new PrettyError();
   // public static loggerOptions: LoggerOptions = {
   //   transports: [
   //     new winston.transports.File({
-  //       filename: __dirname + '../../debug.log',        
+  //       filename: __dirname + '../../debug.log',
   //     }),
   //   ],
   // };
-  constructor (context){
-    super(context);    
+  constructor(context){
+    super(context);
     this.prettyError.skipNodeFiles();
     this.prettyError.skipPackage('express', '@nestjs/common', '@nestjs/core');
   }
-
 
   // constructor(private context: string, transport?) {
   //   this.logger = (winston as any).createLogger(LoggerService.loggerOptions);
@@ -30,7 +29,7 @@ export class LoggerService extends Logger {
   // }
 
   // static configGlobal(options?: LoggerOptions) {
-  //   this.loggerOptions = options; 
+  //   this.loggerOptions = options;
   // }
 
   // printStackTrace(trace: string) {
@@ -44,7 +43,7 @@ export class LoggerService extends Logger {
       super.error(message);
       this.prettyError.render(trace, true);
     } else {
-      super.error(message, trace);      
+      super.error(message, trace);
     }
     // add your custom business logic
     // console.info();
@@ -61,7 +60,7 @@ export class LoggerService extends Logger {
 
   // error(message: string, trace?: any): void {
   //   const currentDate = new Date();
-  //   // i think the trace should be JSON Stringified 
+  //   // i think the trace should be JSON Stringified
   //   this.logger.error(`${message} -> (${trace || 'trace not provided !'})`, {
   //     timestamp: currentDate.toISOString(),
   //     context: this.context,
@@ -81,7 +80,7 @@ export class LoggerService extends Logger {
   // overrideOptions(options: LoggerOptions) {
   //   this.logger.configure(options);
   // }
-  
+
   // this method just for printing a cool log in your terminal , using chalk
   // private printToConsole(level: string, message: string, error?): void {
   //   let result = '';

@@ -11,7 +11,7 @@
 //   public static loggerOptions: LoggerOptions = {
 //     transports: [
 //       new winston.transports.File({
-//         filename: __dirname + '../../debug.log',        
+//         filename: __dirname + '../../debug.log',
 //       }),
 //     ],
 //   };
@@ -23,7 +23,7 @@
 //   }
 
 //   static configGlobal(options?: LoggerOptions) {
-//     this.loggerOptions = options; 
+//     this.loggerOptions = options;
 //   }
 
 //   log(message: string): void {
@@ -37,7 +37,7 @@
 
 //   error(message: string, trace?: any): void {
 //     const currentDate = new Date();
-//     // i think the trace should be JSON Stringified 
+//     // i think the trace should be JSON Stringified
 //     this.logger.error(`${message} -> (${trace || 'trace not provided !'})`, {
 //       timestamp: currentDate.toISOString(),
 //       context: this.context,
@@ -57,7 +57,7 @@
 //   overrideOptions(options: LoggerOptions) {
 //     this.logger.configure(options);
 //   }
-  
+
 //   // this method just for printing a cool log in your terminal , using chalk
 //   private printToConsole(level: string, message: string, error?): void {
 //     let result = '';

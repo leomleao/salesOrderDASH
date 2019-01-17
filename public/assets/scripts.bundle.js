@@ -211,7 +211,8 @@ var mApp = function() {
             success: function(data)
             {   
                 for (var i = data.length - 1; i >= 0; i--) {
-                    if (data[i].field === "graphData") {
+                    if (data[i].field === "chartData") {
+                        console.info(data[i].value)
                         initSalesHistoryChart(data[i].value)
                     } else if (data[i].field === "lastFive") {
                         updateTabData(data[i].value)
@@ -265,28 +266,178 @@ var mApp = function() {
     }
 
     /**
-    * Initializes Sales History Chart
+    * Initializes Sales in São paulo heat map
     */
-    var initSalesHistoryChart = function(data) {
+    var initSalesStateHeatMap = function() {
+
         // Themes begin
         am4core.useTheme(am4themes_animated);
         // Themes end
 
         // Create chart instance
-        mApp.chart = am4core.create("m_chart_sales_history", am4charts.XYChart);
+        mApp.salesStateHeatMap =am4core.create("m_chart_sales_state_heatmap", am4maps.MapChart);
 
-        mApp.chart.language.locale = am4lang_pt_BR;
+        mApp.salesStateHeatMap.titles.create().text;
+        mApp.salesStateHeatMap.geodataSource.url = "../assets/vendors/myjsonfile.json";
+        mApp.salesStateHeatMap.geodataSource.events.on("parseended", function(ev) {
+            var data = [];
+            console.info(ev.target.data.features.length);
+            for(var i = 0; i < ev.target.data.features.length; i++) {
+              data.push({
+                id: ev.target.data.features[i].id,
+                value: Math.round( Math.random() * 10000 )
+              })
+            }
+            polygonSeries.data = data;
+        })
+
+        // Set projection
+        mApp.salesStateHeatMap.projection = new am4maps.projections.Miller();
+
+        // Create map polygon series
+        var polygonSeries = mApp.salesStateHeatMap.series.push(new am4maps.MapPolygonSeries());
+
+        //Set min/max fill color for each area
+        polygonSeries.heatRules.push({
+            property: "fill",
+            target: polygonSeries.mapPolygons.template,
+            min: mApp.salesStateHeatMap.colors.getIndex(1).brighten(1),
+            max: mApp.salesStateHeatMap.colors.getIndex(1).brighten(-0.3)
+        });
+
+        // Make map load polygon data (state shapes and names) from GeoJSON
+        polygonSeries.useGeodata = true;
+
+        // Set up heat legend
+        let heatLegend = mApp.salesStateHeatMap.createChild(am4maps.HeatLegend);
+        heatLegend.series = polygonSeries;
+        heatLegend.align = "right";
+        heatLegend.width = am4core.percent(25);
+        heatLegend.marginRight = am4core.percent(4);
+        heatLegend.minValue = 0;
+        heatLegend.maxValue = 40000000;
+
+        // Set up custom heat map legend labels using axis ranges
+        var minRange = heatLegend.valueAxis.axisRanges.create();
+        minRange.value = heatLegend.minValue;
+        minRange.label.text = "Little";
+        var maxRange = heatLegend.valueAxis.axisRanges.create();
+        maxRange.value = heatLegend.maxValue;
+        maxRange.label.text = "A lot!";
+
+        // Blank out internal heat legend value axis labels
+        heatLegend.valueAxis.renderer.labels.template.adapter.add("text", function(labelText) {
+            return "";
+        });
+
+        // Configure series tooltip
+        var polygonTemplate = polygonSeries.mapPolygons.template;
+        polygonTemplate.tooltipText = "{name}: {value}";
+
+        // Create hover state and set alternative fill color
+        var hs = polygonTemplate.states.create("hover");
+        hs.properties.fill = mApp.salesStateHeatMap.colors.getIndex(1).brighten(-0.5);
+
+    }
+
+    /**
+    * Initializes Sales in Brazil heat map
+    */
+    var initSalesCountryHeatMap = function() {
+
+        // Themes begin
+        am4core.useTheme(am4themes_animated);
+        // Themes end
+
+        // Create chart instance
+        mApp.salesCountryHeatMap =am4core.create("m_chart_sales_country_heatmap", am4maps.MapChart);
+
+        mApp.salesCountryHeatMap.titles.create().text;
+        mApp.salesCountryHeatMap.geodataSource.url = "../assets/vendors/brazilLow.json";
+        mApp.salesCountryHeatMap.geodataSource.events.on("parseended", function(ev) {
+            var data = [];
+            for(var i = 0; i < ev.target.data.features.length; i++) {
+              data.push({
+                id: ev.target.data.features[i].id,
+                value: Math.round( Math.random() * 10000 )
+              })
+            }
+            polygonSeries.data = data;
+        })
+
+        // Set projection
+        mApp.salesCountryHeatMap.projection = new am4maps.projections.Miller();
+
+        // Create map polygon series
+        var polygonSeries = mApp.salesCountryHeatMap.series.push(new am4maps.MapPolygonSeries());
+
+        //Set min/max fill color for each area
+        polygonSeries.heatRules.push({
+            property: "fill",
+            target: polygonSeries.mapPolygons.template,
+            min: mApp.salesCountryHeatMap.colors.getIndex(1).brighten(1),
+            max: mApp.salesCountryHeatMap.colors.getIndex(1).brighten(-0.3)
+        });
+
+        // Make map load polygon data (state shapes and names) from GeoJSON
+        polygonSeries.useGeodata = true;
+
+        // Set up heat legend
+        let heatLegend = mApp.salesCountryHeatMap.createChild(am4maps.HeatLegend);
+        heatLegend.series = polygonSeries;
+        heatLegend.align = "right";
+        heatLegend.width = am4core.percent(25);
+        heatLegend.marginRight = am4core.percent(4);
+        heatLegend.minValue = 0;
+        heatLegend.maxValue = 40000000;
+
+        // Set up custom heat map legend labels using axis ranges
+        var minRange = heatLegend.valueAxis.axisRanges.create();
+        minRange.value = heatLegend.minValue;
+        minRange.label.text = "Little";
+        var maxRange = heatLegend.valueAxis.axisRanges.create();
+        maxRange.value = heatLegend.maxValue;
+        maxRange.label.text = "A lot!";
+
+        // Blank out internal heat legend value axis labels
+        heatLegend.valueAxis.renderer.labels.template.adapter.add("text", function(labelText) {
+            return "";
+        });
+
+        // Configure series tooltip
+        var polygonTemplate = polygonSeries.mapPolygons.template;
+        polygonTemplate.tooltipText = "{name}: {value}";
+
+        // Create hover state and set alternative fill color
+        var hs = polygonTemplate.states.create("hover");
+        hs.properties.fill = mApp.salesCountryHeatMap.colors.getIndex(1).brighten(-0.5);
+
+    }
+
+    /**
+    * Initializes Sales History Chart
+    */
+    var initSalesHistoryChart = function(data) {
+        console.info(data)
+        // Themes begin
+        am4core.useTheme(am4themes_animated);
+        // Themes end
+
+        // Create chart instance
+        mApp.salesHistoryChart = am4core.create("m_chart_sales_history", am4charts.XYChart);
+
+        mApp.salesHistoryChart.language.locale = am4lang_pt_BR;
 
         /* Create axes */
-        var categoryAxis = mApp.chart.xAxes.push(new am4charts.CategoryAxis());
+        var categoryAxis = mApp.salesHistoryChart.xAxes.push(new am4charts.CategoryAxis());
         categoryAxis.dataFields.category = "month";
         categoryAxis.renderer.minGridDistance = 30;
 
         /* Create value axis */
-        var valueAxis = mApp.chart.yAxes.push(new am4charts.ValueAxis());
+        var valueAxis = mApp.salesHistoryChart.yAxes.push(new am4charts.ValueAxis());
 
         /* Create series */
-        var columnSeries = mApp.chart.series.push(new am4charts.ColumnSeries());
+        var columnSeries = mApp.salesHistoryChart.series.push(new am4charts.ColumnSeries());
         columnSeries.name = "2018";
         columnSeries.dataFields.valueY = "salesPast";
         columnSeries.dataFields.categoryX = "month";
@@ -299,7 +450,7 @@ var mApp = function() {
         columnSeries.tooltip.label.textAlign = "middle";
 
         /* Create series */
-        var columnSeries2 = mApp.chart.series.push(new am4charts.ColumnSeries());
+        var columnSeries2 = mApp.salesHistoryChart.series.push(new am4charts.ColumnSeries());
         columnSeries2.name = "2019";
         columnSeries2.dataFields.valueY = "sales";
         columnSeries2.dataFields.categoryX = "month";
@@ -313,7 +464,7 @@ var mApp = function() {
 
 
 
-        var lineSeries = mApp.chart.series.push(new am4charts.LineSeries());
+        var lineSeries = mApp.salesHistoryChart.series.push(new am4charts.LineSeries());
         lineSeries.name = "Meta";
         lineSeries.dataFields.valueY = "meta";
         lineSeries.dataFields.categoryX = "month";
@@ -323,9 +474,9 @@ var mApp = function() {
         lineSeries.propertyFields.strokeDasharray = "lineDash";
         lineSeries.tooltip.label.textAlign = "middle";
 
-        mApp.chart.legend = new am4charts.Legend();
-        mApp.chart.legend.position = "bottom";
-        mApp.chart.legend.valign = "bottom";
+        mApp.salesHistoryChart.legend = new am4charts.Legend();
+        mApp.salesHistoryChart.legend.position = "bottom";
+        mApp.salesHistoryChart.legend.valign = "bottom";
         // chart.legend.margin(5,5,20,5);
 
         var bullet = lineSeries.bullets.push(new am4charts.Bullet());
@@ -337,7 +488,7 @@ var mApp = function() {
         circle.strokeWidth = 3;
 
 
-        mApp.chart.data = data;
+        mApp.salesHistoryChart.data = data;
     }
 
     /**
@@ -483,9 +634,9 @@ var mApp = function() {
     * Updates Sales History Chart
     */
     var updateChartData = function(newData) {
-        mApp.chart.data = newData;
+        mApp.salesHistoryChart.data = newData;
         //Updating the graph to show the new data
-        mApp.chart.validateData();       
+        mApp.salesHistoryChart.validateData();       
     }
 
     /**
@@ -564,14 +715,31 @@ var mApp = function() {
             initDailySalesChart();
             // initSalesBySegmentChart();
             // initSalesHistoryChart();
+            initSalesStateHeatMap();
+            initSalesCountryHeatMap();
             initWebSockets();
         },
+
         /**
         * Init Sales History Chart
         */
         initWebSockets: function() {
             initWebSockets();
-        },      
+        },   
+
+        /**
+        * Init Sales History Chart
+        */
+        initSalesStateHeatMap: function() {
+            initSalesStateHeatMap();
+        }, 
+        
+        /**
+        * Init Sales History Chart
+        */
+        initSalesCountryHeatMap: function() {
+            initSalesCountryHeatMap();
+        },     
         /**
         * Init Daily Sales Chart
         */
@@ -581,9 +749,9 @@ var mApp = function() {
         /**
         * Init Sales History Chart
         */
-        initSalesHistoryChart: function() {
-            initSalesHistoryChart();
-        },
+        // initSalesHistoryChart: function() {
+        //     initSalesHistoryChart();
+        // },
         /**
         * Init Sales by Segment Chart
         */

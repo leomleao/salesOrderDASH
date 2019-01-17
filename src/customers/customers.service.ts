@@ -45,15 +45,15 @@ export class CustomersService {
 
   async updateDash() {
     const data = [];
-    this.logger.log("Updating dash -- total customers." );
+    this.logger.log('Updating dash -- total customers.' );
     r.db('salesDASH').table('customers').filter((row) => {
       return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
     }).orderBy(r.desc('Date')).count().run(this.rethinkDB)
-    .then((newCustomers) => {      
+    .then((newCustomers) => {
       data.push({ field: 'newCustomers', value: newCustomers });
       r.db('salesDASH').table('dash').insert(data, {conflict: 'update'}).run(this.rethinkDB)
       .then((result) => {
-        this.logger.log("Updating dash -- " + newCustomers + " new customers.");
+        this.logger.log('Updating dash -- ' + newCustomers + ' new customers.');
       });
     }).catch((err) => {
       this.logger.error(err, err.stack());
@@ -73,7 +73,7 @@ export class CustomersService {
   }
 
   async updateData(path: string, type: string) {
-    this.logger.log("Gotcha ya!");
+    this.logger.log('Gotcha ya!');
     const $ = cheerio.load(fs.readFileSync(path));
 
     // get header
@@ -127,14 +127,14 @@ export class CustomersService {
       });
     }
 
-    this.logger.log("Customer data treated.");
+    this.logger.log('Customer data treated.');
 
     return await r.db('salesDASH').table('customers').insert(data, {conflict: 'update'}).run(this.rethinkDB)
       .then((result) => {
-        this.logger.log("Data uploaded to DB.");
+        this.logger.log('Data uploaded to DB.');
         fs.unlink(path, (err) => {
           if (err) throw err;
-          this.logger.warn("Treated file deleted: " + path);
+          this.logger.warn('Treated file deleted: ' + path);
         });
         // console.log('file would have been deleted now');
       }).catch((err) => {

@@ -21,24 +21,24 @@ export class DBModule implements OnModuleInit {
 	onModuleInit() {
 		r.dbCreate('salesDASH').run(this.rethinkDB)
 	    .then((result) => {
-	    	
-	 	}).catch((err) =>{
 
-	 	})
-	 	r.db('salesDASH').tableCreate('invoices', { primaryKey: 'docNumber'} ).run(this.rethinkDB)
-	 	.catch((err) =>{
+	 	}).catch((err) => {
 
 	 	});
-	    r.db('salesDASH').tableCreate('invoiceTotals', { primaryKey: 'period'} ).run(this.rethinkDB)
-	    .catch((err) =>{
+	 r.db('salesDASH').tableCreate('invoices', { primaryKey: 'docNumber'} ).run(this.rethinkDB)
+	 	.catch((err) => {
 
 	 	});
-	    r.db('salesDASH').tableCreate('dash', {primaryKey: 'field'}).run(this.rethinkDB)
-	    .catch((err) =>{
+	 r.db('salesDASH').tableCreate('invoiceTotals', { primaryKey: 'period'} ).run(this.rethinkDB)
+	    .catch((err) => {
 
 	 	});
-	    r.db('salesDASH').tableCreate('customers', {primaryKey: 'Customer'}).run(this.rethinkDB)
-	    .catch((err) =>{
+	 r.db('salesDASH').tableCreate('dash', {primaryKey: 'field'}).run(this.rethinkDB)
+	    .catch((err) => {
+
+	 	});
+	 r.db('salesDASH').tableCreate('customers', {primaryKey: 'Customer'}).run(this.rethinkDB)
+	    .catch((err) => {
 
 	 	});
 
