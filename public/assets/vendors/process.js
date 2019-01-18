@@ -1,5 +1,4 @@
 var fs = require('fs');
-var utf8 = require('./utf8');
 var obj = JSON.parse(fs.readFileSync('./saoPauloLow4.json'));
 
 

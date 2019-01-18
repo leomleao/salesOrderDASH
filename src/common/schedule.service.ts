@@ -2,6 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Interval, NestSchedule } from 'nest-schedule';
 import { CustomersService } from '../customers/customers.service';
 import { InvoicesService } from '../invoices/invoices.service';
+import { SalesOrdersService } from '../salesorders/salesorders.service';
 import { FilesService } from './files.service';
 import { LoggerService } from './logging.service';
 import { InjectConfig  } from 'nestjs-config';
@@ -13,12 +14,13 @@ export class ScheduleService extends NestSchedule {
     @Inject(CustomersService) private readonly customerService: CustomersService,
     @Inject(FilesService) private readonly fileService: FilesService,
     @Inject(InvoicesService) private readonly invoiceService: InvoicesService,
+    @Inject(SalesOrdersService) private readonly salesOrderService: SalesOrdersService,
     @InjectConfig() private readonly config,
   ) {
     super();
   }
 
-  @Interval(5000)
+  // @Interval(5000)
   async findNewF123123iles() {
     await this.invoiceService.updateDash();
   }
@@ -52,6 +54,15 @@ export class ScheduleService extends NestSchedule {
               .then(() => {
                 // this.invoiceService.updateDash();
               });
+            });
+          } else if (foundFiles[i].type === 'SALESORDERDATA') {
+            this.logger.log('Treating data of sales orders!');
+            this.salesOrderService.updateData(foundFiles[i].path, type)
+            .then(() => {
+              // this.salesOrderService.updateInvoiceTotals()
+              // .then(() => {
+              //   // this.invoiceService.updateDash();
+              // });
             });
           }
         }

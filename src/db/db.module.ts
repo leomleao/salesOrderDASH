@@ -41,6 +41,10 @@ export class DBModule implements OnModuleInit {
 	    .catch((err) => {
 
 	 	});
+	 r.db('salesDASH').tableCreate('salesOrders', {primaryKey: 'docNumber'}).run(this.rethinkDB)
+	    .catch((err) => {
+
+	 	});
 
 	}
 }

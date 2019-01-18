@@ -132,7 +132,7 @@ export class InvoicesService implements OnModuleInit {
   }
 
   async updateData(path: string, type: string) {
-    // console.log('gotcha ya');
+    this.logger.log("Gotcha ya!");
     const $ = cheerio.load(fs.readFileSync(path));
 
     // get header

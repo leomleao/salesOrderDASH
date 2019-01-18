@@ -1,142 +1,233 @@
-import { Inject, Injectable, BadRequestException, LoggerService } from '@nestjs/common';
+import { Inject, Injectable, BadRequestException, OnModuleInit } from '@nestjs/common';
 import * as soap from 'soap';
 import * as r from 'rethinkdb';
 import * as fs from 'fs';
 import * as cheerio from 'cheerio';
+import * as math from 'mathjs';
 
+import { LoggerService } from '../common/logging.service';
 import { InjectConfig  } from 'nestjs-config';
 
+math.config({
+  number: 'BigNumber', // Default type of number:
+  // 'number' (default), 'BigNumber', or 'Fraction'
+  precision: 20, // Number of significant digits for BigNumbers
+});
+
+interface SalesOrderItem {
+  docNumber: any;
+  creationDate: any;
+  type: any;
+  createdBy: string;
+  sOrg: any;
+  sOff: any;
+  totalValue: any;
+  item: number;
+  netValue: any;
+  referenced: boolean;
+}
+
 @Injectable()
-export class SalesOrdersService {
+export class SalesOrdersService implements OnModuleInit {
+  private readonly logger: LoggerService = new LoggerService(SalesOrdersService.name);
   constructor(
     @Inject('rethinkDB') private readonly rethinkDB,
     @InjectConfig() private readonly config,
   ) { }
 
-  /**
-   * @param contact Simple Interface.
-   * @param ownerId The UserID of who's trying to add a new contact.
-   * @return Returns the created contact.
-   */
-  async find(salesOrderID: string) {
-    // const soap = require('soap');
-    // const url = './src/ws/ecc_salesorder009qr.wsdl';
-    // let salesOrder = 0;
-    // const args = {
-    //   SalesOrderSelectionByElements: {
-    //     SelectionByID: {
-    //       IntervalBoundaryTypeCode: 1,
-    //       LowerBoundarySalesOrganisationID: salesOrderID,
-    //     },
-    //   },
-    //   ProcessingConditions: {
-    //     QueryHitsMaximumNumberValue: 1,
-    //   },
-    // };
-    // await soap.createClientAsync(url).then((client) => {
-    //   client.setSecurity(new soap.BasicAuthSecurity('u228820', 'cp1205rm28f='));
-    //   return client.SalesOrderERPBasicDataByElementsQueryResponse_InAsync(args);
-    // }).then((result) => {
-    //   console.log(result);
-    //   salesOrder = result;
+  onModuleInit() {
+    // console.log(`Initialization...`);
+    // r.table('dash').changes().run(this.rethinkDB, function(err, cursor) {
+    //     if (err) throw err;
+    //     this.InvoicesServices.updateInvoiceTotals();
     // });
-    // return salesOrder;
   }
 
-  async updateData(path: string) {
+  async updateDash() {
+      const today = new Date();
 
-    const $ = cheerio.load(fs.readFileSync(path));
+      // const yearlyTotal = 
 
-    // get header
-    const header = [];
-    const data = [];
-    $('tbody').first().children().find('nobr').each( function(i, elem) {
-      header.push($(this).text().replace(/^\s+|\s+$/g, ''));
-    });
-    // console.info(JSON.stringify(header));
+      // const monthlyTotal = 
 
-    $('tbody').each( function(i, tbodyElem) {
-      $(this).next().find('tr').each( function(j, trElem) {
-        const row = {};
+      // const weeklyTotal = 
 
-        $(this).find('nobr').each( function(y, nobrElem) {
-        // console.info($(this).children().children().text());
-          row[header[y]] = $(this).text().replace(/^\s+|\s+$/g, '');
-        });
-        data.push(row);
-      });
-    });
+      // const hitRateWeekly =  
 
-    // console.info(JSON.stringify(result, null, 2));
-    r.db('salesDASH').table('customers').insert(data, {conflict: 'update'}).run(this.rethinkDB)
-    .then((result) => {
-      // console.info(JSON.stringify(result, null, 2));
-      fs.stat(path, (err, stats) => {
-        if (err) throw err;
-        // console.log(`stats: ${JSON.stringify(stats)}`);
-      });
-    }).catch((err) => {
-      // console.info(JSON.stringify(err, null, 2));
-    });
-    // console.info(JSON.stringify(data));
 
-  }
 
-  async findTotalThisMonth() {
-    // const date = new Date();
-    // const firstDay = new Date(date.getFullYear(), date.getMonth() - 5, 1);
-    // const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    // let totalOrders = 0;
-    // const soap = require('soap');
-    // const url = './src/ws/ecc_salesorder009qr.wsdl';
-    // const args = {
-    //   SalesOrderSelectionByElements: {
-    //     SelectionBySalesOrganisationID: {
-    //       IntervalBoundaryTypeCode: 1,
-    //       LowerBoundarySalesOrganisationID: '0022'
-    //     },
-    //     SelectionByCreationDate: {
-    //       IntervalBoundaryTypeCode: 3,
-    //       LowerBoundaryCreationDate: firstDay.toISOString().slice(0,10),
-    //       UpperBoundaryCreationDate: lastDay.toISOString().slice(0,10)
-    //     }
-    //   },
-    //   ProcessingConditions: {
-    //     QueryHitsMaximumNumberValue: 50
+    // console.info(data.filter(this.reduceArray('docNumber')).length);
+    // const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+    // this.logger.log('Updating dash -- total sales.' );
+    // r.db('salesDASH').table('invoiceTotals').run(this.rethinkDB).then((cursor) => {
+    //     return cursor.toArray();
+    // }).then((invoiceTotals) => {
+    //     // process the results
+    //   const data = [];
+    //   const year = new Date().getFullYear();
+
+    //   for (let i = 0; i <= 11; i++) {
+    //     const current: GraphColumn = {} as GraphColumn;
+    //     let test;
+    //     current.month = months[i];
+    //     current.sales = (typeof (test = invoiceTotals.find((sales) => sales.period ===  ( i + 1 )  + '.' + year)) === 'object') ? test.value : 0;
+    //     current.salesPast = (typeof (test = invoiceTotals.find((sales) => sales.period ===  ( i + 1 ) + '.' + (year - 1))) === 'object') ? test.value : 0;
+    //     current.meta = (current.salesPast > 0) ? current.salesPast * 1.1 : 0;
+    //     data.push(current);
     //   }
-    // };
 
-    // await soap.createClientAsync(url).then((client) => {
-    //     client.setSecurity(new soap.BasicAuthSecurity('u228820', 'cp1205rm28f='));
-    //     return client.SalesOrderERPBasicDataByElementsQueryResponse_InAsync(args)
-    // }).then((result) => {
-    //   // console.log(result);
-    //   r.connect({ host: 'localhost', port: 28015 }, function(err, conn){
-    //     if(err) throw err;
-    //     r.db('test').tableCreate('sales_order').run(conn, function(err, res){
-    //       if(err) throw err;
-    //       console.log(res);
-    //       r.table('sales_order').insert(result[0].SalesOrder).run(conn, function(err, res){
-    //         if (err) throw err;
-    //         console.log(res);
-    //       })
-    //     })
-    //   })
-    //   totalOrders = result[0].SalesOrder.length;
+    //   r.db('salesDASH').table('dash').insert([{ field: 'chartData', value: data }], {conflict: 'update'}).run(this.rethinkDB)
+    //   .then((result) => {
+    //     this.logger.log('Sales graph data updated.');
+    //   });
+    // }).catch((err) => {
+    //   this.logger.error(err, err.stack);
     // });
 
-    // await r.table('sales_order').count().run(this.rethinkDB, function(err, result) {
-    //   if (err) throw err;
-    //   console.log(JSON.stringify(result, null, 2));
-    //   return JSON.stringify(result, null, 2);
+    // this.logger.log('Updating dash -- last five.' );
+    // r.db('salesDASH').table('invoices').orderBy(r.desc('postDate')).limit(5).run(this.rethinkDB).then((cursor) => {
+    //     return cursor.toArray();
+    // }).then((lastFive) => {
+    //   r.db('salesDASH').table('dash').insert([{ field: 'lastFive', value: lastFive }], {conflict: 'update'}).run(this.rethinkDB)
+    //   .then((result) => {
+    //     this.logger.log('Sales graph data updated.');
+    //   });
+    // }).catch((err) => {
+    //   this.logger.error(err, err.stack);
     // });
-    // return 0;
 
-    return await r.table('sales_order').count().run(this.rethinkDB)
-    .then((result) => {
-      return JSON.stringify(result, null, 2);
-    }).catch((err) => {
-        // process error
-    });
-  }
+    // const data = [];
+    // r.db('salesDASH').table('invoices').count().run(this.rethinkDB)
+    // .then((result) => {
+    //   const totalCustomers = result;
+    //   // console.info('total customer --- ', totalCustomers);
+    //   r.db('salesDASH').table('customers').filter((row) => {
+    //     return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
+    //   }).orderBy(r.desc('Date')).run(this.rethinkDB)
+    //   .then((result) => {
+    //     // console.info('total new customer --- ', result.length);
+    //     data.push({ field: 'newCustomers', value: result.length });
+    //     r.db('salesDASH').table('dash').insert(data, {conflict: 'update'}).run(this.rethinkDB)
+    //     .then((result) => {
+    //       // console.info(JSON.stringify(result, null, 2));
+    //     });
+    //   });
+    // }).catch((err) => {
+    //   // console.info(JSON.stringify(err, null, 2));
+    // });
+    // return Promise.all([yearlyTotal, monthlyTotal, weeklyTotal, hitRateWeekly])
+    // .then(function(res){
+    //     console.log('Promise.all', res);        
+    // })
+    // .catch(function(err){
+    //     console.error('err', err);
+    // });
+  } 
+
+    async updateData(path: string, type: string) {
+        this.logger.log("Gotcha ya!");
+        const $ = cheerio.load(fs.readFileSync(path));
+
+        // get header
+        const header = [];
+        const data = [];
+        try {
+          if (type === '.htm') {
+            $('tbody').first().children().find('nobr').each( function(i, elem) {
+              const columnHeader = $(this).text().replace(/^\s+|\s+$/g, '');          
+                header.push(columnHeader);
+            });
+
+            $('tbody').each( function(i, tbodyElem) {
+              $(this).next().find('tr').each( function(j, trElem) {
+                const row: SalesOrderItem = {} as SalesOrderItem;
+                let day, month, year, hour, minute, second;
+
+                $(this).find('nobr').each( function(y, nobrElem) {
+                // console.info($(this).children().children().text());
+                    const currentCell = $(this).text().replace(/^\s+|\s+$/g, '')
+
+                    if (header[y] === "docNumber"){
+                        row.docNumber = [parseInt(currentCell, 10)];
+                    } else if (header[y] === "creationDate") {
+                        [day, month, year] = currentCell.split('.');
+                    } else if (header[y] === "time") {
+                        [hour, minute, second] = currentCell.split(':');
+                    } else if (header[y] === 'type') {
+                        row.type = currentCell;
+                    } else if (header[y] === 'createdBy') {
+                        row.createdBy = currentCell;
+                    } else if (header[y] === 'sOrg') {
+                        row.sOrg = currentCell;
+                    } else if (header[y] === 'sOff') {
+                        row.sOff = currentCell;
+                    } else if (header[y] === 'item') {
+                        row.docNumber.push(parseInt(currentCell, 10));
+                    } else if (header[y] === 'netValue') {                      
+                        row.netValue = currentCell.replace(/\./g, '').replace(/\,/g, '.');
+                    } else if (header[y] === 'totalValue') {
+                        row.totalValue = currentCell.replace(/\./g, '').replace(/\,/g, '.');
+                    } else if (header[y] === 'followDoc') {
+                        (currentCell !== '') ? row.referenced = true : row.referenced = false;                
+                    } else if (currentCell !== '') {
+                      row[header[y]] = currentCell;
+                    }
+
+                });
+
+                row.creationDate = r.time(parseInt(year, 10), parseInt(month, 10), parseInt(day, 10), parseInt(hour, 10), parseInt(minute, 10), parseInt(second, 10), '-03:00');
+                data.push(row);
+
+              });
+              console.info(data);
+
+            });
+          } else if (type === '.HTM') {
+              // $('tbody').first().find('tr').find('td').each( function(i, elem) {
+              //   header.push($(this).text().replace(/^\s+|\s+$/g, ''));
+              // });
+
+              // $('tbody').first().find('tr').each( function(i, elem) {
+
+              //   let row = {};
+              //   if (i != 0) {
+              //     $(this).find('td').each( function(i, elem) {
+              //     // console.info($(this).children().children().text());
+              //       if (header[i] == "Customer"){
+              //         row[header[i]] = parseInt($(this).text().replace(/^\s+|\s+$/g, ''));
+              //       } if (header[i] == "Date"){
+              //         const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split(".");
+              //         row[header[i]] = new Date(year, month - 1, day);
+              //       } else {
+              //         row[header[i]] = $(this).text().replace(/^\s+|\s+$/g, '');
+              //       }
+              //     })
+              //     data.push(row);
+              //   }
+              // });
+          }
+
+        } catch (err) {
+          this.logger.error(err, err.stack);
+        }
+
+        this.logger.log('Sales orders data treated.');
+        // console.info(JSON.stringify(data));
+        return await r.db('salesDASH').table('salesOrders').insert(data, {conflict: 'update'}).run(this.rethinkDB)
+        .then((result) => {
+            this.logger.log('Data uploaded to DB.');
+            fs.unlink(path, (err) => {
+              if (err) throw err;
+              this.logger.warn('Treated file deleted: ' + path);
+            });
+        }).catch((err) => {
+            this.logger.error(err, err.stack);
+        });        
+    }    
+
+    private reduceArray(prop) {    
+        return (ele, i, arr) => arr.map(ele => ele[prop]).indexOf(ele[prop]) === i;    
+    }
+
 }
