@@ -46,9 +46,61 @@ export class SalesOrdersService implements OnModuleInit {
   async updateDash() {
       const today = new Date();
 
-      // const yearlyTotal = 
+      const yearlyTotalSalesOrder = r.db('salesDASH').table('salesOrders').filter((row) => {
+          return r.and(row('creationDate').year().eq(r.now().year()), row('type').eq("9210")); 
+      }).sum((row) => {
+            return row('netValue').coerceTo('NUMBER');
+      }).run(this.rethinkDB).then((result) => {        
+        this.logger.log('Data uploaded to DB.');
+        r.db('salesDASH').table('dash').insert([{ field: 'salesOrdersTotalValueCurrentYear', value: result }], {conflict: 'update'}).run(this.rethinkDB)
+        .then((result) => {
+          this.logger.log('total Sales orders this year updated.');
+        });
+      }).catch((err) => {
+        this.logger.error(err, err.stack);
+      });
 
-      // const monthlyTotal = 
+      const yearlyTotalQuotations = r.db('salesDASH').table('salesOrders').filter((row) => {
+          return r.and(row('creationDate').year().eq(r.now().year()), row('type').eq("9050")); 
+      }).sum((row) => {
+            return row('netValue').coerceTo('NUMBER');
+      }).run(this.rethinkDB).then((result) => {        
+        this.logger.log('Data uploaded to DB.');
+        r.db('salesDASH').table('dash').insert([{ field: 'quotationsTotalValueCurrentYear', value: result }], {conflict: 'update'}).run(this.rethinkDB)
+        .then((result) => {
+          this.logger.log('total quotations this year updated.');
+        });
+      }).catch((err) => {
+        this.logger.error(err, err.stack);
+      });
+
+      const monthlyTotalSalesOrder = r.db('salesDASH').table('salesOrders').filter((row) => {
+          return r.and(row('creationDate').month().eq(r.now().month()), row('type').eq("9210")); 
+      }).sum((row) => {
+            return row('netValue').coerceTo('NUMBER');
+      }).run(this.rethinkDB).then((result) => {        
+        this.logger.log('Data uploaded to DB.');
+        r.db('salesDASH').table('dash').insert([{ field: 'salesOrdersTotalValueCurrentMonth', value: result }], {conflict: 'update'}).run(this.rethinkDB)
+        .then((result) => {
+          this.logger.log('total Sales orders this month updated.');
+        });
+      }).catch((err) => {
+        this.logger.error(err, err.stack);
+      });
+
+      const monthlyTotalQuotations = r.db('salesDASH').table('salesOrders').filter((row) => {
+          return r.and(row('creationDate').month().eq(r.now().month()), row('type').eq("9050")); 
+      }).sum((row) => {
+            return row('netValue').coerceTo('NUMBER');
+      }).run(this.rethinkDB).then((result) => {        
+        this.logger.log('Data uploaded to DB.');
+        r.db('salesDASH').table('dash').insert([{ field: 'quotationsTotalValueCurrentMonth', value: result }], {conflict: 'update'}).run(this.rethinkDB)
+        .then((result) => {
+          this.logger.log('total Sales orders this month updated.');
+        });
+      }).catch((err) => {
+        this.logger.error(err, err.stack);
+      });
 
       // const weeklyTotal = 
 
@@ -116,7 +168,7 @@ export class SalesOrdersService implements OnModuleInit {
     // }).catch((err) => {
     //   // console.info(JSON.stringify(err, null, 2));
     // });
-    // return Promise.all([yearlyTotal, monthlyTotal, weeklyTotal, hitRateWeekly])
+    // return Promise.all([yearlyTotalSalesOrder, yearlyTotalQuotations, monthlyTotalSalesOrder, monthlyTotalQuotations, hitRateYearly, hitRateMonthly])
     // .then(function(res){
     //     console.log('Promise.all', res);        
     // })
