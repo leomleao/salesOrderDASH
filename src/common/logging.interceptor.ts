@@ -11,7 +11,7 @@ export class LoggingInterceptor implements NestInterceptor {
         context: ExecutionContext,
         call$: Observable<any>,
     ): Observable<any> {
-        console.log('Before...');
+        // console.log('Before...');
 
         const now = Date.now();
         return call$.pipe(
@@ -22,9 +22,9 @@ export class LoggingInterceptor implements NestInterceptor {
                     const url = im.url;
                     const method = im.method;
                     const status = im.statusCode; // not correct --> something for later
-                    console.log(method, url, status, ` ${Date.now() - now}ms`);
+                    // console.log(method, url, status, ` ${Date.now() - now}ms`);
                 } else {
-                    console.log(` ${Date.now() - now}ms`);
+                    // console.log(` ${Date.now() - now}ms`);
                 }
             }),
         );

@@ -7,17 +7,17 @@ import { HttpExceptionFilter } from '../common/http-exception.filter';
 export class SalesOrdersController {
   constructor(private readonly salesOrdersService: SalesOrdersService) { }
 
-  @Get('totalMonth')
-  @HttpCode(200)
-  async findTotalThisMonth() {
-    const salesOrders = await this.salesOrdersService.findTotalThisMonth();
-    return salesOrders;
-  }
+  // @Get('totalMonth')
+  // @HttpCode(200)
+  // async findTotalThisMonth() {
+  //   const salesOrders = await this.salesOrdersService.findTotalThisMonth();
+  //   return salesOrders;
+  // }
 
-  @Get(':id')
+  @Get('/update')
   @HttpCode(200)
-  async findOne(@Param('id') id) {
-    const salesOrder = await this.salesOrdersService.find(id);
+  async updateData() {
+    const salesOrder = await this.salesOrdersService.updateDash();
     return salesOrder;
   }
 

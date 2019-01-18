@@ -16,6 +16,7 @@ math.config({
 
 interface SalesOrderItem {
   docNumber: any;
+  orderNumber: any;
   creationDate: any;
   type: any;
   createdBy: string;
@@ -25,11 +26,12 @@ interface SalesOrderItem {
   item: number;
   netValue: any;
   referenced: boolean;
+  soldTo: number;
 }
 
 @Injectable()
 export class SalesOrdersService implements OnModuleInit {
-  private readonly logger: LoggerService = new LoggerService(SalesOrdersService.name);
+  private readonly logger: LoggerService = new LoggerService(SalesOrdersService.name);  
   constructor(
     @Inject('rethinkDB') private readonly rethinkDB,
     @InjectConfig() private readonly config,
@@ -44,137 +46,112 @@ export class SalesOrdersService implements OnModuleInit {
   }
 
   async updateDash() {
-      const today = new Date();
+    const today = new Date();
+    // const wait = (ms) => new Promise(res => setTimeout(res, ms));
 
-      const yearlyTotalSalesOrder = r.db('salesDASH').table('salesOrders').filter((row) => {
-          return r.and(row('creationDate').year().eq(r.now().year()), row('type').eq("9210")); 
-      }).sum((row) => {
-            return row('netValue').coerceTo('NUMBER');
-      }).run(this.rethinkDB).then((result) => {        
-        this.logger.log('Data uploaded to DB.');
-        r.db('salesDASH').table('dash').insert([{ field: 'salesOrdersTotalValueCurrentYear', value: result }], {conflict: 'update'}).run(this.rethinkDB)
-        .then((result) => {
-          this.logger.log('total Sales orders this year updated.');
-        });
-      }).catch((err) => {
-        this.logger.error(err, err.stack);
+    r.db('salesDASH').table('salesOrders').filter((row) => {
+      return r.and(row('creationDate').month().eq(r.now().month()), row('type').eq("9210")); 
+    }).sum((row) => {
+      return row('netValue').coerceTo('NUMBER');
+    }).run(this.rethinkDB).then((result) => {        
+      this.logger.log('Got total value sales orders this month.');
+      r.db('salesDASH').table('dash').insert([{ field: 'salesOrdersTotalValueCurrentMonth', value: math.format(result, {notation: 'fixed', precision: 2}) }], {conflict: 'update'}).run(this.rethinkDB)
+      .then((result) => {  
+        this.logger.log('total Sales orders this month updated.');
       });
+    }).catch((err) => {
+      this.logger.error(err, err.stack);
+    })
 
-      const yearlyTotalQuotations = r.db('salesDASH').table('salesOrders').filter((row) => {
-          return r.and(row('creationDate').year().eq(r.now().year()), row('type').eq("9050")); 
-      }).sum((row) => {
-            return row('netValue').coerceTo('NUMBER');
-      }).run(this.rethinkDB).then((result) => {        
-        this.logger.log('Data uploaded to DB.');
-        r.db('salesDASH').table('dash').insert([{ field: 'quotationsTotalValueCurrentYear', value: result }], {conflict: 'update'}).run(this.rethinkDB)
-        .then((result) => {
-          this.logger.log('total quotations this year updated.');
-        });
-      }).catch((err) => {
-        this.logger.error(err, err.stack);
+    r.db('salesDASH').table('salesOrders').filter((row) => {
+      return r.and(row('creationDate').month().eq(r.now().month()), row('type').eq("9050")); 
+    }).sum((row) => {
+      return row('netValue').coerceTo('NUMBER');
+    }).run(this.rethinkDB).then((result) => {        
+      this.logger.log('Got total value quotations this month.');
+      r.db('salesDASH').table('dash').insert([{ field: 'quotationsTotalValueCurrentMonth', value: math.format(result, {notation: 'fixed', precision: 2}) }], {conflict: 'update'}).run(this.rethinkDB)
+      .then((result) => {
+        this.logger.log('total Sales orders this month updated.');
       });
+    }).catch((err) => {
+      this.logger.error(err, err.stack);
+    });
 
-      const monthlyTotalSalesOrder = r.db('salesDASH').table('salesOrders').filter((row) => {
-          return r.and(row('creationDate').month().eq(r.now().month()), row('type').eq("9210")); 
-      }).sum((row) => {
-            return row('netValue').coerceTo('NUMBER');
-      }).run(this.rethinkDB).then((result) => {        
-        this.logger.log('Data uploaded to DB.');
-        r.db('salesDASH').table('dash').insert([{ field: 'salesOrdersTotalValueCurrentMonth', value: result }], {conflict: 'update'}).run(this.rethinkDB)
-        .then((result) => {
-          this.logger.log('total Sales orders this month updated.');
-        });
-      }).catch((err) => {
-        this.logger.error(err, err.stack);
+    r.db('salesDASH').table('salesOrders').filter((row) => {
+      return r.and(row('creationDate').year().eq(r.now().year()), row('type').eq("9210")); 
+    }).sum((row) => {
+      return row('netValue').coerceTo('NUMBER');
+    }).run(this.rethinkDB).then((result) => {        
+      this.logger.log('Got total value sales orders this year.');
+      r.db('salesDASH').table('dash').insert([{ field: 'salesOrdersTotalValueCurrentYear', value: math.format(result, {notation: 'fixed', precision: 2}) }], {conflict: 'update'}).run(this.rethinkDB)
+      .then((result) => {
+        this.logger.log('total Sales orders this year updated.');
       });
+    }).catch((err) => {
+      this.logger.error(err, err.stack);
+    });
 
-      const monthlyTotalQuotations = r.db('salesDASH').table('salesOrders').filter((row) => {
-          return r.and(row('creationDate').month().eq(r.now().month()), row('type').eq("9050")); 
-      }).sum((row) => {
-            return row('netValue').coerceTo('NUMBER');
-      }).run(this.rethinkDB).then((result) => {        
-        this.logger.log('Data uploaded to DB.');
-        r.db('salesDASH').table('dash').insert([{ field: 'quotationsTotalValueCurrentMonth', value: result }], {conflict: 'update'}).run(this.rethinkDB)
-        .then((result) => {
-          this.logger.log('total Sales orders this month updated.');
-        });
-      }).catch((err) => {
-        this.logger.error(err, err.stack);
+    r.db('salesDASH').table('salesOrders').filter((row) => {
+      return r.and(row('creationDate').year().eq(r.now().year()), row('type').eq("9050")); 
+    }).sum((row) => {
+      return row('netValue').coerceTo('NUMBER');
+    }).run(this.rethinkDB).then((result) => {        
+      this.logger.log('Got total value quotations this year.');
+      r.db('salesDASH').table('dash').insert([{ field: 'quotationsTotalValueCurrentYear', value: math.format(result, {notation: 'fixed', precision: 2}) }], {conflict: 'update'}).run(this.rethinkDB)
+      .then((result) => {
+        this.logger.log('total quotations this year updated.');
       });
+    }).catch((err) => {
+      this.logger.error(err, err.stack);
+    });
 
-      // const weeklyTotal = 
+    r.db('salesDASH').table('salesOrders').filter((row) => {
+      return r.and(row('creationDate').month().eq(r.now().month()), row('type').eq("9050"), row('referenced').eq(true)); 
+    }).count().div(r.db('salesDASH').table('salesOrders').filter((row) => {
+      return r.and(row('creationDate').month().eq(r.now().month()), row('type').eq("9050")); 
+    }).count()).run(this.rethinkDB).then((result) => {        
+      this.logger.log('Got hit rate percentage this month.');        
+      r.db('salesDASH').table('dash').insert([{ field: 'quotationsHitRateCurrentMonth', value: math.format(result, {notation: 'fixed', precision: 2}) }], {conflict: 'update'}).run(this.rethinkDB)
+      .then((result) => {
+        this.logger.log('Hit rate of current month udpated.');
+      });
+    }).catch((err) => {
+      this.logger.error(err, err.stack);
+    });
 
-      // const hitRateWeekly =  
+    r.db('salesDASH').table('salesOrders').filter((row) => {
+      return r.and(row('creationDate').month().eq(r.now().month()), row('type').eq("9050"), row('referenced').eq(true)); 
+    }).count().div(r.db('salesDASH').table('salesOrders').filter((row) => {
+      return r.and(row('creationDate').month().eq(r.now().month()), row('type').eq("9050")); 
+    }).count()).run(this.rethinkDB).then((result) => {        
+      this.logger.log('Got hit rate percentage this year.');
+      r.db('salesDASH').table('dash').insert([{ field: 'quotationsHitRateCurrentYear', value: math.format(result, {notation: 'fixed', precision: 2}) }], {conflict: 'update'}).run(this.rethinkDB)
+      .then(async (result) => {
+        this.logger.log('Hit rate of current year udpated.');
+      });
+    }).catch((err) => {
+      this.logger.error(err, err.stack);
+    });
 
-
-
-    // console.info(data.filter(this.reduceArray('docNumber')).length);
-    // const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-
-    // this.logger.log('Updating dash -- total sales.' );
-    // r.db('salesDASH').table('invoiceTotals').run(this.rethinkDB).then((cursor) => {
-    //     return cursor.toArray();
-    // }).then((invoiceTotals) => {
-    //     // process the results
-    //   const data = [];
-    //   const year = new Date().getFullYear();
-
-    //   for (let i = 0; i <= 11; i++) {
-    //     const current: GraphColumn = {} as GraphColumn;
-    //     let test;
-    //     current.month = months[i];
-    //     current.sales = (typeof (test = invoiceTotals.find((sales) => sales.period ===  ( i + 1 )  + '.' + year)) === 'object') ? test.value : 0;
-    //     current.salesPast = (typeof (test = invoiceTotals.find((sales) => sales.period ===  ( i + 1 ) + '.' + (year - 1))) === 'object') ? test.value : 0;
-    //     current.meta = (current.salesPast > 0) ? current.salesPast * 1.1 : 0;
-    //     data.push(current);
-    //   }
-
-    //   r.db('salesDASH').table('dash').insert([{ field: 'chartData', value: data }], {conflict: 'update'}).run(this.rethinkDB)
-    //   .then((result) => {
-    //     this.logger.log('Sales graph data updated.');
-    //   });
-    // }).catch((err) => {
-    //   this.logger.error(err, err.stack);
-    // });
-
-    // this.logger.log('Updating dash -- last five.' );
-    // r.db('salesDASH').table('invoices').orderBy(r.desc('postDate')).limit(5).run(this.rethinkDB).then((cursor) => {
-    //     return cursor.toArray();
-    // }).then((lastFive) => {
-    //   r.db('salesDASH').table('dash').insert([{ field: 'lastFive', value: lastFive }], {conflict: 'update'}).run(this.rethinkDB)
-    //   .then((result) => {
-    //     this.logger.log('Sales graph data updated.');
-    //   });
-    // }).catch((err) => {
-    //   this.logger.error(err, err.stack);
-    // });
-
-    // const data = [];
-    // r.db('salesDASH').table('invoices').count().run(this.rethinkDB)
-    // .then((result) => {
-    //   const totalCustomers = result;
-    //   // console.info('total customer --- ', totalCustomers);
-    //   r.db('salesDASH').table('customers').filter((row) => {
-    //     return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
-    //   }).orderBy(r.desc('Date')).run(this.rethinkDB)
-    //   .then((result) => {
-    //     // console.info('total new customer --- ', result.length);
-    //     data.push({ field: 'newCustomers', value: result.length });
-    //     r.db('salesDASH').table('dash').insert(data, {conflict: 'update'}).run(this.rethinkDB)
-    //     .then((result) => {
-    //       // console.info(JSON.stringify(result, null, 2));
-    //     });
-    //   });
-    // }).catch((err) => {
-    //   // console.info(JSON.stringify(err, null, 2));
-    // });
-    // return Promise.all([yearlyTotalSalesOrder, yearlyTotalQuotations, monthlyTotalSalesOrder, monthlyTotalQuotations, hitRateYearly, hitRateMonthly])
-    // .then(function(res){
-    //     console.log('Promise.all', res);        
-    // })
-    // .catch(function(err){
-    //     console.error('err', err);
-    // });
+    this.logger.log('Updating dash -- last five sales orders.' );
+    r.do(
+      r.db('salesDASH').table('salesOrders').orderBy({index: r.desc('orderNumber')}).distinct({index: 'orderNumber'}).limit(5).coerceTo('array'),
+        function(lastFive) {
+          return r.db('salesDASH').table('salesOrders').getAll(r.args(lastFive), {index: 'orderNumber'});
+        }
+    ).run(this.rethinkDB).then((cursor) => {
+        return cursor.toArray();
+    }).then((lastFive) => {
+      return lastFive.filter(this.reduceArray('orderNumber'));      
+    }).then((filteredLastFive) => {
+      r.db('salesDASH').table('dash').insert([{ field: 'lastFiveSalesOrders', value: filteredLastFive }], {conflict: 'update'}).run(this.rethinkDB)
+      .then((result) => {
+        this.logger.log('Last five sales orders updated.');
+      });
+    }).catch((err) => {
+      this.logger.error(err, err.stack);
+    });
+    
   } 
 
     async updateData(path: string, type: string) {
@@ -202,6 +179,7 @@ export class SalesOrdersService implements OnModuleInit {
 
                     if (header[y] === "docNumber"){
                         row.docNumber = [parseInt(currentCell, 10)];
+                        row.orderNumber = parseInt(currentCell, 10);
                     } else if (header[y] === "creationDate") {
                         [day, month, year] = currentCell.split('.');
                     } else if (header[y] === "time") {
@@ -216,6 +194,8 @@ export class SalesOrdersService implements OnModuleInit {
                         row.sOff = currentCell;
                     } else if (header[y] === 'item') {
                         row.docNumber.push(parseInt(currentCell, 10));
+                    } else if (header[y] === 'soldTo') {
+                        row.soldTo = parseInt(currentCell, 10);
                     } else if (header[y] === 'netValue') {                      
                         row.netValue = currentCell.replace(/\./g, '').replace(/\,/g, '.');
                     } else if (header[y] === 'totalValue') {
@@ -228,12 +208,10 @@ export class SalesOrdersService implements OnModuleInit {
 
                 });
 
-                row.creationDate = r.time(parseInt(year, 10), parseInt(month, 10), parseInt(day, 10), parseInt(hour, 10), parseInt(minute, 10), parseInt(second, 10), '-03:00');
+                row.creationDate = r.time(parseInt(year, 10), parseInt(month, 10), parseInt(day, 10), parseInt(hour, 10), parseInt(minute, 10), parseInt(second, 10), '+01:00');
                 data.push(row);
 
-              });
-              console.info(data);
-
+              }); 
             });
           } else if (type === '.HTM') {
               // $('tbody').first().find('tr').find('td').each( function(i, elem) {

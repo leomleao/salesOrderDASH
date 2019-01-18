@@ -81,7 +81,7 @@ export class InvoicesService implements OnModuleInit {
     r.db('salesDASH').table('invoices').orderBy(r.desc('postDate')).limit(5).run(this.rethinkDB).then((cursor) => {
         return cursor.toArray();
     }).then((lastFive) => {
-      r.db('salesDASH').table('dash').insert([{ field: 'lastFive', value: lastFive }], {conflict: 'update'}).run(this.rethinkDB)
+      r.db('salesDASH').table('dash').insert([{ field: 'lastFiveInvoices', value: lastFive }], {conflict: 'update'}).run(this.rethinkDB)
       .then((result) => {
         this.logger.log('Sales graph data updated.');
       });
@@ -167,7 +167,7 @@ export class InvoicesService implements OnModuleInit {
                 row.docNumber = parseInt(currentCell, 10);
               } else if (header[y].indexOf('Post.date') >= 0) {
                 const [day, month, year] = currentCell.split('.');
-                row.postDate = r.time(parseInt(year, 10), parseInt(month, 10), parseInt(day, 10), '-03:00');
+                row.postDate = r.time(parseInt(year, 10), parseInt(month, 10), parseInt(day, 10), '+01:00');
               } else if (header[y].indexOf('Taxva') >= 0){
                 row.totalTax = math.format(math.add(math.bignumber(row.totalTax), math.bignumber(currentCell.replace(/\./g, '').replace(/\,/g, '.'))));
               } else if (header[y].indexOf('Total NF') >= 0) {

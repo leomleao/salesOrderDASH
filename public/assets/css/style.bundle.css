@@ -8376,6 +8376,10 @@ b, strong {
   background-color: #ffffff !important;
   color: #282a3c !important; }
 
+.m--bg-fill-light-trans {
+  background-color: rgb(225,229,236, 0.3) !important;
+  /*color: #282a3c !important;*/ }
+
 .m--font-accent {
   color: #00c5dc !important; }
 

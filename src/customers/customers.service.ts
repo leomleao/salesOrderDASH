@@ -6,6 +6,13 @@ import * as cheerio from 'cheerio';
 import { LoggerService } from '../common/logging.service';
 import { InjectConfig  } from 'nestjs-config';
 
+interface Customer {
+  customer: number;
+  creationDate: any;
+  name: string;
+  status: boolean;
+}
+
 @Injectable()
 export class CustomersService {
   private readonly logger: LoggerService = new LoggerService(CustomersService.name);
@@ -47,13 +54,26 @@ export class CustomersService {
     const data = [];
     this.logger.log('Updating dash -- total customers.' );
     r.db('salesDASH').table('customers').filter((row) => {
-      return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
-    }).orderBy(r.desc('Date')).count().run(this.rethinkDB)
+      return row('creationDate').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
+    }).orderBy(r.desc('creationDate')).count().run(this.rethinkDB)
     .then((newCustomers) => {
       data.push({ field: 'newCustomers', value: newCustomers });
       r.db('salesDASH').table('dash').insert(data, {conflict: 'update'}).run(this.rethinkDB)
       .then((result) => {
         this.logger.log('Updating dash -- ' + newCustomers + ' new customers.');
+      });
+    }).catch((err) => {
+      this.logger.error(err, err.stack());
+    });
+
+    r.db('salesDASH').table('customers').filter((row) => {
+      return r.and(row('creationDate').gt(r.now().sub(60 * 60 * 24 * 31)), row('status').eq(true)); // only include records from the last 31 days
+    }).orderBy(r.desc('creationDate')).count().run(this.rethinkDB)
+    .then((newCustomers) => {
+      data.push({ field: 'newActiveCustomers', value: newCustomers });
+      r.db('salesDASH').table('dash').insert(data, {conflict: 'update'}).run(this.rethinkDB)
+      .then((result) => {
+        this.logger.log('Updating dash -- ' + newCustomers + ' new active customers.');
       });
     }).catch((err) => {
       this.logger.error(err, err.stack());
@@ -86,17 +106,21 @@ export class CustomersService {
 
       $('tbody').each( function(i, tbodyElem) {
         $(this).next().find('tr').each( function(k, trElem) {
-          const row = {};
+          const row: Customer = {} as Customer;
 
           $(this).find('nobr').each( function(y, nobrElem) {
           // console.info($(this).children().children().text());
-            if (header[y] === 'Customer') {
-              row[header[y]] = parseInt($(this).text().replace(/^\s+|\s+$/g, ''), 10);
-            } else if (header[y] === 'Date') {
-              const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split('.');
-              row[header[y]] = new Date(year, month - 1, day);
+            const currentCell = $(this).text().replace(/^\s+|\s+$/g, '');
+
+            if (header[y] === 'customer') {
+              row.customer = parseInt(currentCell, 10);
+            } else if (header[y] === 'creationDate') {
+              const [day, month, year] = currentCell.split('.');
+              row.creationDate = r.time(parseInt(year, 10), parseInt(month, 10), parseInt(day, 10), '-03:00');
+            } else if (header[y] === 'accGroup') {
+              (currentCell === 'ZDEB') ? row.status = true : row.status = false;
             } else {
-              row[header[y]] = $(this).text().replace(/^\s+|\s+$/g, '');
+              row[header[y]] = currentCell;
             }
           });
           data.push(row);
@@ -113,9 +137,9 @@ export class CustomersService {
         if (k !== 0) {
           $(this).find('td').each( function(y, tdElem) {
           // console.info($(this).children().children().text());
-            if (header[y] === 'Customer'){
+            if (header[y] === 'customer'){
               row[header[y]] = parseInt($(this).text().replace(/^\s+|\s+$/g, ''), 10);
-            } else if (header[y] === 'Date'){
+            } else if (header[y] === 'creationDate'){
               const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split('.');
               row[header[y]] = new Date(year, month - 1, day);
             } else {

@@ -57,18 +57,7 @@ var mApp = function() {
         $('[data-toggle="m-popover"]').each(function() {
             initPopover($(this));
         });
-    }
-
-    /**
-    * Initializes bootstrap file input
-    */
-    var initFileInput = function() {
-        // init bootstrap popover
-        $('.custom-file-input').on('change',function(){
-            var fileName = $(this).val();
-            $(this).next('.custom-file-label').addClass("selected").html(fileName);
-        });
-    }           
+    }         
 
     /**
     * Initializes metronic portlet
@@ -163,7 +152,7 @@ var mApp = function() {
         function() {
             clearTimeout(timeOut);
         }, function() {
-            timeOut = setTimeout(nextTab, 5000);
+            timeOut = setTimeout(nextTab, 10000);
         });
 
         var flag = true;
@@ -178,14 +167,14 @@ var mApp = function() {
             if (next == 1) {
                 //New data array
                 $("#recentFacts").fadeOut(200, function() {
-                    $(this).html("Ultimos Clientes").fadeIn("slow");
+                    $(this).html("Ultimas Ordens de Venda").fadeIn("slow");
                 })
                 $("#m_widget11_tab" + 2 + "_content").fadeOut(300);          
                 $("#m_widget11_tab" + 1 + "_content").fadeIn("slow",function(){
                     flag = true;
                 });
                 next = 2;
-                timeOut = setTimeout(nextTab, 5000);
+                timeOut = setTimeout(nextTab, 10000);
             } else {
                 $("#recentFacts").fadeOut(200, function() {
                     $(this).html("Ultimos faturamentos").fadeIn("slow");
@@ -212,14 +201,14 @@ var mApp = function() {
             {   
                 for (var i = data.length - 1; i >= 0; i--) {
                     if (data[i].field === "chartData") {
-                        console.info(data[i].value)
                         initSalesHistoryChart(data[i].value)
-                    } else if (data[i].field === "lastFive") {
-                        updateTabData(data[i].value)
-                    } else {                        
-                     console.info($("#" + data[i].field));
+                    } else if (data[i].field === "lastFiveInvoices") {
+                        updateTabData(data[i].value, 'invoices')
+                    } else if (data[i].field === "lastFivesSalesOrders") {
+                        updateTabData(data[i].value, 'salesOrders')
+                    } else {
+                        updateField(data[i].field, data[i].value);                          
                     }
-                    $("#" + data[i].field).hide().html(data[i].value).fadeIn(1500); 
                 }
             },
             error: function (xhr, ajaxOptions, thrownError) {
@@ -418,7 +407,6 @@ var mApp = function() {
     * Initializes Sales History Chart
     */
     var initSalesHistoryChart = function(data) {
-        console.info(data)
         // Themes begin
         am4core.useTheme(am4themes_animated);
         // Themes end
@@ -597,7 +585,7 @@ var mApp = function() {
             socket.emit('identity', 0, (response) => console.log('Identity:', response));
         });
         socket.on('changes', function (data) {
-            initDataUpdate(data);
+            dataUpdate(data);
         });
         socket.on('exception', function (data) {
             console.log('event', data);
@@ -608,16 +596,20 @@ var mApp = function() {
     }
 
     /**
-    * Initializes data update services
+    * Execute data update service
     */
-    var initDataUpdate = function(data) {       
+    var dataUpdate = function(data) {       
         console.info("YAY", data);
+        if (!data.new_val) return;
+
         if (data.new_val.field === "graphData") {
             updateChartData(data.new_val.value)
-        } else if (data.new_val.field === "lastFive") {
-            updateTabData(data.new_val.value)            
-        } else {
-            $("#" + data.new_val.field).hide().html(data.new_val.value).fadeIn(1500);            
+        } else if (data.new_val.field === "lastFiveInvoices") {
+            updateTabData(data.new_val.value, 'invoices')            
+        } else if (data.new_val.field === "lastFiveSalesOrders") {
+            updateTabData(data.new_val.value, 'salesOrders')            
+        }else {
+            updateField(data.new_val.field, data.new_val.value);           
         }
 
         // $({someValue: 0}).animate({someValue: 110}, {
@@ -640,21 +632,49 @@ var mApp = function() {
     }
 
     /**
+    * Update field
+    */
+    var updateField = function(fieldName, value) {        
+
+        $("#" + fieldName).hide(0, function() { 
+            if ($(this).hasClass('currency_format')) {
+                value = numeral(value).format();
+            } else if ($(this).hasClass('percentage_format')) {
+                value = numeral(value).format('0%');
+            }
+
+            $(this).html(value).fadeIn(1500);  
+        })
+    }
+
+    /**
     * Update tabs of last Sales
     */
-    var updateTabData = function(newData) {
+    var updateTabData = function(newData, type) {
         // for (var i = newData.length - 1; i >= 0; i--) {
         //     newData[i]
         // }
-        $("#m_widget11_tab2_content").find("tbody").find("tr").each(function( index ){ 
-            const postDate = new Date(newData[index].postDate);
-            const totalValue = numeral(newData[index].totalValue)
-            $(this).children().first().children().first().html(newData[index].Name)             
-            $(this).children().first().children().first().next().html(newData[index].partnerID)  
-            $(this).children().first().next().html(postDate.getDate() + '/' + (postDate.getMonth() + 1) + '/' + postDate.getFullYear())           
-            $(this).children().first().next().next().html(totalValue.format('($0,00a)'))           
-              // console.log( index + ": " + $( this ).text() );
-        });
+        if (type === 'lastFiveInvoices') {
+            $("#m_widget11_tab2_content").find("tbody").find("tr").each(function( index ){ 
+                const postDate = new Date(newData[index].postDate);
+                const totalValue = numeral(newData[index].totalValue)
+                $(this).children().first().children().first().html(newData[index].Name)             
+                $(this).children().first().children().first().next().html(newData[index].partnerID)  
+                $(this).children().first().next().html(postDate.getDate() + '/' + (postDate.getMonth() + 1) + '/' + postDate.getFullYear())           
+                $(this).children().first().next().next().html(totalValue)           
+                  // console.log( index + ": " + $( this ).text() );
+            });
+        } else if (type === 'lastFiveSalesOrders'){
+            $("#m_widget11_tab1_content").find("tbody").find("tr").each(function( index ){ 
+                const postDate = new Date(newData[index].creationDate);
+                const totalValue = numeral(newData[index].totalValue)
+                // $(this).children().first().children().first().html(newData[index].Name)             
+                // $(this).children().first().children().first().next().html(newData[index].partnerID)  
+                $(this).children().first().next().html(postDate.getDate() + '/' + (postDate.getMonth() + 1) + '/' + postDate.getFullYear())           
+                $(this).children().first().next().next().html(totalValue)           
+                  // console.log( index + ": " + $( this ).text() );
+            });            
+        }
                
     }
 
@@ -708,7 +728,6 @@ var mApp = function() {
             initPopovers();
             initAlerts();
             initPortlets();
-            initFileInput();
             initAccordions();
             initCustomTabs();
             initPopulateData();
@@ -725,7 +744,7 @@ var mApp = function() {
         */
         initWebSockets: function() {
             initWebSockets();
-        },   
+        }, 
 
         /**
         * Init Sales History Chart
@@ -1491,16 +1510,13 @@ numeral.register('locale', 'pt-br', {
         million: 'mi',
         billion: 'bi',
         trillion: 'tri'
-    },
-    ordinal : function (number) {
-        return number === 1 ? 'er' : 'ème';
-    },    
+    }, 
     currency: {
         symbol: 'R$'
     }
 });
 numeral.locale('pt-br');
-numeral.defaultFormat('$0,0.00');
+numeral.defaultFormat('($ 0.00.00 a)');
 
 Chart.elements.Rectangle.prototype.draw = function() {    
     var ctx = this._chart.ctx;
