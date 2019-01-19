@@ -1,5 +1,5 @@
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
-import * as soapLib from 'soap';
+// import * as soapLib from 'soap';
 import * as r from 'rethinkdb';
 import * as fs from 'fs';
 import * as cheerio from 'cheerio';
@@ -11,6 +11,8 @@ interface Customer {
   creationDate: any;
   name: string;
   status: boolean;
+  city: string;
+  state: string;  
 }
 
 @Injectable()
@@ -21,34 +23,34 @@ export class CustomersService {
     @InjectConfig() private readonly config,
   ) { }
 
-  /**
-   * @param contact Simple Interface.
-   * @param ownerId The UserID of who's trying to add a new contact.
-   * @return Returns the created contact.
-   */
-  async find(salesOrderID: string) {
-    const soap = require('soapLib');
-    const url = './src/ws/ecc_salesorder009qr.wsdl';
-    let salesOrder = 0;
-    const args = {
-      SalesOrderSelectionByElements: {
-        SelectionByID: {
-          IntervalBoundaryTypeCode: 1,
-          LowerBoundarySalesOrganisationID: salesOrderID,
-        },
-      },
-      ProcessingConditions: {
-        QueryHitsMaximumNumberValue: 1,
-      },
-    };
-    await soap.createClientAsync(url).then((client) => {
-      client.setSecurity(new soap.BasicAuthSecurity('u228820', 'cp1205rm28f='));
-      return client.SalesOrderERPBasicDataByElementsQueryResponse_InAsync(args);
-    }).then((result) => {
-      salesOrder = result;
-    });
-    return salesOrder;
-  }
+  // /**
+  //  * @param contact Simple Interface.
+  //  * @param ownerId The UserID of who's trying to add a new contact.
+  //  * @return Returns the created contact.
+  //  */
+  // async find(salesOrderID: string) {
+  //   const soap = require('soapLib');
+  //   const url = './src/ws/ecc_salesorder009qr.wsdl';
+  //   let salesOrder = 0;
+  //   const args = {
+  //     SalesOrderSelectionByElements: {
+  //       SelectionByID: {
+  //         IntervalBoundaryTypeCode: 1,
+  //         LowerBoundarySalesOrganisationID: salesOrderID,
+  //       },
+  //     },
+  //     ProcessingConditions: {
+  //       QueryHitsMaximumNumberValue: 1,
+  //     },
+  //   };
+  //   await soap.createClientAsync(url).then((client) => {
+  //     client.setSecurity(new soap.BasicAuthSecurity('u228820', 'cp1205rm28f='));
+  //     return client.SalesOrderERPBasicDataByElementsQueryResponse_InAsync(args);
+  //   }).then((result) => {
+  //     salesOrder = result;
+  //   });
+  //   return salesOrder;
+  // }
 
   async updateDash() {
     const data = [];
@@ -116,9 +118,13 @@ export class CustomersService {
               row.customer = parseInt(currentCell, 10);
             } else if (header[y] === 'creationDate') {
               const [day, month, year] = currentCell.split('.');
-              row.creationDate = r.time(parseInt(year, 10), parseInt(month, 10), parseInt(day, 10), '-03:00');
+              row.creationDate = r.time(parseInt(year, 10), parseInt(month, 10), parseInt(day, 10), '+01:00');
             } else if (header[y] === 'accGroup') {
               (currentCell === 'ZDEB') ? row.status = true : row.status = false;
+            } else if (header[y] === 'city') {
+              row.city = currentCell;
+            } else if (header[y] === 'state') {
+              row.state = currentCell;
             } else {
               row[header[y]] = currentCell;
             }

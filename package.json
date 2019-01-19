@@ -5,12 +5,12 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "ts-node src/server",
+    "start": "node dist/server",
     "start:watch": "nodemon",
     "postbuild": "tsc",
-    "start:prod": "node dist/server.js",
     "build": "tslint -p tsconfig.json -c tslint.json",
-    "clean": "shx rm -rf dist/ node_modules/"
+    "clean": "shx rm -rf dist/ node_modules/",
+    "webpack": "webpack --config webpack.config.js"
   },
   "dependencies": {
     "@amcharts/amcharts4": "^4.0.21",
@@ -40,7 +40,11 @@
     "@types/node": "^8.10.39",
     "nodemon": "^1.18.9",
     "shx": "^0.2.2",
+    "ts-loader": "^5.3.3",
     "ts-node": "^6.0.0",
-    "tslint": "^5.12.1"
+    "tslint": "^5.12.1",
+    "webpack": "^4.28.4",
+    "webpack-cli": "^3.2.1",
+    "webpack-node-externals": "^1.7.2"
   }
 }

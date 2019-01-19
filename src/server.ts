@@ -4,6 +4,8 @@ import { AppModule } from './app.module';
 import { LoggingInterceptor } from './common/logging.interceptor';
 import { LoggerService } from './common/logging.service';
 
+declare const module: any;
+
 async function bootstrap() {
   	const app = await NestFactory.create(AppModule, new FastifyAdapter({ LoggerService: new LoggerService('Main') }));
 
@@ -29,5 +31,11 @@ async function bootstrap() {
   // app.setViewEngine('hbs');
 
    await app.listen(80, '0.0.0.0');
+   
+   if (module.hot) {
+    module.hot.accept();
+    module.hot.dispose(() => app.close());
+  }
+
 }
 bootstrap();
