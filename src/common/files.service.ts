@@ -8,7 +8,7 @@ export class FilesService {
 	private readonly logger: LoggerService = new LoggerService(FilesService.name);
 
     async findNewFiles(folderPath, filter){
-    	
+
 	    if (!fs.existsSync(folderPath)) {
 	    	this.logger.error('No dir!', new Error().stack);
 	     return;

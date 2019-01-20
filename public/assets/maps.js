@@ -188,7 +188,7 @@ var mApp = function() {
             {"NOME": "Lins", "sales":423.19},         
             {"NOME": "Lorena", "sales":968.09},         
             {"NOME": "Louveira", "sales":7588.53},         
-            {"NOME": "Mairiporã", "sales":5840.25},         
+            {"NOME": "Mairiporã", "sales": 5840.25 },         
             {"NOME": "Martinópolis", "sales":4102.67},         
             {"NOME": "Marília", "sales":2411.73},         
             {"NOME": "Mirassol", "sales":1590.1799999999998},         
@@ -251,47 +251,95 @@ var mApp = function() {
         }
         totalValue = totalValue / data.length;
 
+        var hoveredStateId = null;
+        const zoomThreshold = 5;
+
         mApp.salesHeatMap.on('load', function() {
 
-        // Add source for state polygons hosted on Mapbox, based on US Census Data:
-        // https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
-        mApp.salesHeatMap.addSource("states", {
-            type: "geojson",
-            data: "/assets/geodata/minified/SP.min.json"
+            // Add source for state polygons hosted on Mapbox, based on US Census Data:
+            // https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
+            mApp.salesHeatMap.addSource("SP_cities", {
+                type: "geojson",
+                data: "/assets/geodata/minified/SP.min.json"
+            });
+
+            mApp.salesHeatMap.addSource("states", {
+              type: "geojson",
+              data: "/assets/geodata/minified/Brasil.min.json"
+            });
+
+            var expression = ["match", ["get", "NOME"]];
+
+            // Calculate color for each state based on the unemployment rate
+            data.forEach(function(row) {
+                var opacity = (row["sales"] / totalValue) * 1;
+                var color = "rgba(" + 139 + ", " + 182 + ", " + 59 + ", " + opacity + ")";
+                expression.push(row["NOME"], color);
+            });
+
+            // Last value is the default, used where there is no data
+            expression.push("rgba(0,0,0,0)");
+
+            
+            // The feature-state dependent fill-opacity expression will render the hover effect
+            // when a feature's hover state is set to true.
+            mApp.salesHeatMap.addLayer({
+              id: "state-fills",
+              type: "fill",
+              source: "states",
+              layout: {},
+                maxzoom: zoomThreshold,
+              paint: {
+                "fill-color": "#8BB63B",
+                "fill-opacity": [
+                  "case",
+                  ["boolean", ["feature-state", "hover"], false],
+                  1,
+                  0
+                ]
+              }
+            });
+            
+            // mApp.salesHeatMap.addLayer({
+            //   id: "state-borders",
+            //   type: "line",
+            //   source: "states",
+            //   layout: {},
+            //   paint: {
+            //     "line-color": "#8BB63B",
+            //     "line-width": 1.5,
+            //     "line-opacity": 0.3
+            //   }
+            // });
+            
+            // Add layer from the vector tile source with data-driven style
+            mApp.salesHeatMap.addLayer({ id: "states-join", type: "fill", source: "SP_cities", minzoom: zoomThreshold, paint: { "fill-color": expression } }, "waterway-label");
+            
+            // When the user moves their mouse over the state-fill layer, we'll update the
+            // feature state for the feature under the mouse.
+            mApp.salesHeatMap.on("mousemove", "state-fills", function (e) {
+                if (e.features.length > 0) {
+                    if (hoveredStateId) {
+                      mApp.salesHeatMap.setFeatureState({ source: "states", id: hoveredStateId }, { hover: false });
+                    }
+                    hoveredStateId = e.features[0].id;
+                    mApp.salesHeatMap.setFeatureState({ source: 'states', id: hoveredStateId }, { hover: true });
+                }
+            });
+            
+            // When the mouse leaves the state-fill layer, update the feature state of the
+            // previously hovered feature.
+            mApp.salesHeatMap.on("mouseleave", "state-fills", function () {
+                if (hoveredStateId) {
+                  mApp.salesHeatMap.setFeatureState({ source: "states", id: hoveredStateId }, { hover: false });
+                }
+                hoveredStateId = null;
+            });
+            
+            
+            
+            
         });
-
-        var expression = ["match", ["get", "NOME"]];
-
-        // Calculate color for each state based on the unemployment rate
-        data.forEach(function(row) {
-            var green = (row["sales"] / totalValue) * 255;
-            var color = "rgba(" + 0 + ", " + green + ", " + 0 + ", 1)";
-            expression.push(row["NOME"], color);
-        });
-
-        // Last value is the default, used where there is no data
-        expression.push("rgba(0,0,0,0)");
-
-        // Add layer from the vector tile source with data-driven style
-        mApp.salesHeatMap.addLayer({
-            "id": "states-join",
-            "type": "fill",
-            "source": "states",
-            "paint": {
-                "fill-color": expression
-            }
-        }, 'waterway-label');
-    });
-
-
-
-
-
-
-
-
-
-
 
 
 

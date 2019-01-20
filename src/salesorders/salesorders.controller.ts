@@ -1,9 +1,16 @@
-import { Body, Controller, Get, Param, HttpCode, UseFilters, LoggerService} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  HttpCode,
+  UseFilters,
+} from '@nestjs/common';
 import { SalesOrdersService } from './salesorders.service';
 import { HttpExceptionFilter } from '../common/http-exception.filter';
+import { QueryParams } from './query-params.dto';
 
 @Controller('salesorders')
-@UseFilters(new HttpExceptionFilter())
+// @UseFilters(new HttpExceptionFilter())
 export class SalesOrdersController {
   constructor(private readonly salesOrdersService: SalesOrdersService) { }
 
@@ -13,6 +20,13 @@ export class SalesOrdersController {
   //   const salesOrders = await this.salesOrdersService.findTotalThisMonth();
   //   return salesOrders;
   // }
+
+  @Get('/data')
+  @HttpCode(200)
+  async findOne(@Query() query: QueryParams) {
+    const data = await this.salesOrdersService.getSalesData(query);
+    return data;
+  }
 
   @Get('/update')
   @HttpCode(200)

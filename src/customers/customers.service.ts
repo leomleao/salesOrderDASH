@@ -12,7 +12,7 @@ interface Customer {
   name: string;
   status: boolean;
   city: string;
-  state: string;  
+  state: string;
 }
 
 @Injectable()

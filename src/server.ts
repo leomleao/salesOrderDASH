@@ -3,6 +3,7 @@ import { join, resolve } from 'path';
 import { AppModule } from './app.module';
 import { LoggingInterceptor } from './common/logging.interceptor';
 import { LoggerService } from './common/logging.service';
+import { ValidationPipe } from './common/validation.pipe';
 
 declare const module: any;
 
@@ -23,15 +24,17 @@ async function bootstrap() {
 		},
 	});
 
+	  app.useGlobalPipes(new ValidationPipe());
+
    app.useGlobalInterceptors(new LoggingInterceptor());
 
-   app.enableCors({
-        origin: '*',
-    });
+	  app.enableCors({
+			origin: '*',
+	});
   // app.setViewEngine('hbs');
 
    await app.listen(80, '0.0.0.0');
-   
+
    if (module.hot) {
     module.hot.accept();
     module.hot.dispose(() => app.close());
