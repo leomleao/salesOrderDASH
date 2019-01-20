@@ -11,40 +11,34 @@ const dbProvider = {
   components: [dbProvider],
   exports: [dbProvider],
 })
-
 export class DBModule implements OnModuleInit {
-	private readonly logger: LoggerService = new LoggerService(DBModule.name);
-	constructor(
-	    @Inject('rethinkDB') private readonly rethinkDB,
-  	) { }
+  private readonly logger: LoggerService = new LoggerService(DBModule.name);
+  constructor(@Inject('rethinkDB') private readonly rethinkDB) {}
 
-	onModuleInit() {
-		r.dbCreate('salesDASH').run(this.rethinkDB)
-	    .then((result) => {
-
-	 	}).catch((err) => {
-
-	 	});
-	 r.db('salesDASH').tableCreate('invoices', { primaryKey: 'docNumber'} ).run(this.rethinkDB)
-	 	.catch((err) => {
-
-	 	});
-	 r.db('salesDASH').tableCreate('invoiceTotals', { primaryKey: 'period'} ).run(this.rethinkDB)
-	    .catch((err) => {
-
-	 	});
-	 r.db('salesDASH').tableCreate('dash', {primaryKey: 'field'}).run(this.rethinkDB)
-	    .catch((err) => {
-
-	 	});
-	 r.db('salesDASH').tableCreate('customers', {primaryKey: 'customer'}).run(this.rethinkDB)
-	    .catch((err) => {
-
-	 	});
-	 r.db('salesDASH').tableCreate('salesOrders', {primaryKey: 'docNumber'}).run(this.rethinkDB)
-	    .catch((err) => {
-
-	 	});
-
-	}
+  onModuleInit() {
+    r.dbCreate('salesDASH')
+      .run(this.rethinkDB)
+      .then(result => {})
+      .catch(err => {});
+    r.db('salesDASH')
+      .tableCreate('invoices', { primaryKey: 'docNumber' })
+      .run(this.rethinkDB)
+      .catch(err => {});
+    r.db('salesDASH')
+      .tableCreate('invoiceTotals', { primaryKey: 'period' })
+      .run(this.rethinkDB)
+      .catch(err => {});
+    r.db('salesDASH')
+      .tableCreate('dash', { primaryKey: 'field' })
+      .run(this.rethinkDB)
+      .catch(err => {});
+    r.db('salesDASH')
+      .tableCreate('customers', { primaryKey: 'customer' })
+      .run(this.rethinkDB)
+      .catch(err => {});
+    r.db('salesDASH')
+      .tableCreate('salesOrders', { primaryKey: 'docNumber' })
+      .run(this.rethinkDB)
+      .catch(err => {});
+  }
 }

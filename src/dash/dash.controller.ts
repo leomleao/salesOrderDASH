@@ -5,40 +5,62 @@ import { HttpExceptionFilter } from '../common/http-exception.filter';
 @Controller()
 @UseFilters(new HttpExceptionFilter())
 export class DashController {
-	constructor(private readonly dashService: DashService) { }
+  constructor(private readonly dashService: DashService) {}
 
   @Get()
   @Render('index')
   root() {
-  	const monthNames = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho',
-	  'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
-	];
+    const monthNames = [
+      'janeiro',
+      'fevereiro',
+      'marco',
+      'abril',
+      'maio',
+      'junho',
+      'julho',
+      'agosto',
+      'setembro',
+      'outubro',
+      'novembro',
+      'dezembro',
+    ];
 
-  	const today = new Date();
-  	const response = {
-		message: today.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
-		currentYear: today.getFullYear(),
-		currentMonth: monthNames[today.getMonth()],
-	};
+    const today = new Date();
+    const response = {
+      message: today.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+      currentYear: today.getFullYear(),
+      currentMonth: monthNames[today.getMonth()],
+    };
 
-   return response;
+    return response;
   }
 
   @Get('maps')
   @Render('maps')
   maps() {
-    const monthNames = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho',
-    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
-  ];
+    const monthNames = [
+      'janeiro',
+      'fevereiro',
+      'marco',
+      'abril',
+      'maio',
+      'junho',
+      'julho',
+      'agosto',
+      'setembro',
+      'outubro',
+      'novembro',
+      'dezembro',
+    ];
 
     const today = new Date();
     const response = {
-    message: today.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
-    currentYear: today.getFullYear(),
-    currentMonth: monthNames[today.getMonth()],
-  };
+      message: today.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+      currentYear: today.getFullYear(),
+      currentMonth: monthNames[today.getMonth()],
+    };
 
-   return response;
+    return response;
   }
 
   @Get('dash/update')
@@ -47,5 +69,4 @@ export class DashController {
     const data = await this.dashService.getNewData();
     return data;
   }
-
 }

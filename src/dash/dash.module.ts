@@ -7,9 +7,7 @@ import * as r from 'rethinkdb';
 @Module({
   modules: [DBModule],
   controllers: [DashController],
-  providers: [
-      DashService,
-  ],
+  providers: [DashService],
   exports: [DashService],
 })
-export class DashModule { }
+export class DashModule {}

@@ -5,33 +5,44 @@ import * as fs from 'fs';
 
 @Injectable()
 export class FilesService {
-	private readonly logger: LoggerService = new LoggerService(FilesService.name);
+  private readonly logger: LoggerService = new LoggerService(FilesService.name);
 
-    async findNewFiles(folderPath, filter){
-
-	    if (!fs.existsSync(folderPath)) {
-	    	this.logger.error('No dir!', new Error().stack);
-	     return;
-	    }
-	    const foundFiles = [];
-    	const files = fs.readdirSync(folderPath);
-    	this.logger.log('Reading folder -- ' + folderPath);
-
-	    for (const file of files){
-	        const filename = path.join(folderPath, file);
-	        const stat = fs.lstatSync(filename);
-
-	        if (filename.indexOf(filter) >= 0) {
-	        	if (filename.indexOf('TREATED') < 0 && filename.indexOf('Job BR_DB') >= 0) {
-		        	this.logger.log('Found -- ' + filename);
-		        	const type = filename.substring(filename.indexOf('Job BR_DB') + 10, filename.indexOf(','));
-		        	const newFileName = filename.replace(filename.substring(filename.indexOf('Job BR_DB') + 10, filename.indexOf(',')), type + 'TREATED');
-		        	fs.renameSync(filename, newFileName);
-				       foundFiles.push( { type, path: newFileName } );
-	        	}
-	        }
-		}
-
-		   return foundFiles;
+  async findNewFiles(folderPath, filter) {
+    if (!fs.existsSync(folderPath)) {
+      this.logger.error('No dir!', new Error().stack);
+      return;
     }
+    const foundFiles = [];
+    const files = fs.readdirSync(folderPath);
+    this.logger.log('Reading folder -- ' + folderPath);
+
+    for (const file of files) {
+      const filename = path.join(folderPath, file);
+      const stat = fs.lstatSync(filename);
+
+      if (filename.indexOf(filter) >= 0) {
+        if (
+          filename.indexOf('TREATED') < 0 &&
+          filename.indexOf('Job BR_DB') >= 0
+        ) {
+          this.logger.log('Found -- ' + filename);
+          const type = filename.substring(
+            filename.indexOf('Job BR_DB') + 10,
+            filename.indexOf(','),
+          );
+          const newFileName = filename.replace(
+            filename.substring(
+              filename.indexOf('Job BR_DB') + 10,
+              filename.indexOf(','),
+            ),
+            type + 'TREATED',
+          );
+          fs.renameSync(filename, newFileName);
+          foundFiles.push({ type, path: newFileName });
+        }
+      }
+    }
+
+    return foundFiles;
+  }
 }

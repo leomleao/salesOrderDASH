@@ -7,9 +7,7 @@ import * as r from 'rethinkdb';
 @Module({
   modules: [DBModule],
   controllers: [SalesOrdersController],
-  providers: [
-      SalesOrdersService,
-  ],
+  providers: [SalesOrdersService],
   exports: [SalesOrdersService],
 })
-export class SalesOrdersModule { }
+export class SalesOrdersModule {}

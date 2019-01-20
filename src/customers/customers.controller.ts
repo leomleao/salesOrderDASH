@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, HttpCode, UseFilters, LoggerService} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  HttpCode,
+  UseFilters,
+  LoggerService,
+} from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { HttpExceptionFilter } from '../common/http-exception.filter';
 
@@ -6,5 +14,4 @@ import { HttpExceptionFilter } from '../common/http-exception.filter';
 @UseFilters(new HttpExceptionFilter())
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
-
 }

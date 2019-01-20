@@ -16,7 +16,7 @@ export class LoggerService extends Logger {
   //     }),
   //   ],
   // };
-  constructor(context){
+  constructor(context) {
     super(context);
     this.prettyError.skipNodeFiles();
     this.prettyError.skipPackage('express', '@nestjs/common', '@nestjs/core');

@@ -4,7 +4,7 @@ import * as r from 'rethinkdb';
 import * as fs from 'fs';
 import * as cheerio from 'cheerio';
 import { LoggerService } from '../common/logging.service';
-import { InjectConfig  } from 'nestjs-config';
+import { InjectConfig } from 'nestjs-config';
 
 interface Customer {
   customer: number;
@@ -17,11 +17,13 @@ interface Customer {
 
 @Injectable()
 export class CustomersService {
-  private readonly logger: LoggerService = new LoggerService(CustomersService.name);
+  private readonly logger: LoggerService = new LoggerService(
+    CustomersService.name,
+  );
   constructor(
     @Inject('rethinkDB') private readonly rethinkDB,
     @InjectConfig() private readonly config,
-  ) { }
+  ) {}
 
   // /**
   //  * @param contact Simple Interface.
@@ -54,32 +56,57 @@ export class CustomersService {
 
   async updateDash() {
     const data = [];
-    this.logger.log('Updating dash -- total customers.' );
-    r.db('salesDASH').table('customers').filter((row) => {
-      return row('creationDate').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
-    }).orderBy(r.desc('creationDate')).count().run(this.rethinkDB)
-    .then((newCustomers) => {
-      data.push({ field: 'newCustomers', value: newCustomers });
-      r.db('salesDASH').table('dash').insert(data, {conflict: 'update'}).run(this.rethinkDB)
-      .then((result) => {
-        this.logger.log('Updating dash -- ' + newCustomers + ' new customers.');
+    this.logger.log('Updating dash -- total customers.');
+    r.db('salesDASH')
+      .table('customers')
+      .filter(row => {
+        return row('creationDate').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
+      })
+      .orderBy(r.desc('creationDate'))
+      .count()
+      .run(this.rethinkDB)
+      .then(newCustomers => {
+        data.push({ field: 'newCustomers', value: newCustomers });
+        r.db('salesDASH')
+          .table('dash')
+          .insert(data, { conflict: 'update' })
+          .run(this.rethinkDB)
+          .then(result => {
+            this.logger.log(
+              'Updating dash -- ' + newCustomers + ' new customers.',
+            );
+          });
+      })
+      .catch(err => {
+        this.logger.error(err, err.stack());
       });
-    }).catch((err) => {
-      this.logger.error(err, err.stack());
-    });
 
-    r.db('salesDASH').table('customers').filter((row) => {
-      return r.and(row('creationDate').gt(r.now().sub(60 * 60 * 24 * 31)), row('status').eq(true)); // only include records from the last 31 days
-    }).orderBy(r.desc('creationDate')).count().run(this.rethinkDB)
-    .then((newCustomers) => {
-      data.push({ field: 'newActiveCustomers', value: newCustomers });
-      r.db('salesDASH').table('dash').insert(data, {conflict: 'update'}).run(this.rethinkDB)
-      .then((result) => {
-        this.logger.log('Updating dash -- ' + newCustomers + ' new active customers.');
+    r.db('salesDASH')
+      .table('customers')
+      .filter(row => {
+        return r.and(
+          row('creationDate').gt(r.now().sub(60 * 60 * 24 * 31)),
+          row('status').eq(true),
+        ); // only include records from the last 31 days
+      })
+      .orderBy(r.desc('creationDate'))
+      .count()
+      .run(this.rethinkDB)
+      .then(newCustomers => {
+        data.push({ field: 'newActiveCustomers', value: newCustomers });
+        r.db('salesDASH')
+          .table('dash')
+          .insert(data, { conflict: 'update' })
+          .run(this.rethinkDB)
+          .then(result => {
+            this.logger.log(
+              'Updating dash -- ' + newCustomers + ' new active customers.',
+            );
+          });
+      })
+      .catch(err => {
+        this.logger.error(err, err.stack());
       });
-    }).catch((err) => {
-      this.logger.error(err, err.stack());
-    });
 
     // return await r.db('salesDASH').table('customers').orderBy(r.desc('Date')).run(this.rethinkDB)
     // .then((result) => {
@@ -91,7 +118,6 @@ export class CustomersService {
     // }).catch(function(err) {
     //   console.info(JSON.stringify(err, null, 2));
     // });
-
   }
 
   async updateData(path: string, type: string) {
@@ -102,75 +128,123 @@ export class CustomersService {
     const header = [];
     const data = [];
     if (type === '.htm') {
-      $('tbody').first().children().find('nobr').each( function(i, elem) {
-        header.push($(this).text().replace(/^\s+|\s+$/g, ''));
-      });
-
-      $('tbody').each( function(i, tbodyElem) {
-        $(this).next().find('tr').each( function(k, trElem) {
-          const row: Customer = {} as Customer;
-
-          $(this).find('nobr').each( function(y, nobrElem) {
-          // console.info($(this).children().children().text());
-            const currentCell = $(this).text().replace(/^\s+|\s+$/g, '');
-
-            if (header[y] === 'customer') {
-              row.customer = parseInt(currentCell, 10);
-            } else if (header[y] === 'creationDate') {
-              const [day, month, year] = currentCell.split('.');
-              row.creationDate = r.time(parseInt(year, 10), parseInt(month, 10), parseInt(day, 10), '+01:00');
-            } else if (header[y] === 'accGroup') {
-              (currentCell === 'ZDEB') ? row.status = true : row.status = false;
-            } else if (header[y] === 'city') {
-              row.city = currentCell;
-            } else if (header[y] === 'state') {
-              row.state = currentCell;
-            } else {
-              row[header[y]] = currentCell;
-            }
-          });
-          data.push(row);
+      $('tbody')
+        .first()
+        .children()
+        .find('nobr')
+        .each(function(i, elem) {
+          header.push(
+            $(this)
+              .text()
+              .replace(/^\s+|\s+$/g, ''),
+          );
         });
-      });
-    } else if (type === '.HTM'){
-      $('tbody').first().find('tr').find('td').each( function(i, tdElem) {
-        header.push($(this).text().replace(/^\s+|\s+$/g, ''));
-      });
 
-      $('tbody').first().find('tr').each( function(k, trElem) {
+      $('tbody').each(function(i, tbodyElem) {
+        $(this)
+          .next()
+          .find('tr')
+          .each(function(k, trElem) {
+            const row: Customer = {} as Customer;
 
-        const row = {};
-        if (k !== 0) {
-          $(this).find('td').each( function(y, tdElem) {
-          // console.info($(this).children().children().text());
-            if (header[y] === 'customer'){
-              row[header[y]] = parseInt($(this).text().replace(/^\s+|\s+$/g, ''), 10);
-            } else if (header[y] === 'creationDate'){
-              const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split('.');
-              row[header[y]] = new Date(year, month - 1, day);
-            } else {
-              row[header[y]] = $(this).text().replace(/^\s+|\s+$/g, '');
-            }
+            $(this)
+              .find('nobr')
+              .each(function(y, nobrElem) {
+                // console.info($(this).children().children().text());
+                const currentCell = $(this)
+                  .text()
+                  .replace(/^\s+|\s+$/g, '');
+
+                if (header[y] === 'customer') {
+                  row.customer = parseInt(currentCell, 10);
+                } else if (header[y] === 'creationDate') {
+                  const [day, month, year] = currentCell.split('.');
+                  row.creationDate = r.time(
+                    parseInt(year, 10),
+                    parseInt(month, 10),
+                    parseInt(day, 10),
+                    '+01:00',
+                  );
+                } else if (header[y] === 'accGroup') {
+                  currentCell === 'ZDEB'
+                    ? (row.status = true)
+                    : (row.status = false);
+                } else if (header[y] === 'city') {
+                  row.city = currentCell;
+                } else if (header[y] === 'state') {
+                  row.state = currentCell;
+                } else {
+                  row[header[y]] = currentCell;
+                }
+              });
+            data.push(row);
           });
-          data.push(row);
-        }
       });
+    } else if (type === '.HTM') {
+      $('tbody')
+        .first()
+        .find('tr')
+        .find('td')
+        .each(function(i, tdElem) {
+          header.push(
+            $(this)
+              .text()
+              .replace(/^\s+|\s+$/g, ''),
+          );
+        });
+
+      $('tbody')
+        .first()
+        .find('tr')
+        .each(function(k, trElem) {
+          const row = {};
+          if (k !== 0) {
+            $(this)
+              .find('td')
+              .each(function(y, tdElem) {
+                // console.info($(this).children().children().text());
+                if (header[y] === 'customer') {
+                  row[header[y]] = parseInt(
+                    $(this)
+                      .text()
+                      .replace(/^\s+|\s+$/g, ''),
+                    10,
+                  );
+                } else if (header[y] === 'creationDate') {
+                  const [day, month, year] = $(this)
+                    .text()
+                    .replace(/^\s+|\s+$/g, '')
+                    .split('.');
+                  row[header[y]] = new Date(year, month - 1, day);
+                } else {
+                  row[header[y]] = $(this)
+                    .text()
+                    .replace(/^\s+|\s+$/g, '');
+                }
+              });
+            data.push(row);
+          }
+        });
     }
 
     this.logger.log('Customer data treated.');
 
-    return await r.db('salesDASH').table('customers').insert(data, {conflict: 'update'}).run(this.rethinkDB)
-      .then((result) => {
+    return await r
+      .db('salesDASH')
+      .table('customers')
+      .insert(data, { conflict: 'update' })
+      .run(this.rethinkDB)
+      .then(result => {
         this.logger.log('Data uploaded to DB.');
-        fs.unlink(path, (err) => {
+        fs.unlink(path, err => {
           if (err) throw err;
           this.logger.warn('Treated file deleted: ' + path);
         });
         // console.log('file would have been deleted now');
-      }).catch((err) => {
+      })
+      .catch(err => {
         this.logger.error(err, err.stack());
       });
     // console.info(JSON.stringify(data));
   }
-
 }

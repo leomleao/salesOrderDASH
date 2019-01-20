@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Query,
-  HttpCode,
-  UseFilters,
-} from '@nestjs/common';
+import { Controller, Get, Query, HttpCode, UseFilters } from '@nestjs/common';
 import { SalesOrdersService } from './salesorders.service';
 import { HttpExceptionFilter } from '../common/http-exception.filter';
 import { QueryParams } from './query-params.dto';
@@ -12,7 +6,7 @@ import { QueryParams } from './query-params.dto';
 @Controller('salesorders')
 // @UseFilters(new HttpExceptionFilter())
 export class SalesOrdersController {
-  constructor(private readonly salesOrdersService: SalesOrdersService) { }
+  constructor(private readonly salesOrdersService: SalesOrdersService) {}
 
   // @Get('totalMonth')
   // @HttpCode(200)
@@ -34,5 +28,4 @@ export class SalesOrdersController {
     const salesOrder = await this.salesOrdersService.updateDash();
     return salesOrder;
   }
-
 }

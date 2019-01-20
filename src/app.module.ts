@@ -11,15 +11,14 @@ import * as r from 'rethinkdb';
 import * as path from 'path';
 
 @Module({
-	imports: [
-        ConfigModule.load(path.resolve(__dirname, 'config/**/*.{ts,js}')),
-        SalesOrdersModule,
-        CustomersModule,
-        DashModule,
-        InvoicesModule,
-    ],
-    modules: [SalesOrdersModule, CustomersModule, DashModule, InvoicesModule],
-    providers: [ ScheduleService, FilesService],
+  imports: [
+    ConfigModule.load(path.resolve(__dirname, 'config/**/*.{ts,js}')),
+    SalesOrdersModule,
+    CustomersModule,
+    DashModule,
+    InvoicesModule,
+  ],
+  modules: [SalesOrdersModule, CustomersModule, DashModule, InvoicesModule],
+  providers: [ScheduleService, FilesService],
 })
-
-export class AppModule {  }
+export class AppModule {}
