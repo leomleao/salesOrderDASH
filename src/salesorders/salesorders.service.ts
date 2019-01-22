@@ -142,7 +142,7 @@ export class SalesOrdersService implements OnModuleInit {
       .ungroup()
       .map(row => {
         return r.object(
-          groupBy === 'city' ? 'cityName' : 'state',
+          groupBy === 'city' ? 'city' : 'UF',
           row('group'),
           'sales',
           row('reduction'),

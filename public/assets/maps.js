@@ -59,6 +59,83 @@ var mApp = (function() {
 	};
 
 	/**
+	 * Initializes date picker
+	 */
+	var initDatePicker = function() {
+		// init portlet tools
+		// predefined ranges
+		mApp.startDate = moment().subtract(29, 'days');
+		mApp.endDate = moment();
+
+		if ($('#m_dashboard_daterangepicker').length == 0) {
+			return;
+		}
+
+		var picker = $('#m_dashboard_daterangepicker');
+		function cb(start, end, label) {
+			var title = '';
+			var range = '';
+			mApp.startDate = start;
+			mApp.endDate = end;
+
+			if (end - start < 100) {
+				title = 'Hoje:';
+				range = start.format('D MMM');
+			} else if (label == 'Hoje') {
+				title = 'Hoje:';
+				range = start.format('D MMM');
+			} else if (label == 'Ontem') {
+				title = 'Ontem:';
+				range = start.format('D MMM');
+			} else {
+				range = start.format('D MMM') + ' - ' + end.format('D MMM');
+			}
+
+			picker.find('.m-subheader__daterange-date').html(range);
+			picker.find('.m-subheader__daterange-title').html(title);
+		}
+
+		picker.daterangepicker(
+			{
+				startDate: mApp.startDate,
+				endDate: mApp.endDate,
+				opens: 'left',
+				locale: {
+					customRangeLabel: 'Personalizado',
+					applyLabel: 'Aplicar',
+					cancelLabel: 'Cancelar',
+				},
+				ranges: {
+					'Hoje': [moment(), moment()],
+					'Ontem': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+					'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()],
+					'Ultimos 30 dias': [moment().subtract(29, 'days'), moment()],
+					'Esse mes': [moment().startOf('month'), moment().endOf('month')],
+					'Mes passado': [
+						moment()
+							.subtract(1, 'month')
+							.startOf('month'),
+						moment()
+							.subtract(1, 'month')
+							.endOf('month'),
+					],
+					'Ano passado': [
+						moment()
+							.subtract(1, 'year')
+							.startOf('year'),
+						moment()
+							.subtract(1, 'year')
+							.endOf('year'),
+					],
+				},
+			},
+			cb,
+		);
+
+		cb(mApp.startDate, mApp.endDate, '');
+	};
+
+	/**
 	 * Initializes scrollable contents
 	 */
 	var initScrollables = function() {
@@ -135,134 +212,103 @@ var mApp = (function() {
 
 		// Add zoom and rotation controls to the map.
 		mApp.salesHeatMap.addControl(new mapboxgl.NavigationControl());
-
-		var maxValue = 3052785;
-		var data = [
-			{ NOME: 'Americana', sales: 37364.560000000005 },
-			{ NOME: 'Amparo', sales: 6369.150000000001 },
-			{ NOME: 'Américo Brasiliense', sales: 886.75 },
-			{ NOME: 'Araraquara', sales: 4683.130000000001 },
-			{ NOME: 'Araras', sales: 6158.91 },
-			{ NOME: 'Araçatuba', sales: 1143.32 },
-			{ NOME: 'Atibaia', sales: 819.71 },
-			{ NOME: 'Barueri', sales: 3655.3700000000003 },
-			{ NOME: 'Bauru', sales: 28472.04 },
-			{ NOME: 'Birigui', sales: 102623.66 },
-			{ NOME: 'Boituva', sales: 240213.21000000002 },
-			{ NOME: 'Botucatu', sales: 3144.6099999999997 },
-			{ NOME: 'Bragança Paulista', sales: 3864.67 },
-			{ NOME: 'Cabreuva', sales: 1785.46 },
-			{ NOME: 'Cabreúva', sales: 25042.989999999994 },
-			{ NOME: 'Campinas', sales: 38760.740000000005 },
-			{ NOME: 'Capivari', sales: 387.66 },
-			{ NOME: 'Caraguatatuba', sales: 14690.6 },
-			{ NOME: 'Cerquilho', sales: 2908.81 },
-			{ NOME: 'Cordeirópolis', sales: 776.17 },
-			{ NOME: 'Cosmópolis', sales: 244.81 },
-			{ NOME: 'Cotia', sales: 54804.299999999996 },
-			{ NOME: 'Cruzeiro', sales: 12558.78 },
-			{ NOME: 'Descalvado', sales: 1839 },
-			{ NOME: 'Diadema', sales: 39609.52999999999 },
-			{ NOME: 'Elias Fausto', sales: 879.58 },
-			{ NOME: 'Embu Das Artes', sales: 3800.64 },
-			{ NOME: 'Franco da Rocha', sales: 738.06 },
-			{ NOME: 'Garça', sales: 26762.83 },
-			{ NOME: 'Guaratinguetá', sales: 5934.76 },
-			{ NOME: 'Guarulhos', sales: 60994.060000000005 },
-			{ NOME: 'Holambra', sales: 576.68 },
-			{ NOME: 'Hortolandia', sales: 6211.66 },
-			{ NOME: 'Indaiatuba', sales: 9932.4 },
-			{ NOME: 'Iracemápolis', sales: 5893.2300000000005 },
-			{ NOME: 'Itapetininga', sales: 31983.71 },
-			{ NOME: 'Itapira', sales: 2375.1 },
-			{ NOME: 'Itaquaquecetuba', sales: 8093.58 },
-			{ NOME: 'Itatiba', sales: 29484.350000000002 },
-			{ NOME: 'Itu', sales: 491292.74 },
-			{ NOME: 'Jaboticabal', sales: 6814.01 },
-			{ NOME: 'Jacareí', sales: 10979.49 },
-			{ NOME: 'Jaguariuna', sales: 3779.24 },
-			{ NOME: 'Jaguariúna', sales: 12141.05 },
-			{ NOME: 'Jandira', sales: 3269.55 },
-			{ NOME: 'Jardim Stella', sales: 739.45 },
-			{ NOME: 'Jundiaí', sales: 48656.920000000006 },
-			{ NOME: 'Leme', sales: 1902.23 },
-			{ NOME: 'Lençois Paulista', sales: 0 },
-			{ NOME: 'Limeira', sales: 3001.9799999999996 },
-			{ NOME: 'Lins', sales: 423.19 },
-			{ NOME: 'Lorena', sales: 968.09 },
-			{ NOME: 'Louveira', sales: 7588.53 },
-			{ NOME: 'Mairiporã', sales: 5840.25 },
-			{ NOME: 'Martinópolis', sales: 4102.67 },
-			{ NOME: 'Marília', sales: 2411.73 },
-			{ NOME: 'Mirassol', sales: 1590.1799999999998 },
-			{ NOME: 'Mogi Guaçu', sales: 1304.26 },
-			{ NOME: 'Mogi das Cruzes', sales: 31858.699999999997 },
-			{ NOME: 'Monte Mor', sales: 7924.0599999999995 },
-			{ NOME: 'Nazaré Paulista', sales: 675.73 },
-			{ NOME: 'Nova Odessa', sales: 368.98 },
-			{ NOME: 'Novo Horizonte', sales: 731.94 },
-			{ NOME: 'Osasco', sales: 2503.92 },
-			{ NOME: 'Ourinhos', sales: 7146.87 },
-			{ NOME: 'Penápolis', sales: 737.32 },
-			{ NOME: 'Pindamonhangaba', sales: 4743.6 },
-			{ NOME: 'Piracicaba', sales: 9492.64 },
-			{ NOME: 'Pirassununga', sales: 4363.0599999999995 },
-			{ NOME: 'Porto Feliz', sales: 2838.33 },
-			{ NOME: 'Porto Ferreira', sales: 2170.85 },
-			{ NOME: 'Praia Grande', sales: 456.5 },
-			{ NOME: 'Presidente Prudente', sales: 9576.75 },
-			{ NOME: 'Presidente Venceslau', sales: 1027.78 },
-			{ NOME: 'Ribeirão Pires', sales: 3909.5499999999997 },
-			{ NOME: 'Ribeirão Preto', sales: 216645.09999999998 },
-			{ NOME: 'Rinópolis', sales: 819.72 },
-			{ NOME: 'Rio Claro', sales: 2062.62 },
-			{ NOME: 'Sales Oliveira', sales: 7516.08 },
-			{ NOME: 'Salto', sales: 2687.08 },
-			{ NOME: 'Santana de Parnaíba', sales: 12976.88 },
-			{ NOME: "Santa Barbara D'Oest", sales: 12340.659999999998 },
-			{ NOME: 'Santos', sales: 4591.87 },
-			{ NOME: 'Santo André', sales: 33631.45 },
-			{ NOME: 'Sertãozinho', sales: 46297.45 },
-			{ NOME: 'Socorro', sales: 2826.23 },
-			{ NOME: 'Sorocaba', sales: 64314.91000000001 },
-			{ NOME: 'Sumaré', sales: 6489.570000000001 },
-			{ NOME: 'Suzano', sales: 1057.29 },
-			{ NOME: 'São Bernardo do Camp', sales: 74844.38000000002 },
-			{ NOME: 'São Bernardo do Campo', sales: 43235.7 },
-			{ NOME: 'São Caetano do Sul', sales: 45057.89 },
-			{ NOME: 'São Carlos', sales: 7515.15 },
-			{ NOME: 'São José dos Campos', sales: 30455.26 },
-			{ NOME: 'São José do Rio Preto', sales: 12870.42 },
-			{ NOME: 'São Paulo', sales: 425882.22 },
-			{ NOME: 'São Roque', sales: 225909.72000000003 },
-			{ NOME: 'Taboão da Serra', sales: 866.64 },
-			{ NOME: 'Taquaritinga', sales: 2055.14 },
-			{ NOME: 'Taubaté', sales: 0 },
-			{ NOME: 'Tietê', sales: 1362.33 },
-			{ NOME: 'Tupã', sales: 5478.45 },
-			{ NOME: 'Valinhos', sales: 101130.06 },
-			{ NOME: 'Varzea Paulista', sales: 3094.78 },
-			{ NOME: 'Vinhedo', sales: 110661 },
-			{ NOME: 'Votuporanga', sales: 2203.08 },
-			{ NOME: 'Várzea Paulista', sales: 22105.410000000003 },
-		];
-
-		var totalValue = 0;
-
-		for (var i = data.length - 1; i >= 0; i--) {
-			totalValue += data[i].sales;
-		}
-		totalValue = totalValue / data.length;
-
+		mApp.salesHeatMap.addControl(new mapboxgl.FullscreenControl());
 		var hoveredStateId = null;
 		const zoomThreshold = 5;
+
+		const ufs = [
+			'AC',
+			'AL',
+			'AP',
+			'AM',
+			'BA',
+			'CE',
+			'DF',
+			'ES',
+			'GO',
+			'MA',
+			'MT',
+			'MS',
+			'MG',
+			'PA',
+			'PB2',
+			'PR',
+			'PE',
+			'PI',
+			'RR',
+			'RO',
+			'RJ',
+			'RN',
+			'RS',
+			'SC',
+			'SP',
+			'SE',
+		];
+
+		function sourceCallback() {
+			// assuming 'map' is defined globally, or you can use 'this'
+			ufs.forEach(element => {
+				if (
+					mApp.salesHeatMap.getSource(element + '_cities') &&
+					mApp.salesHeatMap.isSourceLoaded(element + '_cities')
+				) {
+					ufs.filter(function(ele) {
+						return ele != element;
+					});
+					console.log(element + ' is loaded!');
+				}
+			});
+		}
+
+		const ufsCenter = {
+			AC: [-70.55, -8.77],
+			AL: [-35.73, -9.71],
+			AM: [-61.66, -3.07],
+			AP: [-51.77, 1.41],
+			BA: [-38.51, -12.96],
+			CE: [-38.54, -3.71],
+			DF: [-47.86, -15.83],
+			ES: [-40.34, -19.19],
+			GO: [-49.31, -16.64],
+			MA: [-44.3, -2.55],
+			MT: [-55.42, -12.64],
+			MS: [-54.54, -20.51],
+			MG: [-44.38, -18.1],
+			PA: [-52.29, -5.53],
+			PB: [-35.55, -7.06],
+			PR: [-51.55, -24.89],
+			PE: [-35.07, -8.28],
+			PI: [-43.68, -8.28],
+			RJ: [-43.15, -22.84],
+			RN: [-36.52, -5.22],
+			RO: [-62.8, -11.22],
+			RS: [-51.22, -30.01],
+			RR: [-61.22, 1.89],
+			SC: [-49.44, -27.33],
+			SE: [-37.07, -10.9],
+			SP: [-46.64, -23.55],
+			TO: [-48.25, -10.25],
+		};
+
+		mApp.salesHeatMap.on('click', 'state-fills', function(e) {
+			// map.flyTo({ center: e.features[0].geometry.coordinates });
+			console.info(e.features[0].properties.UF);
+			updateMapData(e.features[0].properties.UF);
+			mApp.salesHeatMap.flyTo({
+				center: ufsCenter[e.features[0].properties.UF],
+				zoom: 5,
+			});
+		});
 
 		mApp.salesHeatMap.on('load', function() {
 			// Add source for state polygons hosted on Mapbox, based on US Census Data:
 			// https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
-			mApp.salesHeatMap.addSource('SP_cities', {
-				type: 'geojson',
-				data: '/assets/geodata/minified/SP.min.json',
+
+			ufs.forEach(element => {
+				mApp.salesHeatMap.addSource(element + '_cities', {
+					type: 'geojson',
+					data: '/assets/geodata/minified/' + element + '.min.json',
+				});
 			});
 
 			mApp.salesHeatMap.addSource('states', {
@@ -270,21 +316,6 @@ var mApp = (function() {
 				data: '/assets/geodata/minified/Brasil.min.json',
 			});
 
-			var expression = ['match', ['get', 'NOME']];
-
-			// Calculate color for each state based on the unemployment rate
-			data.forEach(function(row) {
-				var opacity = (row['sales'] / totalValue) * 1;
-				var color =
-					'rgba(' + 139 + ', ' + 182 + ', ' + 59 + ', ' + opacity + ')';
-				expression.push(row['NOME'], color);
-			});
-
-			// Last value is the default, used where there is no data
-			expression.push('rgba(0,0,0,0)');
-
-			// The feature-state dependent fill-opacity expression will render the hover effect
-			// when a feature's hover state is set to true.
 			mApp.salesHeatMap.addLayer({
 				id: 'state-fills',
 				type: 'fill',
@@ -296,11 +327,13 @@ var mApp = (function() {
 					'fill-opacity': [
 						'case',
 						['boolean', ['feature-state', 'hover'], false],
-						1,
+						0.6,
 						0,
 					],
 				},
 			});
+			// The feature-state dependent fill-opacity expression will render the hover effect
+			// when a feature's hover state is set to true.
 
 			// mApp.salesHeatMap.addLayer({
 			//   id: "state-borders",
@@ -315,16 +348,16 @@ var mApp = (function() {
 			// });
 
 			// Add layer from the vector tile source with data-driven style
-			mApp.salesHeatMap.addLayer(
-				{
-					id: 'states-join',
-					type: 'fill',
-					source: 'SP_cities',
-					minzoom: zoomThreshold,
-					paint: { 'fill-color': expression },
-				},
-				'waterway-label',
-			);
+			// mApp.salesHeatMap.addLayer(
+			// 	{
+			// 		id: 'states-join',
+			// 		type: 'fill',
+			// 		source: 'SP_cities',
+			// 		minzoom: zoomThreshold,
+			// 		paint: { 'fill-color': expression },
+			// 	},
+			// 	'waterway-label',
+			// );
 
 			// When the user moves their mouse over the state-fill layer, we'll update the
 			// feature state for the feature under the mouse.
@@ -355,6 +388,110 @@ var mApp = (function() {
 				}
 				hoveredStateId = null;
 			});
+
+			mApp.salesHeatMap.on('mouseenter', 'state-fills', function() {
+				mApp.salesHeatMap.getCanvas().style.cursor = 'pointer';
+			});
+
+			// Change it back to a pointer when it leaves.
+			mApp.salesHeatMap.on('mouseleave', 'state-fills', function() {
+				mApp.salesHeatMap.getCanvas().style.cursor = '';
+			});
+
+			// updateMapData();
+		});
+	};
+
+	/**
+	 * Update Map Data
+	 */
+	var updateMapData = function(uf) {
+		let queryParams =
+			'groupBy=city&startDate=' +
+			mApp.startDate.format('D.M.YYYY') +
+			'&endDate=' +
+			mApp.endDate.format('D.M.YYYY') +
+			'&state=' +
+			uf +
+			'&type=' +
+			($('input[name=name_of_your_radiobutton]:checked').val() === 'quotations'
+				? '9050'
+				: '9210');
+
+		console.info(queryParams);
+
+		$.getJSON('salesorders/data?' + queryParams, function(data) {
+			if (mApp.salesHeatMap.getLayer(uf + '_cities')) {
+				mApp.salesHeatMap.removeLayer(uf + '_cities');
+			}
+
+			if (data.length === 0) return;
+			console.info(data);
+			var totalValue = 0;
+
+			for (var i = data.length - 1; i >= 0; i--) {
+				totalValue += parseFloat(data[i].sales);
+			}
+
+			var expression = ['match', ['get', 'city']];
+			// Calculate color for each state based on the unemployment rate
+			data.forEach(function(row) {
+				var opacity = (row['sales'] / totalValue) * 0.8 + 0.2;
+				var color =
+					'rgba(' + 139 + ', ' + 182 + ', ' + 59 + ', ' + opacity + ')';
+				expression.push(row['city'], color);
+			});
+
+			console.info(expression);
+
+			// Last value is the default, used where there is no data
+			expression.push('rgba(0,0,0,0)');
+
+			// Add layer from the vector tile source with data-driven style
+			mApp.salesHeatMap.addLayer(
+				{
+					id: uf + '_cities',
+					type: 'fill',
+					source: uf + '_cities',
+					paint: {
+						'fill-color': expression,
+					},
+				},
+				'waterway-label',
+			);
+
+			mApp.salesHeatMap.on('click', uf + '_cities', function(e) {
+				if (data.find(x => x.city === e.features[0].properties.city)) {
+					console.info(e.features[0]);
+					new mapboxgl.Popup()
+						.setLngLat(e.lngLat)
+						.setHTML(
+							'Vendas: ' +
+								numeral(
+									data.find(x => x.city === e.features[0].properties.city)
+										.sales,
+								).format() +
+								'<br>' +
+								e.features[0].properties.city,
+						)
+						.addTo(mApp.salesHeatMap);
+				}
+			});
+
+			// Change the cursor to a pointer when the mouse is over the states layer.
+			mApp.salesHeatMap.on('mousemove', uf + '_cities', function(e) {
+				if (data.find(x => x.city === e.features[0].properties.city)) {
+					mApp.salesHeatMap.getCanvas().style.cursor = 'pointer';
+				} else {
+					mApp.salesHeatMap.getCanvas().style.cursor = '';
+				}
+				console.info(data.find(x => x.city === e.features[0].properties.city));
+			});
+
+			// // Change it back to a pointer when it leaves.
+			// mApp.salesHeatMap.on('mouseleave', uf + '_cities', function(e) {
+			// 	mApp.salesHeatMap.getCanvas().style.cursor = '';
+			// });
 		});
 	};
 
@@ -484,6 +621,7 @@ var mApp = (function() {
 			initPopulateData();
 			initHeatMap();
 			initWebSockets();
+			initDatePicker();
 		},
 
 		/**
@@ -491,6 +629,13 @@ var mApp = (function() {
 		 */
 		initWebSockets: function() {
 			initWebSockets();
+		},
+
+		/**
+		 * Init Sales History Chart
+		 */
+		initDatePicker: function() {
+			initDatePicker();
 		},
 
 		/**
@@ -1258,6 +1403,25 @@ var mUtil = (function() {
 $(document).ready(function() {
 	mUtil.init();
 });
+
+moment.locale('pt-br');
+numeral.register('locale', 'pt-br', {
+	delimiters: {
+		thousands: ' ',
+		decimal: '.',
+	},
+	abbreviations: {
+		thousand: 'mil',
+		million: 'mi',
+		billion: 'bi',
+		trillion: 'tri',
+	},
+	currency: {
+		symbol: 'R$',
+	},
+});
+numeral.locale('pt-br');
+numeral.defaultFormat('($ 0.00.00 a)');
 
 // jquery extension to add animation class into element
 jQuery.fn.extend({
