@@ -14,4 +14,11 @@ import { HttpExceptionFilter } from '../common/http-exception.filter';
 @UseFilters(new HttpExceptionFilter())
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
+
+  @Get('/db2data')
+  @HttpCode(200)
+  async getData() {
+    const data = await this.customersService.getDB2Data();
+    return data;
+  }
 }

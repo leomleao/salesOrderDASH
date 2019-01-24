@@ -3,6 +3,9 @@ import { Inject, Injectable, BadRequestException } from '@nestjs/common';
 import * as r from 'rethinkdb';
 import * as fs from 'fs';
 import * as cheerio from 'cheerio';
+import * as csv from 'csv-parse';
+import * as math from 'mathjs';
+
 import { LoggerService } from '../common/logging.service';
 import { InjectConfig } from 'nestjs-config';
 
@@ -127,7 +130,7 @@ export class CustomersService {
     // get header
     const header = [];
     const data = [];
-    if (type === '.htm') {
+    if (type === 'htm') {
       $('tbody')
         .first()
         .children()
@@ -180,7 +183,7 @@ export class CustomersService {
             data.push(row);
           });
       });
-    } else if (type === '.HTM') {
+    } else if (type === 'HTM') {
       $('tbody')
         .first()
         .find('tr')
@@ -246,5 +249,72 @@ export class CustomersService {
         this.logger.error(err, err.stack());
       });
     // console.info(JSON.stringify(data));
+  }
+
+  async updateDB2(path: string, type: string) {
+    this.logger.log('Gotcha ya!');
+
+    return await csv(
+      fs.readFileSync(path).toString(),
+      {
+        columns: true,
+      },
+      (err, records) => {
+        const filtered = [];
+        records.forEach((element, index) => {
+          if (
+            parseFloat(element.sales) > 0 &&
+            element.sales !== '' &&
+            element.db2 !== 'X'
+          ) {
+            element.sales = element.sales
+              .replace(/\./g, '')
+              .replace(/\,/g, '.');
+            element.db2 = element.db2.replace(/\,/g, '.');
+            filtered.push(element);
+          }
+        });
+
+        if (err) this.logger.error(err.message, err.stack);
+        return r
+          .db('salesDASH')
+          .table('customersDB2')
+          .insert(filtered, { conflict: 'update' })
+          .run(this.rethinkDB)
+          .then(result => {
+            this.logger.log('Data uploaded to DB.');
+            fs.unlink(path, err => {
+              if (err) throw err;
+              this.logger.warn('Treated file deleted: ' + path);
+            });
+            this.logger.log('Customer db2 data treated.');
+          })
+          .catch(error => {
+            this.logger.error(error, error.stack());
+          });
+      },
+    );
+  }
+
+  async getDB2Data() {
+    return await r
+      .db('salesDASH')
+      .table('customersDB2')
+      .filter(
+        r
+          .row('sales')
+          .coerceTo('NUMBER')
+          .gt(10000),
+      )
+      .run(this.rethinkDB)
+      .then(cursor => {
+        return cursor.toArray();
+      })
+      .then(result => {
+        return result;
+      })
+      .catch(err => {
+        this.logger.error(err, err.stack);
+      });
   }
 }

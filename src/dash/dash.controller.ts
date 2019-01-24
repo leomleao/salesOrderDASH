@@ -63,6 +63,18 @@ export class DashController {
     return response;
   }
 
+  @Get('db2')
+  @Render('db2')
+  db2() {
+    const today = new Date();
+    const response = {
+      message: today.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+      currentYear: today.getFullYear(),
+    };
+
+    return response;
+  }
+
   @Get('dash/update')
   @HttpCode(200)
   async getNewData() {

@@ -29,34 +29,25 @@ export class ScheduleService extends NestSchedule {
     await this.invoiceService.updateDash();
   }
 
-  @Interval(10000)
+  @Interval(1000)
   async findNewFiles() {
     this.logger.log('Finding new files!');
-    let type = '.htm';
     await this.fileService
-      .findNewFiles(this.config.get('common.folderPROCESSING'), type)
+      .findNewFiles(this.config.get('common.folderPROCESSING'))
       .then(async foundFiles => {
-        if (Array.isArray(foundFiles) && foundFiles.length === 0) {
-          type = '.HTM';
-          foundFiles = await this.fileService.findNewFiles(
-            this.config.get('common.folderPROCESSING'),
-            type,
-          );
-        }
-
         if (foundFiles !== undefined || foundFiles.length !== 0) {
           for (let i = foundFiles.length - 1; i >= 0; i--) {
             if (foundFiles[i].type === 'CUSTOMERDATA') {
               this.logger.log('Treating data of customers!');
               this.customerService
-                .updateData(foundFiles[i].path, type)
+                .updateData(foundFiles[i].path, foundFiles[i].extension)
                 .then(() => {
                   this.customerService.updateDash();
                 });
             } else if (foundFiles[i].type === 'NFEDATA') {
               this.logger.log('Treating data of invoices!');
               this.invoiceService
-                .updateData(foundFiles[i].path, type)
+                .updateData(foundFiles[i].path, foundFiles[i].extension)
                 .then(() => {
                   this.invoiceService.updateInvoiceTotals().then(() => {
                     // this.invoiceService.updateDash();
@@ -65,7 +56,14 @@ export class ScheduleService extends NestSchedule {
             } else if (foundFiles[i].type === 'SALESORDERDATA') {
               this.logger.log('Treating data of sales orders!');
               this.salesOrderService
-                .updateData(foundFiles[i].path, type)
+                .updateData(foundFiles[i].path, foundFiles[i].extension)
+                .then(() => {
+                  // this.salesOrderService.updateDash();
+                });
+            } else if (foundFiles[i].type === 'DB2') {
+              this.logger.log('Treating data of db2 analysis!');
+              this.customerService
+                .updateDB2(foundFiles[i].path, foundFiles[i].extension)
                 .then(() => {
                   // this.salesOrderService.updateDash();
                 });

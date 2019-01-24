@@ -212,7 +212,7 @@ export class InvoicesService implements OnModuleInit {
     const header = [];
     const data = [];
     try {
-      if (type === '.htm') {
+      if (type === 'htm') {
         $('tbody')
           .first()
           .children()
@@ -312,7 +312,7 @@ export class InvoicesService implements OnModuleInit {
               data.push(row);
             });
         });
-      } else if (type === '.HTM') {
+      } else if (type === 'HTM') {
         // $('tbody').first().find('tr').find('td').each( function(i, elem) {
         //   header.push($(this).text().replace(/^\s+|\s+$/g, ''));
         // });
