@@ -8,16 +8,16 @@ import { QueryParams } from './query-params.dto';
 export class SalesOrdersController {
   constructor(private readonly salesOrdersService: SalesOrdersService) {}
 
-  // @Get('totalMonth')
+  // @Get('/totals')
   // @HttpCode(200)
-  // async findTotalThisMonth() {
-  //   const salesOrders = await this.salesOrdersService.findTotalThisMonth();
+  // async getTotals() {
+  //   const salesOrders = await this.salesOrdersService.getTotals();
   //   return salesOrders;
   // }
 
   @Get('/data')
   @HttpCode(200)
-  async findOne(@Query() query: QueryParams) {
+  async getData(@Query() query: QueryParams) {
     const data = await this.salesOrdersService.getSalesData(query);
     return data;
   }
