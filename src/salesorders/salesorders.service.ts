@@ -182,7 +182,7 @@ export class SalesOrdersService implements OnModuleInit {
         );
       })
       .run(this.rethinkDB)
-      .then(async result => {        
+      .then(async result => {
         return await r.db('salesDASH')
           .table('dash')
           .insert(
@@ -502,7 +502,7 @@ export class SalesOrdersService implements OnModuleInit {
       .orderBy(r.desc("creationDate"))
       .limit(5)
       .outerJoin(
-        r.db("salesDASH").table("customers"),
+        r.db("salesDASH").table("customers").without('creationDate'),
         (salesOrder, customer) => {
           return salesOrder("soldTo").eq(customer("customer"));
         }
