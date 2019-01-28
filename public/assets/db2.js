@@ -181,6 +181,18 @@ var mApp = (function() {
 	 */
 	var splitIntoQuadrants = function() {
 		mApp.db2Data.forEach(customer => {
+
+			console.info("yAxesminZoom",mApp.db2Chart.yAxes._values[0].minZoomed);
+			console.info("yAxesmaxZoom",mApp.db2Chart.yAxes._values[0].maxZoomed);
+			console.info("xAxesminZoom",mApp.db2Chart.xAxes._values[0].minZoomed);
+			console.info("xAxesmaxZoom",mApp.db2Chart.xAxes._values[0].maxZoomed);
+			if (customer.db2 > mApp.db2Chart.yAxes._values[0].maxZoomed || customer.db2 < mApp.db2Chart.yAxes._values[0].minZoomed) {
+				return;
+			}
+			if (customer.sales > mApp.db2Chart.xAxes._values[0].maxZoomed || customer.sales < mApp.db2Chart.xAxes._values[0].minZoomed) {
+				return;
+      		}
+
 			//M1
 			if (
 				customer.sales > mApp.db2.target.sales &&
@@ -344,7 +356,7 @@ var mApp = (function() {
 			range.grid.strokeWidth = 2;
 			range.grid.strokeOpacity = 1;
 			range.label.inside = true;
-			range.label.text = 'Sales target';
+			range.label.text = "Sales target " + numeral(cursorPosition.x).format();
 			range.label.fill = range.grid.stroke;
 			//range.label.align = "right";
 			range.label.verticalCenter = 'bottom';
@@ -355,7 +367,7 @@ var mApp = (function() {
 			range2.grid.strokeWidth = 2;
 			range2.grid.strokeOpacity = 1;
 			range2.label.inside = true;
-			range2.label.text = 'Margin target';
+			range2.label.text = 'Margin target ' + numeral(cursorPosition.y / 100).format('0%');
 			range2.label.fill = range2.grid.stroke;
 			//range2.label.align = "right";
 			range2.label.verticalCenter = 'bottom';

@@ -124,12 +124,18 @@ export class SalesOrdersService implements OnModuleInit {
             parseInt(startYear, 10),
             parseInt(startMonth, 10),
             parseInt(startDay, 10),
+            0,
+            0,
+            0,
             '-03:00',
           ),
           r.time(
             parseInt(endYear, 10),
             parseInt(endMonth, 10),
             parseInt(endDay, 10),
+            23,
+            59,
+            59,
             '-03:00',
           ),
           { leftBound: 'closed', rightBound: 'closed' },
@@ -167,7 +173,7 @@ export class SalesOrdersService implements OnModuleInit {
     return await r.db('salesDASH').table('salesOrders').filter(row => {
       return row('creationDate').gt(r.now().sub(60 * 60 * 24 * 13)); // only include records from the last 31 days
     }).group(
-      [r.row('type'), r.row('creationDate').day(), r.row('creationDate').month()]
+      [r.row('type'), r.row('creationDate').day(), r.row('creationDate').month()],
     ).count().ungroup()
       .map(row => {
         return r.object(
@@ -195,7 +201,7 @@ export class SalesOrdersService implements OnModuleInit {
             { conflict: 'update' },
           )
           .run(this.rethinkDB)
-          .then(result => {
+          .then(results => {
             this.logger.log('Past orders chart updated.');
           });
       })
@@ -497,31 +503,31 @@ export class SalesOrdersService implements OnModuleInit {
       });
 
     this.logger.log('Updating dash -- last five sales orders.');
-    r.db("salesDASH")
-      .table("salesOrders")
-      .orderBy(r.desc("creationDate"))
+    r.db('salesDASH')
+      .table('salesOrders')
+      .orderBy(r.desc('creationDate'))
       .limit(5)
       .outerJoin(
-        r.db("salesDASH").table("customers").without('creationDate'),
+        r.db('salesDASH').table('customers').without('creationDate'),
         (salesOrder, customer) => {
-          return salesOrder("soldTo").eq(customer("customer"));
-        }
+          return salesOrder('soldTo').eq(customer('customer'));
+        },
       )
       .zip()
-      .pluck("docNumber", "creationDate", "totalValue", "name", "customer")
+      .pluck('docNumber', 'creationDate', 'totalValue', 'name', 'customer')
       .run(this.rethinkDB)
       .then(cursor => {
         return cursor.toArray();
       })
       .then(lastFive => {
-        r.db("salesDASH")
-          .table("dash")
-          .insert([{ field: "lastFiveSalesOrders", value: lastFive }], {
-            conflict: "update"
+        r.db('salesDASH')
+          .table('dash')
+          .insert([{ field: 'lastFiveSalesOrders', value: lastFive }], {
+            conflict: 'update',
           })
           .run(this.rethinkDB)
           .then(result => {
-            this.logger.log("Last five sales orders updated.");
+            this.logger.log('Last five sales orders updated.');
           });
       })
       .catch(err => {

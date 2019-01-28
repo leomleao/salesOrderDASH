@@ -283,8 +283,8 @@ export class CustomersService {
           .run(this.rethinkDB)
           .then(result => {
             this.logger.log('Data uploaded to DB.');
-            fs.unlink(path, err => {
-              if (err) throw err;
+            fs.unlink(path, error => {
+              if (error) throw error;
               this.logger.warn('Treated file deleted: ' + path);
             });
             this.logger.log('Customer db2 data treated.');
