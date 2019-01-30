@@ -28,9 +28,10 @@ export class ScheduleService extends NestSchedule {
   async findNewF123123iles() {
     // await this.salesOrderService.updateDash();
     // await this.salesOrderService.getTotals();
+    //this.invoiceService.updateDash();
   }
 
-  // @Interval(1000)
+  @Interval(10000)
   async findNewFiles() {
     this.logger.log('Finding new files!');
     await this.fileService

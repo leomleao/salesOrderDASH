@@ -21,13 +21,13 @@ math.config({
 
 interface InvoiceItem {
   docNumber: any;
-  totalTax: any;
-  postDate: any;
-  totalValue: any;
+  dirMvt: any;
+  cancDate: any;
+  procDate: any;
   partnerID: any;
-  dirMovement: any;
-  cancelDate: any;
-  freight: any;
+  city: any;
+  region: any;
+  totalValue: any;
 }
 
 interface GraphColumn {
@@ -118,7 +118,8 @@ export class InvoicesService implements OnModuleInit {
     this.logger.log('Updating dash -- last five.');
     r.db('salesDASH')
       .table('invoices')
-      .orderBy(r.desc('postDate'))
+      .filter(r.row('dirMvt').eq(2))
+      .orderBy(r.desc('procDate'))
       .limit(5)
       .run(this.rethinkDB)
       .then(cursor => {
@@ -163,11 +164,11 @@ export class InvoicesService implements OnModuleInit {
   async updateInvoiceTotals() {
     r.db('salesDASH')
       .table('invoices')
-      .filter(r.row.hasFields('cancelDate').not())
-      .group([r.row('postDate').month(), r.row('postDate').year()])
+      // .filter(r.row.hasFields('cancDate').not())
+      .group([r.row('procDate').month(), r.row('procDate').year()])
       .sum(invoice => {
         return r.branch(
-          invoice('dirMovement').eq('1'),
+          invoice('dirMvt').eq(1),
           invoice('totalValue')
             .coerceTo('NUMBER')
             .mul(-1),
@@ -212,7 +213,7 @@ export class InvoicesService implements OnModuleInit {
     const header = [];
     const data = [];
     try {
-      if (type === 'htm') {
+      if (type === '.htm') {
         $('tbody')
           .first()
           .children()
@@ -221,12 +222,7 @@ export class InvoicesService implements OnModuleInit {
             const columnHeader = $(this)
               .text()
               .replace(/^\s+|\s+$/g, '');
-            if (columnHeader === 'Material') {
-              header.push('Material');
-              header.push('ID');
-            } else {
-              header.push(columnHeader);
-            }
+            header.push(columnHeader);
           });
 
         header.push('totalTax');
@@ -237,8 +233,8 @@ export class InvoicesService implements OnModuleInit {
             .find('tr')
             .each(function(j, trElem) {
               const row: InvoiceItem = {} as InvoiceItem;
-              row.totalTax = 0;
-              let reducingRate;
+              row.totalValue = 0;
+              let day, month, year, hour, minute, second;
 
               $(this)
                 .find('nobr')
@@ -248,97 +244,51 @@ export class InvoicesService implements OnModuleInit {
                     .text()
                     .replace(/^\s+|\s+$/g, '');
 
-                  if (header[y].indexOf('Doc. No.') >= 0) {
+                  if (header[y].indexOf('docNumber') >= 0) {
                     row.docNumber = parseInt(currentCell, 10);
-                  } else if (header[y].indexOf('Post.date') >= 0) {
-                    const [day, month, year] = currentCell.split('.');
-                    row.postDate = r.time(
-                      parseInt(year, 10),
-                      parseInt(month, 10),
-                      parseInt(day, 10),
-                      '+01:00',
-                    );
-                  } else if (header[y].indexOf('Taxva') >= 0) {
-                    row.totalTax = math.format(
-                      math.add(
-                        math.bignumber(row.totalTax),
-                        math.bignumber(
-                          currentCell.replace(/\./g, '').replace(/\,/g, '.'),
-                        ),
-                      ),
-                    );
-                  } else if (header[y].indexOf('Total NF') >= 0) {
-                    row.totalValue = currentCell
-                      .replace(/\./g, '')
-                      .replace(/\,/g, '.');
-                  } else if (header[y].indexOf('Partner') >= 0) {
-                    row.partnerID = currentCell;
-                  } else if (header[y].indexOf('Freight') >= 0) {
-                    reducingRate = 100;
-                    row.freight = currentCell
-                      .replace(/\./g, '')
-                      .replace(/\,/g, '.');
-                  } else if (header[y].indexOf('Rate') >= 0) {
-                    reducingRate = math.subtract(
-                      math.bignumber(reducingRate),
-                      math.bignumber(
-                        currentCell.replace(/\./g, '').replace(/\,/g, '.'),
-                      ),
-                    );
-                  } else if (header[y].indexOf('Dir.movem.') >= 0) {
-                    row.dirMovement = currentCell;
+                  } else if (header[y].indexOf('dirMvt') >= 0) {
+                    row.dirMvt = parseInt(currentCell, 10);
                   } else if (
-                    header[y].indexOf('Canc. Date') >= 0 &&
+                    header[y].indexOf('cancDate') >= 0 &&
                     currentCell !== ''
                   ) {
-                    row.cancelDate = currentCell;
+                    row.cancDate = currentCell;
+                  } else if (header[y].indexOf('procDate') >= 0) {
+                    [day, month, year] = currentCell.split('.');
+                  } else if (header[y] === 'procTime') {
+                    [hour, minute, second] = currentCell.split(':');
+                  } else if (header[y].indexOf('partnerID') >= 0) {
+                    row.partnerID = parseInt(currentCell, 10);
+                  } else if (header[y].indexOf('netValue') >= 0) {
+                    row.totalValue = currentCell
+                      .replace(/\-/g, '')
+                      .replace(/\./g, '')
+                      .replace(/\,/g, '.');
                   } else if (currentCell !== '') {
                     row[header[y]] = currentCell;
                   }
                 });
 
-              if (row.freight && reducingRate) {
-                row.totalTax = math.format(
-                  math.add(
-                    math.bignumber(row.totalTax),
-                    math.multiply(
-                      math.bignumber(row.freight),
-                      math.divide(reducingRate, 100),
-                    ),
-                  ),
-                );
-              }
+              row.procDate = r.time(
+                parseInt(year, 10),
+                parseInt(month, 10),
+                parseInt(day, 10),
+                parseInt(hour, 10),
+                parseInt(minute, 10),
+                parseInt(second, 10),
+                '+01:00',
+              );
 
               data.push(row);
             });
         });
-      } else if (type === 'HTM') {
-        // $('tbody').first().find('tr').find('td').each( function(i, elem) {
-        //   header.push($(this).text().replace(/^\s+|\s+$/g, ''));
-        // });
-        // $('tbody').first().find('tr').each( function(i, elem) {
-        //   let row = {};
-        //   if (i != 0) {
-        //     $(this).find('td').each( function(i, elem) {
-        //     // console.info($(this).children().children().text());
-        //       if (header[i] == "Customer"){
-        //         row[header[i]] = parseInt($(this).text().replace(/^\s+|\s+$/g, ''));
-        //       } if (header[i] == "Date"){
-        //         const [day, month, year] = $(this).text().replace(/^\s+|\s+$/g, '').split(".");
-        //         row[header[i]] = new Date(year, month - 1, day);
-        //       } else {
-        //         row[header[i]] = $(this).text().replace(/^\s+|\s+$/g, '');
-        //       }
-        //     })
-        //     data.push(row);
-        //   }
-        // });
       }
     } catch (err) {
       this.logger.error(err, err.stack);
     }
 
     this.logger.log('Invoice data treated.');
+
     // console.info(JSON.stringify(data));
     return this.groupBy(data, this.demoComparator, this.demoOnDublicate).then(
       async groupedInvoices => {
@@ -349,10 +299,10 @@ export class InvoicesService implements OnModuleInit {
           .run(this.rethinkDB)
           .then(result => {
             this.logger.log('Data uploaded to DB.');
-            // fs.unlink(path, (err) => {
-            //   if (err) throw err;
-            //   this.logger.warn('Treated file deleted: ' + path);
-            // });
+            fs.unlink(path, (err) => {
+              if (err) throw err;
+              this.logger.warn('Treated file deleted: ' + path);
+            });
             // console.log('file would have been deleted now');
           })
           .catch(err => {
@@ -380,12 +330,7 @@ export class InvoicesService implements OnModuleInit {
   }
 
   private demoOnDublicate = (uniqueRow, dublicateRow) => {
-    uniqueRow.totalTax = math.format(
-      math.add(
-        math.bignumber(uniqueRow.totalTax),
-        math.bignumber(dublicateRow.totalTax),
-      ),
-    );
+    uniqueRow.totalValue = math.format(math.add(math.bignumber(uniqueRow.totalValue), math.bignumber(dublicateRow.totalValue)));
   }
 
   private async groupBy(
@@ -399,27 +344,9 @@ export class InvoicesService implements OnModuleInit {
       );
       if (processedRow) {
         // currentlyReducedRow is a dublicateRow when processedRow is not null.
-        // processedRow.totalValue = processedRow.totalValue.minus(currentlyReducedRow.taxValue);
-        // processedRow.totalValue = processedRow.totalValue.minus(currentlyReducedRow.taxValue);
-        processedRow.totalValue = math.format(
-          math.subtract(
-            math.bignumber(processedRow.totalValue),
-            math.bignumber(currentlyReducedRow.totalTax),
-          ),
-          { notation: 'fixed', precision: 2 },
-        );
         onDublicate(processedRow, currentlyReducedRow);
       } else {
         // currentlyReducedRow is unique and must be pushed in the reducedRows collection.
-        // currentlyReducedRow.totalValue = currentlyReducedRow.totalValue.minus(currentlyReducedRow.taxValue);
-        currentlyReducedRow.totalValue = math.format(
-          math.subtract(
-            math.bignumber(currentlyReducedRow.totalValue),
-            math.bignumber(currentlyReducedRow.totalTax),
-          ),
-          { notation: 'fixed', precision: 2 },
-        );
-
         reducedRows.push(currentlyReducedRow);
       }
       return reducedRows;

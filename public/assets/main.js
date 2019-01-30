@@ -648,7 +648,7 @@ var mApp = (function() {
 		console.info('YAY', data);
 		if (!data.new_val) return;
 
-		if (data.new_val.field === 'graphData') {
+		if (data.new_val.field === 'chartData') {
 			updateChartData(data.new_val.value);
 		} else if (data.new_val.field === 'pastOrdersChart') {
 			updateDailySalesChartData(data.new_val.value);
@@ -717,14 +717,14 @@ var mApp = (function() {
 				.find('tbody')
 				.find('tr')
 				.each(function(index) {
-					const postDate = new Date(newData[index].postDate);
-          const totalValue = numeral(newData[index].totalValue).format();;
+					const procDate = new Date(newData[index].procDate);
+          			const totalValue = numeral(newData[index].totalValue).format();
 					$(this)
 						.children()
 						.first()
 						.children()
 						.first()
-						.html(newData[index].Name);
+						.html(newData[index].name);
 					$(this)
 						.children()
 						.first()
@@ -737,11 +737,7 @@ var mApp = (function() {
 						.first()
 						.next()
 						.html(
-							  postDate.getDate() +
-								'/' +
-								(postDate.getMonth() + 1) +
-								'/' +
-								postDate.getFullYear(),
+						procDate.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
 						);
 					$(this)
 						.children()
@@ -775,7 +771,7 @@ var mApp = (function() {
 						.first()
 						.next()
 						.html(
-              creationDate.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+						creationDate.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
 						);
 					$(this)
 						.children()
@@ -843,8 +839,8 @@ var mApp = (function() {
 			// initDailySalesChart();
 			// initSalesBySegmentChart();
 			// initSalesHistoryChart();
-			initSalesStateHeatMap();
-			initSalesCountryHeatMap();
+			//initSalesStateHeatMap();
+			//initSalesCountryHeatMap();
 			initWebSockets();
 		},
 
