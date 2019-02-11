@@ -7,16 +7,16 @@ var mApp = (function() {
    * Initializes bootstrap tooltip
    */
   var initTooltip = function(el) {
-    var skin = el.data("skin") ? "m-tooltip--skin-" + el.data("skin") : "";
-    var width = el.data("width") == "auto" ? "m-tooltop--auto-width" : "";
-    var triggerValue = el.data("trigger") ? el.data("trigger") : "hover";
+    var skin = el.data('skin') ? 'm-tooltip--skin-' + el.data('skin') : '';
+    var width = el.data('width') == 'auto' ? 'm-tooltop--auto-width' : '';
+    var triggerValue = el.data('trigger') ? el.data('trigger') : 'hover';
 
     el.tooltip({
       trigger: triggerValue,
       template:
         '<div class="m-tooltip ' +
         skin +
-        " " +
+        ' ' +
         width +
         ' tooltip" role="tooltip">\
                 <div class="arrow"></div>\
@@ -51,9 +51,9 @@ var mApp = (function() {
     $('[data-portlet="true"]').each(function() {
       var el = $(this);
 
-      if (el.data("portlet-initialized") !== true) {
+      if (el.data('portlet-initialized') !== true) {
         initPortlet(el, {});
-        el.data("portlet-initialized", true);
+        el.data('portlet-initialized', true);
       }
     });
   };
@@ -64,75 +64,75 @@ var mApp = (function() {
   var initDatePicker = function() {
     // init portlet tools
     // predefined ranges
-    mApp.startDate = moment().subtract(29, "days");
+    mApp.startDate = moment().subtract(29, 'days');
     mApp.endDate = moment();
 
-    if ($("#m_dashboard_daterangepicker").length == 0) {
+    if ($('#m_dashboard_daterangepicker').length == 0) {
       return;
     }
 
-    var picker = $("#m_dashboard_daterangepicker");
+    var picker = $('#m_dashboard_daterangepicker');
     function cb(start, end, label) {
-      var title = "";
-      var range = "";
+      var title = '';
+      var range = '';
       mApp.startDate = start;
       mApp.endDate = end;
 
       if (end - start < 100) {
-        title = "Hoje:";
-        range = start.format("D MMM");
-      } else if (label == "Hoje") {
-        title = "Hoje:";
-        range = start.format("D MMM");
-      } else if (label == "Ontem") {
-        title = "Ontem:";
-        range = start.format("D MMM");
+        title = 'Hoje:';
+        range = start.format('D MMM');
+      } else if (label == 'Hoje') {
+        title = 'Hoje:';
+        range = start.format('D MMM');
+      } else if (label == 'Ontem') {
+        title = 'Ontem:';
+        range = start.format('D MMM');
       } else {
-        range = start.format("D MMM") + " - " + end.format("D MMM");
+        range = start.format('D MMM') + ' - ' + end.format('D MMM');
       }
 
-      picker.find(".m-subheader__daterange-date").html(range);
-      picker.find(".m-subheader__daterange-title").html(title);
+      picker.find('.m-subheader__daterange-date').html(range);
+      picker.find('.m-subheader__daterange-title').html(title);
     }
 
     picker.daterangepicker(
       {
         startDate: mApp.startDate,
         endDate: mApp.endDate,
-        opens: "left",
+        opens: 'left',
         locale: {
-          customRangeLabel: "Personalizado",
-          applyLabel: "Aplicar",
-          cancelLabel: "Cancelar"
+          customRangeLabel: 'Personalizado',
+          applyLabel: 'Aplicar',
+          cancelLabel: 'Cancelar'
         },
         ranges: {
           Hoje: [moment(), moment()],
-          Ontem: [moment().subtract(1, "days"), moment().subtract(1, "days")],
-          "Ultimos 7 dias": [moment().subtract(6, "days"), moment()],
-          "Ultimos 30 dias": [moment().subtract(29, "days"), moment()],
-          "Esse mes": [moment().startOf("month"), moment().endOf("month")],
-          "Mes passado": [
+          Ontem: [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+          'Ultimos 7 dias': [moment().subtract(6, 'days'), moment()],
+          'Ultimos 30 dias': [moment().subtract(29, 'days'), moment()],
+          'Esse mes': [moment().startOf('month'), moment().endOf('month')],
+          'Mes passado': [
             moment()
-              .subtract(1, "month")
-              .startOf("month"),
+              .subtract(1, 'month')
+              .startOf('month'),
             moment()
-              .subtract(1, "month")
-              .endOf("month")
+              .subtract(1, 'month')
+              .endOf('month')
           ],
-          "Ano passado": [
+          'Ano passado': [
             moment()
-              .subtract(1, "year")
-              .startOf("year"),
+              .subtract(1, 'year')
+              .startOf('year'),
             moment()
-              .subtract(1, "year")
-              .endOf("year")
+              .subtract(1, 'year')
+              .endOf('year')
           ]
         }
       },
       cb
     );
 
-    cb(mApp.startDate, mApp.endDate, "");
+    cb(mApp.startDate, mApp.endDate, '');
   };
 
   /**
@@ -144,28 +144,28 @@ var mApp = (function() {
       var height;
       var el = $(this);
 
-      if (mUtil.isInResponsiveRange("tablet-and-mobile")) {
-        if (el.data("mobile-max-height")) {
-          maxHeight = el.data("mobile-max-height");
+      if (mUtil.isInResponsiveRange('tablet-and-mobile')) {
+        if (el.data('mobile-max-height')) {
+          maxHeight = el.data('mobile-max-height');
         } else {
-          maxHeight = el.data("max-height");
+          maxHeight = el.data('max-height');
         }
 
-        if (el.data("mobile-height")) {
-          height = el.data("mobile-height");
+        if (el.data('mobile-height')) {
+          height = el.data('mobile-height');
         } else {
-          height = el.data("height");
+          height = el.data('height');
         }
       } else {
-        maxHeight = el.data("max-height");
-        height = el.data("max-height");
+        maxHeight = el.data('max-height');
+        height = el.data('max-height');
       }
 
       if (maxHeight) {
-        el.css("max-height", maxHeight);
+        el.css('max-height', maxHeight);
       }
       if (height) {
-        el.css("height", height);
+        el.css('height', height);
       }
 
       mApp.initScroller(el, {});
@@ -177,14 +177,14 @@ var mApp = (function() {
    */
   var initPopulateData = function() {
     $.ajax({
-      type: "GET",
-      url: "dash/update",
+      type: 'GET',
+      url: 'dash/update',
       success: function(data) {
         for (var i = data.length - 1; i >= 0; i--) {
-          if (data[i].field === "lastFiveInvoices") {
-            updateTabData(data[i].value, "invoices");
-          } else if (data[i].field === "lastFivesSalesOrders") {
-            updateTabData(data[i].value, "salesOrders");
+          if (data[i].field === 'lastFiveInvoices') {
+            updateTabData(data[i].value, 'invoices');
+          } else if (data[i].field === 'lastFivesSalesOrders') {
+            updateTabData(data[i].value, 'salesOrders');
           } else {
             updateField(data[i].field, data[i].value);
           }
@@ -202,10 +202,10 @@ var mApp = (function() {
    */
   var initHeatMap = function() {
     mapboxgl.accessToken =
-      "pk.eyJ1IjoibGVvbWxlYW8iLCJhIjoiY2pyM2pyeWg1MTN3NjQ1cWxjNTVxdGRidCJ9.iNrfjj-G6EUjrv4adzWNRg";
+      'pk.eyJ1IjoibGVvbWxlYW8iLCJhIjoiY2pyM2pyeWg1MTN3NjQ1cWxjNTVxdGRidCJ9.iNrfjj-G6EUjrv4adzWNRg';
     mApp.salesHeatMap = new mapboxgl.Map({
-      container: "salesHeatMap", // container id
-      style: "mapbox://styles/mapbox/light-v9",
+      container: 'salesHeatMap', // container id
+      style: 'mapbox://styles/mapbox/light-v9',
       center: [-46.97, -23.19], // starting position
       zoom: 3 // starting zoom
     });
@@ -217,45 +217,45 @@ var mApp = (function() {
     const zoomThreshold = 5;
 
     const ufs = [
-      "AC",
-      "AL",
-      "AP",
-      "AM",
-      "BA",
-      "CE",
-      "DF",
-      "ES",
-      "GO",
-      "MA",
-      "MT",
-      "MS",
-      "MG",
-      "PA",
-      "PB2",
-      "PR",
-      "PE",
-      "PI",
-      "RR",
-      "RO",
-      "RJ",
-      "RN",
-      "RS",
-      "SC",
-      "SP",
-      "SE"
+      'AC',
+      'AL',
+      'AP',
+      'AM',
+      'BA',
+      'CE',
+      'DF',
+      'ES',
+      'GO',
+      'MA',
+      'MT',
+      'MS',
+      'MG',
+      'PA',
+      'PB2',
+      'PR',
+      'PE',
+      'PI',
+      'RR',
+      'RO',
+      'RJ',
+      'RN',
+      'RS',
+      'SC',
+      'SP',
+      'SE'
     ];
 
     function sourceCallback() {
       // assuming 'map' is defined globally, or you can use 'this'
       ufs.forEach(element => {
         if (
-          mApp.salesHeatMap.getSource(element + "_cities") &&
-          mApp.salesHeatMap.isSourceLoaded(element + "_cities")
+          mApp.salesHeatMap.getSource(element + '_cities') &&
+          mApp.salesHeatMap.isSourceLoaded(element + '_cities')
         ) {
           ufs.filter(function(ele) {
             return ele != element;
           });
-          console.log(element + " is loaded!");
+          console.log(element + ' is loaded!');
         }
       });
     }
@@ -290,7 +290,7 @@ var mApp = (function() {
       TO: [-48.25, -10.25]
     };
 
-    mApp.salesHeatMap.on("click", "state-fills", function(e) {
+    mApp.salesHeatMap.on('click', 'state-fills', function(e) {
       // map.flyTo({ center: e.features[0].geometry.coordinates });
       console.info(e.features[0].properties.UF);
       updateMapData(e.features[0].properties.UF);
@@ -300,35 +300,35 @@ var mApp = (function() {
       });
     });
 
-    mApp.salesHeatMap.on("load", function() {
+    mApp.salesHeatMap.on('load', function() {
       // Add source for state polygons hosted on Mapbox, based on US Census Data:
       // https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
 
-      console.info("LOAD CALLED!");
+      console.info('LOAD CALLED!');
 
       ufs.forEach(element => {
-        mApp.salesHeatMap.addSource(element + "_cities", {
-          type: "geojson",
-          data: "/assets/geodata/minified/" + element + ".min.json"
+        mApp.salesHeatMap.addSource(element + '_cities', {
+          type: 'geojson',
+          data: '/assets/geodata/minified/' + element + '.min.json'
         });
       });
 
-      mApp.salesHeatMap.addSource("states", {
-        type: "geojson",
-        data: "/assets/geodata/minified/Brasil.min.json"
+      mApp.salesHeatMap.addSource('states', {
+        type: 'geojson',
+        data: '/assets/geodata/minified/Brasil.min.json'
       });
 
       mApp.salesHeatMap.addLayer({
-        id: "state-fills",
-        type: "fill",
-        source: "states",
+        id: 'state-fills',
+        type: 'fill',
+        source: 'states',
         layout: {},
         maxzoom: zoomThreshold,
         paint: {
-          "fill-color": "#8BB63B",
-          "fill-opacity": [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
+          'fill-color': '#8BB63B',
+          'fill-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
             0.6,
             0
           ]
@@ -363,17 +363,17 @@ var mApp = (function() {
 
       // When the user moves their mouse over the state-fill layer, we'll update the
       // feature state for the feature under the mouse.
-      mApp.salesHeatMap.on("mousemove", "state-fills", function(e) {
+      mApp.salesHeatMap.on('mousemove', 'state-fills', function(e) {
         if (e.features.length > 0) {
           if (hoveredStateId) {
             mApp.salesHeatMap.setFeatureState(
-              { source: "states", id: hoveredStateId },
+              { source: 'states', id: hoveredStateId },
               { hover: false }
             );
           }
           hoveredStateId = e.features[0].id;
           mApp.salesHeatMap.setFeatureState(
-            { source: "states", id: hoveredStateId },
+            { source: 'states', id: hoveredStateId },
             { hover: true }
           );
         }
@@ -381,23 +381,23 @@ var mApp = (function() {
 
       // When the mouse leaves the state-fill layer, update the feature state of the
       // previously hovered feature.
-      mApp.salesHeatMap.on("mouseleave", "state-fills", function() {
+      mApp.salesHeatMap.on('mouseleave', 'state-fills', function() {
         if (hoveredStateId) {
           mApp.salesHeatMap.setFeatureState(
-            { source: "states", id: hoveredStateId },
+            { source: 'states', id: hoveredStateId },
             { hover: false }
           );
         }
         hoveredStateId = null;
       });
 
-      mApp.salesHeatMap.on("mouseenter", "state-fills", function() {
-        mApp.salesHeatMap.getCanvas().style.cursor = "pointer";
+      mApp.salesHeatMap.on('mouseenter', 'state-fills', function() {
+        mApp.salesHeatMap.getCanvas().style.cursor = 'pointer';
       });
 
       // Change it back to a pointer when it leaves.
-      mApp.salesHeatMap.on("mouseleave", "state-fills", function() {
-        mApp.salesHeatMap.getCanvas().style.cursor = "";
+      mApp.salesHeatMap.on('mouseleave', 'state-fills', function() {
+        mApp.salesHeatMap.getCanvas().style.cursor = '';
       });
 
       // updateMapData();
@@ -409,63 +409,67 @@ var mApp = (function() {
    */
   var updateMapData = function(uf) {
     let queryParams =
-      "groupBy=city&startDate=" +
-      mApp.startDate.format("D.M.YYYY") +
-      "&endDate=" +
-      mApp.endDate.format("D.M.YYYY") +
-      "&state=" +
+      'groupBy=city&startDate=' +
+      mApp.startDate.format('D.M.YYYY') +
+      '&endDate=' +
+      mApp.endDate.format('D.M.YYYY') +
+      '&state=' +
       uf +
-      "&type=" +
-      ($("input[name=typeSelection]:checked").val() === "quotations"
-        ? "9050"
-        : "9210");
+      '&type=' +
+      ($('input[name=typeSelection]:checked').val() === 'quotations'
+        ? '9050'
+        : '9210');
 
     console.info(queryParams);
-
-    $.getJSON("salesorders/data?" + queryParams, function(data) {
-      mApp[uf + "_citiesData"] = data;
-
-      if (mApp[uf + "_citiesData"].length === 0) {
-        if (mApp.salesHeatMap.getLayer(uf + "_cities")) {
-          mApp.salesHeatMap.removeLayer(uf + "_cities");
-        }
-        return;
-      }
-      console.info(mApp[uf + "_citiesData"]);
+    $.getJSON('salesorders/data?' + queryParams, function(data) {
+      mApp[uf + '_citiesData'] = data;
+      console.info(mApp[uf + '_citiesData']);
       var totalValue = 0;
 
-      for (var i = mApp[uf + "_citiesData"].length - 1; i >= 0; i--) {
-        totalValue += parseFloat(mApp[uf + "_citiesData"][i].sales);
+      for (var i = mApp[uf + '_citiesData'].length - 1; i >= 0; i--) {
+        totalValue += parseFloat(mApp[uf + '_citiesData'][i].sales);
       }
+      if (!totalValue) return;
 
-      var expression = ["match", ["get", "city"]];
+      console.info(mApp[uf + '_citiesData']);
+
+      var expression = ['match', ['get', 'city']];
       // Calculate color for each state based on the unemployment rate
-      mApp[uf + "_citiesData"].forEach(function(row) {
-        var opacity = (row["sales"] / totalValue) * 0.8 + 0.2;
+      mApp[uf + '_citiesData'].forEach(function(row) {
+        var opacity = (row['sales'] / totalValue) * 0.8 + 0.2;
         var color =
-          "rgba(" + 139 + ", " + 182 + ", " + 59 + ", " + opacity + ")";
-        expression.push(row["city"], color);
+          'rgba(' + 139 + ', ' + 182 + ', ' + 59 + ', ' + opacity + ')';
+        expression.push(row['city'], color);
       });
 
       console.info(expression);
 
       // Last value is the default, used where there is no data
-      expression.push("rgba(0,0,0,0)");
+      expression.push('rgba(0,0,0,0)');
+
+      if (mApp.salesHeatMap.getLayer(uf + '_cities')) {
+        mApp.salesHeatMap.setPaintProperty(
+          uf + '_cities',
+          'fill-color',
+          expression
+        );
+      } else {
+        mApp.salesHeatMap.addLayer(
+          {
+            id: uf + '_cities',
+            type: 'fill',
+            source: uf + '_cities',
+            minzoom: 5,
+            paint: {
+              'fill-color': expression
+            },
+            onAdd: eventListerner(uf)
+          },
+          'waterway-label'
+        );
+      }
 
       // Add layer from the vector tile source with data-driven style
-      mApp.salesHeatMap.addLayer(
-        {
-          id: uf + "_cities",
-          type: "fill",
-          source: uf + "_cities",
-          minzoom: 5,
-          paint: {
-            "fill-color": expression
-          },
-          onAdd: eventListerner(uf)
-        },
-        "waterway-label"
-      );
 
       // // Change it back to a pointer when it leaves.
       // mApp.salesHeatMap.on('mouseleave', uf + '_cities', function(e) {
@@ -475,43 +479,38 @@ var mApp = (function() {
   };
 
   var eventListerner = function(uf) {
-    if (mApp.salesHeatMap.getLayer(uf + "_cities")) {
-      mApp.salesHeatMap.removeLayer(uf + "_cities");
-      mApp.salesHeatMap.off("click", uf + "_cities", onClick);
-    } else {
-      mApp.salesHeatMap.on("click", uf + "_cities", onClick);
-    }
+    mApp.salesHeatMap.on('click', uf + '_cities', onClick);
 
     function onClick(e) {
       if (
-        mApp[uf + "_citiesData"].find(
+        mApp[uf + '_citiesData'].find(
           x => x.city === e.features[0].properties.city
         )
       ) {
         new mapboxgl.Popup()
           .setLngLat(e.lngLat)
           .setHTML(
-            "Vendas: " +
+            'Vendas: ' +
               numeral(
-                mApp[uf + "_citiesData"].find(
+                mApp[uf + '_citiesData'].find(
                   x => x.city === e.features[0].properties.city
                 ).sales
               ).format() +
-              "<br>" +
+              '<br>' +
               e.features[0].properties.city
           )
           .addTo(mApp.salesHeatMap);
       }
     }
-    mApp.salesHeatMap.on("mousemove", uf + "_cities", function(e) {
+    mApp.salesHeatMap.on('mousemove', uf + '_cities', function(e) {
       if (
-        mApp[uf + "_citiesData"].find(
+        mApp[uf + '_citiesData'].find(
           x => x.city === e.features[0].properties.city
         )
       ) {
-        mApp.salesHeatMap.getCanvas().style.cursor = "pointer";
+        mApp.salesHeatMap.getCanvas().style.cursor = 'pointer';
       } else {
-        mApp.salesHeatMap.getCanvas().style.cursor = "";
+        mApp.salesHeatMap.getCanvas().style.cursor = '';
       }
     });
   };
@@ -520,21 +519,21 @@ var mApp = (function() {
    * Initializes websockets services
    */
   var initWebSockets = function() {
-    const socket = io("http://localhost");
-    socket.on("connect", function() {
-      console.log("Connected");
-      socket.emit("identity", 0, response =>
-        console.log("Identity:", response)
+    const socket = io('http://localhost');
+    socket.on('connect', function() {
+      console.log('Connected');
+      socket.emit('identity', 0, response =>
+        console.log('Identity:', response)
       );
     });
-    socket.on("changes", function(data) {
+    socket.on('changes', function(data) {
       dataUpdate(data);
     });
-    socket.on("exception", function(data) {
-      console.log("event", data);
+    socket.on('exception', function(data) {
+      console.log('event', data);
     });
-    socket.on("disconnect", function() {
-      console.log("Disconnected");
+    socket.on('disconnect', function() {
+      console.log('Disconnected');
     });
   };
 
@@ -542,15 +541,15 @@ var mApp = (function() {
    * Execute data update service
    */
   var dataUpdate = function(data) {
-    console.info("YAY", data);
+    console.info('YAY', data);
     if (!data.new_val) return;
 
-    if (data.new_val.field === "graphData") {
+    if (data.new_val.field === 'graphData') {
       updateChartData(data.new_val.value);
-    } else if (data.new_val.field === "lastFiveInvoices") {
-      updateTabData(data.new_val.value, "invoices");
-    } else if (data.new_val.field === "lastFiveSalesOrders") {
-      updateTabData(data.new_val.value, "salesOrders");
+    } else if (data.new_val.field === 'lastFiveInvoices') {
+      updateTabData(data.new_val.value, 'invoices');
+    } else if (data.new_val.field === 'lastFiveSalesOrders') {
+      updateTabData(data.new_val.value, 'salesOrders');
     } else {
       updateField(data.new_val.field, data.new_val.value);
     }
@@ -578,11 +577,11 @@ var mApp = (function() {
    * Update field
    */
   var updateField = function(fieldName, value) {
-    $("#" + fieldName).hide(0, function() {
-      if ($(this).hasClass("currency_format")) {
+    $('#' + fieldName).hide(0, function() {
+      if ($(this).hasClass('currency_format')) {
         value = numeral(value).format();
-      } else if ($(this).hasClass("percentage_format")) {
-        value = numeral(value).format("0%");
+      } else if ($(this).hasClass('percentage_format')) {
+        value = numeral(value).format('0%');
       }
 
       $(this)
@@ -594,31 +593,31 @@ var mApp = (function() {
   var hideTouchWarning = function() {
     jQuery.event.special.touchstart = {
       setup: function(_, ns, handle) {
-        if (typeof this === "function")
-          if (ns.includes("noPreventDefault")) {
-            this.addEventListener("touchstart", handle, { passive: false });
+        if (typeof this === 'function')
+          if (ns.includes('noPreventDefault')) {
+            this.addEventListener('touchstart', handle, { passive: false });
           } else {
-            this.addEventListener("touchstart", handle, { passive: true });
+            this.addEventListener('touchstart', handle, { passive: true });
           }
       }
     };
     jQuery.event.special.touchmove = {
       setup: function(_, ns, handle) {
-        if (typeof this === "function")
-          if (ns.includes("noPreventDefault")) {
-            this.addEventListener("touchmove", handle, { passive: false });
+        if (typeof this === 'function')
+          if (ns.includes('noPreventDefault')) {
+            this.addEventListener('touchmove', handle, { passive: false });
           } else {
-            this.addEventListener("touchmove", handle, { passive: true });
+            this.addEventListener('touchmove', handle, { passive: true });
           }
       }
     };
     jQuery.event.special.wheel = {
       setup: function(_, ns, handle) {
-        if (typeof this === "function")
-          if (ns.includes("noPreventDefault")) {
-            this.addEventListener("wheel", handle, { passive: false });
+        if (typeof this === 'function')
+          if (ns.includes('noPreventDefault')) {
+            this.addEventListener('wheel', handle, { passive: false });
           } else {
-            this.addEventListener("wheel", handle, { passive: true });
+            this.addEventListener('wheel', handle, { passive: true });
           }
       }
     };
@@ -639,9 +638,9 @@ var mApp = (function() {
       hideTouchWarning();
       initScrollables();
       initPortlets();
-      initPopulateData();
+      //initPopulateData();
       initHeatMap();
-      initWebSockets();
+      //initWebSockets();
       initDatePicker();
     },
 
@@ -729,11 +728,11 @@ var mApp = (function() {
       var pos = el && el.length > 0 ? el.offset().top : 0;
       pos = pos + (offset ? offset : 0);
 
-      jQuery("html,body").animate(
+      jQuery('html,body').animate(
         {
           scrollTop: pos
         },
-        "slow"
+        'slow'
       );
     },
 
@@ -748,11 +747,11 @@ var mApp = (function() {
       var windowHeight = mUtil.getViewPort().height;
       var offset = elOffset - (windowHeight / 2 - elHeight / 2);
 
-      jQuery("html,body").animate(
+      jQuery('html,body').animate(
         {
           scrollTop: offset
         },
-        "slow"
+        'slow'
       );
     },
 
@@ -771,7 +770,7 @@ var mApp = (function() {
      */
     initScroller: function(el, options, doNotDestroy) {
       if (mUtil.isMobileDevice()) {
-        el.css("overflow", "auto");
+        el.css('overflow', 'auto');
       } else {
         if (doNotDestroy !== true) {
           mApp.destroyScroller(el);
@@ -782,13 +781,13 @@ var mApp = (function() {
           autoHideScrollbar: true,
           autoExpandScrollbar: false,
           alwaysShowScrollbar: 0,
-          axis: el.data("axis") ? el.data("axis") : "y",
+          axis: el.data('axis') ? el.data('axis') : 'y',
           mouseWheel: {
             scrollAmount: 120,
             preventDefault: true
           },
-          setHeight: options.height ? options.height : "",
-          theme: "minimal-dark"
+          setHeight: options.height ? options.height : '',
+          theme: 'minimal-dark'
         });
       }
     },
@@ -798,8 +797,8 @@ var mApp = (function() {
      * @param {object} el jQuery element object
      */
     destroyScroller: function(el) {
-      el.mCustomScrollbar("destroy");
-      el.removeClass("mCS_destroyed");
+      el.mCustomScrollbar('destroy');
+      el.removeClass('mCS_destroyed');
     },
 
     /**
@@ -811,20 +810,20 @@ var mApp = (function() {
       options = $.extend(
         true,
         {
-          container: "", // alerts parent container(by default placed after the page breadcrumbs)
-          place: "append", // "append" or "prepend" in container
-          type: "success", // alert's type
-          message: "", // alert's message
+          container: '', // alerts parent container(by default placed after the page breadcrumbs)
+          place: 'append', // "append" or "prepend" in container
+          type: 'success', // alert's type
+          message: '', // alert's message
           close: true, // make alert closable
           reset: true, // close all previouse alerts first
           focus: true, // auto scroll to the alert after shown
           closeInSeconds: 0, // auto close after defined seconds
-          icon: "" // put icon before the message
+          icon: '' // put icon before the message
         },
         options
       );
 
-      var id = mUtil.getUniqueID("App_alert");
+      var id = mUtil.getUniqueID('App_alert');
 
       var html =
         '<div id="' +
@@ -834,35 +833,35 @@ var mApp = (function() {
         ' fade in">' +
         (options.close
           ? '<button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>'
-          : "") +
-        (options.icon !== ""
+          : '') +
+        (options.icon !== ''
           ? '<i class="fa-lg fa fa-' + options.icon + '"></i>  '
-          : "") +
+          : '') +
         options.message +
-        "</div>";
+        '</div>';
 
       if (options.reset) {
-        $(".custom-alerts").remove();
+        $('.custom-alerts').remove();
       }
 
       if (!options.container) {
-        if ($(".page-fixed-main-content").size() === 1) {
-          $(".page-fixed-main-content").prepend(html);
+        if ($('.page-fixed-main-content').size() === 1) {
+          $('.page-fixed-main-content').prepend(html);
         } else if (
-          ($("body").hasClass("page-container-bg-solid") ||
-            $("body").hasClass("page-content-white")) &&
-          $(".page-head").size() === 0
+          ($('body').hasClass('page-container-bg-solid') ||
+            $('body').hasClass('page-content-white')) &&
+          $('.page-head').size() === 0
         ) {
-          $(".page-title").after(html);
+          $('.page-title').after(html);
         } else {
-          if ($(".page-bar").size() > 0) {
-            $(".page-bar").after(html);
+          if ($('.page-bar').size() > 0) {
+            $('.page-bar').after(html);
           } else {
-            $(".page-breadcrumb, .breadcrumbs").after(html);
+            $('.page-breadcrumb, .breadcrumbs').after(html);
           }
         }
       } else {
-        if (options.place == "append") {
+        if (options.place == 'append') {
           $(options.container).append(html);
         } else {
           $(options.container).prepend(html);
@@ -870,12 +869,12 @@ var mApp = (function() {
       }
 
       if (options.focus) {
-        mApp.scrollTo($("#" + id));
+        mApp.scrollTo($('#' + id));
       }
 
       if (options.closeInSeconds > 0) {
         setTimeout(function() {
-          $("#" + id).remove();
+          $('#' + id).remove();
         }, options.closeInSeconds * 1000);
       }
 
@@ -894,15 +893,15 @@ var mApp = (function() {
         true,
         {
           opacity: 0.03,
-          overlayColor: "#000000",
-          state: "brand",
-          type: "loader",
-          size: "lg",
+          overlayColor: '#000000',
+          state: 'brand',
+          type: 'loader',
+          size: 'lg',
           centerX: true,
           centerY: true,
-          message: "",
+          message: '',
           shadow: true,
-          width: "auto"
+          width: 'auto'
         },
         options
       );
@@ -911,33 +910,33 @@ var mApp = (function() {
       var state;
       var loading;
 
-      if (options.type == "spinner") {
-        skin = options.skin ? "m-spinner--skin-" + options.skin : "";
-        state = options.state ? "m-spinner--" + options.state : "";
-        loading = '<div class="m-spinner ' + skin + " " + state + '"></div';
+      if (options.type == 'spinner') {
+        skin = options.skin ? 'm-spinner--skin-' + options.skin : '';
+        state = options.state ? 'm-spinner--' + options.state : '';
+        loading = '<div class="m-spinner ' + skin + ' ' + state + '"></div';
       } else {
-        skin = options.skin ? "m-loader--skin-" + options.skin : "";
-        state = options.state ? "m-loader--" + options.state : "";
-        size = options.size ? "m-loader--" + options.size : "";
+        skin = options.skin ? 'm-loader--skin-' + options.skin : '';
+        state = options.state ? 'm-loader--' + options.state : '';
+        size = options.size ? 'm-loader--' + options.size : '';
         loading =
-          '<div class="m-loader ' + skin + " " + state + " " + size + '"></div';
+          '<div class="m-loader ' + skin + ' ' + state + ' ' + size + '"></div';
       }
 
       if (options.message && options.message.length > 0) {
         var classes =
-          "m-blockui " +
-          (options.shadow === false ? "m-blockui-no-shadow" : "");
+          'm-blockui ' +
+          (options.shadow === false ? 'm-blockui-no-shadow' : '');
 
         html =
           '<div class="' +
           classes +
           '"><span>' +
           options.message +
-          "</span><span>" +
+          '</span><span>' +
           loading +
-          "</span></div>";
+          '</span></div>';
         options.width = mUtil.realWidth(html) + 10;
-        if (target == "body") {
+        if (target == 'body') {
           html =
             '<div class="' +
             classes +
@@ -945,9 +944,9 @@ var mApp = (function() {
             options.width / 2 +
             'px;"><span>' +
             options.message +
-            "</span><span>" +
+            '</span><span>' +
             loading +
-            "</span></div>";
+            '</span></div>';
         }
       } else {
         html = loading;
@@ -958,29 +957,29 @@ var mApp = (function() {
         centerY: options.centerY,
         centerX: options.centerX,
         css: {
-          top: "30%",
-          left: "50%",
-          border: "0",
-          padding: "0",
-          backgroundColor: "none",
+          top: '30%',
+          left: '50%',
+          border: '0',
+          padding: '0',
+          backgroundColor: 'none',
           width: options.width
         },
         overlayCSS: {
           backgroundColor: options.overlayColor,
           opacity: options.opacity,
-          cursor: "wait",
-          zIndex: "10"
+          cursor: 'wait',
+          zIndex: '10'
         },
         onUnblock: function() {
           if (el) {
-            el.css("position", "");
-            el.css("zoom", "");
+            el.css('position', '');
+            el.css('zoom', '');
           }
         }
       };
 
-      if (target == "body") {
-        params.css.top = "50%";
+      if (target == 'body') {
+        params.css.top = '50%';
         $.blockUI(params);
       } else {
         var el = $(target);
@@ -993,7 +992,7 @@ var mApp = (function() {
      * @param {object} target jQuery element object
      */
     unblock: function(target) {
-      if (target && target != "body") {
+      if (target && target != 'body') {
         $(target).unblock();
       } else {
         $.unblockUI();
@@ -1005,14 +1004,14 @@ var mApp = (function() {
      * @param {object} options
      */
     blockPage: function(options) {
-      return mApp.block("body", options);
+      return mApp.block('body', options);
     },
 
     /**
      * Un-blocks the blocked page body element
      */
     unblockPage: function() {
-      return mApp.unblock("body");
+      return mApp.unblock('body');
     },
 
     /**
@@ -1021,23 +1020,23 @@ var mApp = (function() {
      * @param {object} options
      */
     progress: function(target, options) {
-      var skin = options && options.skin ? options.skin : "light";
+      var skin = options && options.skin ? options.skin : 'light';
       var alignment =
-        options && options.alignment ? options.alignment : "right";
-      var size = options && options.size ? "m-spinner--" + options.size : "";
+        options && options.alignment ? options.alignment : 'right';
+      var size = options && options.size ? 'm-spinner--' + options.size : '';
       var classes =
-        "m-loader " +
-        "m-loader--" +
+        'm-loader ' +
+        'm-loader--' +
         skin +
-        " m-loader--" +
+        ' m-loader--' +
         alignment +
-        " m-loader--" +
+        ' m-loader--' +
         size;
 
       mApp.unprogress(target);
 
       $(target).addClass(classes);
-      $(target).data("progress-classes", classes);
+      $(target).data('progress-classes', classes);
     },
 
     /**
@@ -1045,7 +1044,7 @@ var mApp = (function() {
      * @param {object} target jQuery element object
      */
     unprogress: function(target) {
-      $(target).removeClass($(target).data("progress-classes"));
+      $(target).removeClass($(target).data('progress-classes'));
     }
   };
 })();
@@ -1071,15 +1070,15 @@ var mUtil = (function() {
 
   /** @type {object} colors State colors **/
   var colors = {
-    brand: "#716aca",
-    metal: "#c4c5d6",
-    light: "#ffffff",
-    accent: "#00c5dc",
-    primary: "#5867dd",
-    success: "#34bfa3",
-    info: "#36a3f7",
-    warning: "#ffb822",
-    danger: "#f4516c"
+    brand: '#716aca',
+    metal: '#c4c5d6',
+    light: '#ffffff',
+    accent: '#00c5dc',
+    primary: '#5867dd',
+    success: '#34bfa3',
+    info: '#36a3f7',
+    warning: '#ffb822',
+    danger: '#f4516c'
   };
 
   /**
@@ -1098,7 +1097,7 @@ var mUtil = (function() {
     var timeout = false; // holder for timeout id
     var delay = 250; // delay after event is "complete" to run callback
 
-    window.addEventListener("resize", function() {
+    window.addEventListener('resize', function() {
       clearTimeout(timeout);
       timeout = setTimeout(function() {
         _runResizeHandlers();
@@ -1149,10 +1148,10 @@ var mUtil = (function() {
       var searchString = window.location.search.substring(1),
         i,
         val,
-        params = searchString.split("&");
+        params = searchString.split('&');
 
       for (i = 0; i < params.length; i++) {
-        val = params[i].split("=");
+        val = params[i].split('=');
         if (val[0] == paramName) {
           return unescape(val[1]);
         }
@@ -1166,7 +1165,7 @@ var mUtil = (function() {
      * @returns {boolean}
      */
     isMobileDevice: function() {
-      return this.getViewPort().width < this.getBreakpoint("lg") ? true : false;
+      return this.getViewPort().width < this.getBreakpoint('lg') ? true : false;
     },
 
     /**
@@ -1183,15 +1182,15 @@ var mUtil = (function() {
      */
     getViewPort: function() {
       var e = window,
-        a = "inner";
-      if (!("innerWidth" in window)) {
-        a = "client";
+        a = 'inner';
+      if (!('innerWidth' in window)) {
+        a = 'client';
         e = document.documentElement || document.body;
       }
 
       return {
-        width: e[a + "Width"],
-        height: e[a + "Height"]
+        width: e[a + 'Width'],
+        height: e[a + 'Height']
       };
     },
 
@@ -1203,34 +1202,34 @@ var mUtil = (function() {
     isInResponsiveRange: function(mode) {
       var breakpoint = this.getViewPort().width;
 
-      if (mode == "general") {
+      if (mode == 'general') {
         return true;
       } else if (
-        mode == "desktop" &&
-        breakpoint >= this.getBreakpoint("lg") + 1
+        mode == 'desktop' &&
+        breakpoint >= this.getBreakpoint('lg') + 1
       ) {
         return true;
       } else if (
-        mode == "tablet" &&
-        (breakpoint >= this.getBreakpoint("md") + 1 &&
-          breakpoint < this.getBreakpoint("lg"))
+        mode == 'tablet' &&
+        (breakpoint >= this.getBreakpoint('md') + 1 &&
+          breakpoint < this.getBreakpoint('lg'))
       ) {
         return true;
-      } else if (mode == "mobile" && breakpoint <= this.getBreakpoint("md")) {
+      } else if (mode == 'mobile' && breakpoint <= this.getBreakpoint('md')) {
         return true;
       } else if (
-        mode == "desktop-and-tablet" &&
-        breakpoint >= this.getBreakpoint("md") + 1
-      ) {
-        return true;
-      } else if (
-        mode == "tablet-and-mobile" &&
-        breakpoint <= this.getBreakpoint("lg")
+        mode == 'desktop-and-tablet' &&
+        breakpoint >= this.getBreakpoint('md') + 1
       ) {
         return true;
       } else if (
-        mode == "minimal-desktop-and-below" &&
-        breakpoint <= this.getBreakpoint("xl")
+        mode == 'tablet-and-mobile' &&
+        breakpoint <= this.getBreakpoint('lg')
+      ) {
+        return true;
+      } else if (
+        mode == 'minimal-desktop-and-below' &&
+        breakpoint <= this.getBreakpoint('xl')
       ) {
         return true;
       }
@@ -1267,13 +1266,13 @@ var mUtil = (function() {
     isset: function(obj, keys) {
       var stone;
 
-      keys = keys || "";
+      keys = keys || '';
 
-      if (keys.indexOf("[") !== -1) {
-        throw new Error("Unsupported object path notation.");
+      if (keys.indexOf('[') !== -1) {
+        throw new Error('Unsupported object path notation.');
       }
 
-      keys = keys.split(".");
+      keys = keys.split('.');
 
       do {
         if (obj === undefined) {
@@ -1306,18 +1305,18 @@ var mUtil = (function() {
         // Ignore z-index if position is set to a value where z-index is ignored by the browser
         // This makes behavior of this function consistent across browsers
         // WebKit always returns auto if the element is positioned
-        position = elem.css("position");
+        position = elem.css('position');
 
         if (
-          position === "absolute" ||
-          position === "relative" ||
-          position === "fixed"
+          position === 'absolute' ||
+          position === 'relative' ||
+          position === 'fixed'
         ) {
           // IE returns 0 when zIndex is not specified
           // other browsers return a string
           // we ignore the case of nested elements with an explicit value of 0
           // <div style="z-index: -10;"><div style="z-index: 0;"></div></div>
-          value = parseInt(elem.css("zIndex"), 10);
+          value = parseInt(elem.css('zIndex'), 10);
           if (!isNaN(value) && value !== 0) {
             return value;
           }
@@ -1333,7 +1332,7 @@ var mUtil = (function() {
      * @returns {boolean}
      */
     hasClasses: function(el, classes) {
-      var classesArr = classes.split(" ");
+      var classesArr = classes.split(' ');
 
       for (var i = 0; i < classesArr.length; i++) {
         if (el.hasClass(classesArr[i]) == false) {
@@ -1351,10 +1350,10 @@ var mUtil = (function() {
      */
     realWidth: function(el) {
       var clone = $(el).clone();
-      clone.css("visibility", "hidden");
-      clone.css("overflow", "hidden");
-      clone.css("height", "0");
-      $("body").append(clone);
+      clone.css('visibility', 'hidden');
+      clone.css('overflow', 'hidden');
+      clone.css('height', '0');
+      $('body').append(clone);
       var width = clone.outerWidth();
       clone.remove();
 
@@ -1370,7 +1369,7 @@ var mUtil = (function() {
       var result = false;
 
       el.parents().each(function() {
-        if ($(this).css("position") == "fixed") {
+        if ($(this).css('position') == 'fixed') {
           result = true;
           return;
         }
@@ -1425,34 +1424,54 @@ $(document).ready(function() {
   mUtil.init();
 });
 
-moment.locale("pt-br");
-numeral.register("locale", "pt-br", {
+moment.locale('pt-br');
+numeral.register('locale', 'pt-br', {
   delimiters: {
-    thousands: " ",
-    decimal: "."
+    thousands: ' ',
+    decimal: '.'
   },
   abbreviations: {
-    thousand: "mil",
-    million: "mi",
-    billion: "bi",
-    trillion: "tri"
+    thousand: 'mil',
+    million: 'mi',
+    billion: 'bi',
+    trillion: 'tri'
   },
   currency: {
-    symbol: "R$"
+    symbol: 'R$'
   }
 });
-numeral.locale("pt-br");
-numeral.defaultFormat("($ 0.00.00 a)");
+numeral.locale('pt-br');
+numeral.defaultFormat('($ 0.00.00 a)');
+
+
+toastr.options = {
+  "closeButton": true,
+  "debug": false,
+  "newestOnTop": true,
+  "progressBar": false,
+  "positionClass": "toast-bottom-right",
+  "preventDuplicates": false,
+  "onclick": null,
+  "showDuration": "400",
+  "hideDuration": "2000",
+  "timeOut": "5000",
+  "extendedTimeOut": "1000",
+  "showEasing": "swing",
+  "hideEasing": "linear",
+  "showMethod": "fadeIn",
+  "hideMethod": "fadeOut"
+};
+
 
 // jquery extension to add animation class into element
 jQuery.fn.extend({
   animateClass: function(animationName, callback) {
     var animationEnd =
-      "webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend";
+      'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
     jQuery(this)
-      .addClass("animated " + animationName)
+      .addClass('animated ' + animationName)
       .one(animationEnd, function() {
-        jQuery(this).removeClass("animated " + animationName);
+        jQuery(this).removeClass('animated ' + animationName);
       });
 
     if (callback) {
@@ -1460,15 +1479,15 @@ jQuery.fn.extend({
     }
   },
   animateDelay: function(value) {
-    var vendors = ["webkit-", "moz-", "ms-", "o-", ""];
+    var vendors = ['webkit-', 'moz-', 'ms-', 'o-', ''];
     for (var i = 0; i < vendors.length; i++) {
-      jQuery(this).css(vendors[i] + "animation-delay", value);
+      jQuery(this).css(vendors[i] + 'animation-delay', value);
     }
   },
   animateDuration: function(value) {
-    var vendors = ["webkit-", "moz-", "ms-", "o-", ""];
+    var vendors = ['webkit-', 'moz-', 'ms-', 'o-', ''];
     for (var i = 0; i < vendors.length; i++) {
-      jQuery(this).css(vendors[i] + "animation-duration", value);
+      jQuery(this).css(vendors[i] + 'animation-duration', value);
     }
   }
 });

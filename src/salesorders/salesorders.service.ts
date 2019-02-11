@@ -80,6 +80,26 @@ export class SalesOrdersService implements OnModuleInit {
     // });
   }
 
+  async updateLocationSalesOrders() {
+    this.logger.log('Updating locations on sales orders.');
+    r.db('salesDASH').table('salesOrders').filter(
+      r.row.hasFields('city', 'state').not(),
+    ).forEach((salesOrder) => {
+      return r.db('salesDASH')
+        .table('salesOrders')
+        .get(salesOrder('docNumber'))
+        .update(r.db('salesDASH')
+          .table('customers')
+          .get(salesOrder('soldTo')).pluck('city', 'state'), { nonAtomic: true });
+    }).run(this.rethinkDB)
+      .then(result => {
+        this.logger.log(result);
+      })
+      .catch(err => {
+        this.logger.error(err, err.stack);
+      });
+  }
+
   // Exemple query http://localhost/salesorders/data?state=SP&groupBy=state&type=9210&startDate=01.01.2018&endDate=20.01.2019
   async getSalesData(query) {
     const [startDay, startMonth, startYear] = query.startDate.split('.');

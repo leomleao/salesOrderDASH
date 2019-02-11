@@ -56,14 +56,13 @@ export class CustomersService {
   //   });
   //   return salesOrder;
   // }
-
   async updateDash() {
     const data = [];
     this.logger.log('Updating dash -- total customers.');
     r.db('salesDASH')
       .table('customers')
       .filter(row => {
-        return row('creationDate').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
+        return r.and(row('creationDate').month().eq(r.now().month()), row('creationDate').year().eq(r.now().year()));
       })
       .orderBy(r.desc('creationDate'))
       .count()
@@ -88,7 +87,8 @@ export class CustomersService {
       .table('customers')
       .filter(row => {
         return r.and(
-          row('creationDate').gt(r.now().sub(60 * 60 * 24 * 31)),
+          row('creationDate').month().eq(r.now().month()),
+          row('creationDate').year().eq(r.now().year()),
           row('status').eq(true),
         ); // only include records from the last 31 days
       })

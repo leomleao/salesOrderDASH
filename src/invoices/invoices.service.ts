@@ -21,10 +21,10 @@ math.config({
 
 interface InvoiceItem {
   docNumber: any;
-  dirMvt: any;
-  cancDate: any;
+  type: any;
   procDate: any;
   partnerID: any;
+  name: any;
   city: any;
   region: any;
   totalValue: any;
@@ -45,7 +45,7 @@ export class InvoicesService implements OnModuleInit {
   constructor(
     @Inject('rethinkDB') private readonly rethinkDB,
     @InjectConfig() private readonly config,
-  ) {}
+  ) { }
 
   onModuleInit() {
     // console.log(`Initialization...`);
@@ -118,7 +118,7 @@ export class InvoicesService implements OnModuleInit {
     this.logger.log('Updating dash -- last five.');
     r.db('salesDASH')
       .table('invoices')
-      .filter(r.row('dirMvt').eq(2))
+      .filter(r.row('type').eq('Z210'))
       .orderBy(r.desc('procDate'))
       .limit(5)
       .run(this.rethinkDB)
@@ -168,7 +168,7 @@ export class InvoicesService implements OnModuleInit {
       .group([r.row('procDate').month(), r.row('procDate').year()])
       .sum(invoice => {
         return r.branch(
-          invoice('dirMvt').eq(1),
+          r.or(invoice('type').eq('ZS1'), invoice('type').eq('Z612'), invoice('type').eq('Z611'), invoice('type').eq('Z310')),
           invoice('totalValue')
             .coerceTo('NUMBER')
             .mul(-1),
@@ -218,27 +218,25 @@ export class InvoicesService implements OnModuleInit {
           .first()
           .children()
           .find('nobr')
-          .each(function(i, elem) {
+          .each(function (i, elem) {
             const columnHeader = $(this)
               .text()
               .replace(/^\s+|\s+$/g, '');
             header.push(columnHeader);
           });
 
-        header.push('totalTax');
-
-        $('tbody').each(function(i, tbodyElem) {
+        $('tbody').each(function (i, tbodyElem) {
           $(this)
             .next()
             .find('tr')
-            .each(function(j, trElem) {
+            .each(function (j, trElem) {
               const row: InvoiceItem = {} as InvoiceItem;
               row.totalValue = 0;
               let day, month, year, hour, minute, second;
 
               $(this)
                 .find('nobr')
-                .each(function(y, nobrElem) {
+                .each(function (y, nobrElem) {
                   // console.info($(this).children().children().text());
                   const currentCell = $(this)
                     .text()
@@ -246,24 +244,27 @@ export class InvoicesService implements OnModuleInit {
 
                   if (header[y].indexOf('docNumber') >= 0) {
                     row.docNumber = parseInt(currentCell, 10);
-                  } else if (header[y].indexOf('dirMvt') >= 0) {
-                    row.dirMvt = parseInt(currentCell, 10);
-                  } else if (
-                    header[y].indexOf('cancDate') >= 0 &&
-                    currentCell !== ''
-                  ) {
-                    row.cancDate = currentCell;
+                  } else if (header[y].indexOf('type') >= 0) {
+                    row.type = currentCell;
                   } else if (header[y].indexOf('procDate') >= 0) {
                     [day, month, year] = currentCell.split('.');
-                  } else if (header[y] === 'procTime') {
+                  } else if (header[y].indexOf('procTime') >= 0) {
                     [hour, minute, second] = currentCell.split(':');
                   } else if (header[y].indexOf('partnerID') >= 0) {
                     row.partnerID = parseInt(currentCell, 10);
-                  } else if (header[y].indexOf('netValue') >= 0) {
-                    row.totalValue = currentCell
-                      .replace(/\-/g, '')
-                      .replace(/\./g, '')
-                      .replace(/\,/g, '.');
+                  } else if (header[y].indexOf('totalValue') >= 0) {
+                    if (currentCell.indexOf('-') >= 0) {
+                      row.totalValue = '-' + currentCell
+                        .replace(/\-/g, '')
+                        .replace(/\./g, '')
+                        .replace(/\,/g, '.');
+                    } else {
+                      row.totalValue = currentCell
+                        .replace(/\-/g, '')
+                        .replace(/\./g, '')
+                        .replace(/\,/g, '.');
+                    }
+
                   } else if (currentCell !== '') {
                     row[header[y]] = currentCell;
                   }
@@ -290,26 +291,26 @@ export class InvoicesService implements OnModuleInit {
     this.logger.log('Invoice data treated.');
 
     // console.info(JSON.stringify(data));
-    return this.groupBy(data, this.demoComparator, this.demoOnDublicate).then(
-      async groupedInvoices => {
-        return await r
-          .db('salesDASH')
-          .table('invoices')
-          .insert(groupedInvoices, { conflict: 'update' })
-          .run(this.rethinkDB)
-          .then(result => {
-            this.logger.log('Data uploaded to DB.');
-            fs.unlink(path, (err) => {
-              if (err) throw err;
-              this.logger.warn('Treated file deleted: ' + path);
-            });
-            // console.log('file would have been deleted now');
-          })
-          .catch(err => {
-            this.logger.error(err, err.stack);
-          });
-      },
-    );
+    // return this.groupBy(data, this.demoComparator, this.demoOnDublicate).then(
+    //   async groupedInvoices => {
+    return await r
+      .db('salesDASH')
+      .table('invoices')
+      .insert(data, { conflict: 'update' })
+      .run(this.rethinkDB)
+      .then(result => {
+        this.logger.log('Data uploaded to DB.');
+        fs.unlink(path, err => {
+          if (err) throw err;
+          this.logger.warn('Treated file deleted: ' + path);
+        });
+        // console.log('file would have been deleted now');
+      })
+      .catch(err => {
+        this.logger.error(err, err.stack);
+      });
+    //   },
+    // );
 
     // console.info(JSON.stringify(invoices))
     // return await r.db('salesDASH').table('customers').insert(invoices, {conflict: "update"}).run(this.rethinkDB)
@@ -330,7 +331,12 @@ export class InvoicesService implements OnModuleInit {
   }
 
   private demoOnDublicate = (uniqueRow, dublicateRow) => {
-    uniqueRow.totalValue = math.format(math.add(math.bignumber(uniqueRow.totalValue), math.bignumber(dublicateRow.totalValue)));
+    uniqueRow.totalValue = math.format(
+      math.add(
+        math.bignumber(uniqueRow.totalValue),
+        math.bignumber(dublicateRow.totalValue),
+      ),
+    );
   }
 
   private async groupBy(

@@ -60,6 +60,7 @@ export class ScheduleService extends NestSchedule {
               this.salesOrderService
                 .updateData(foundFiles[i].path, foundFiles[i].extension)
                 .then(() => {
+                  this.salesOrderService.updateLocationSalesOrders();
                   // this.salesOrderService.updateDash();
                   // this.salesOrderService.getTotals();
                 });
