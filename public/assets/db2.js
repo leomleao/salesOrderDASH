@@ -181,11 +181,6 @@ var mApp = (function() {
 	 */
 	var splitIntoQuadrants = function() {
 		mApp.db2Data.forEach(customer => {
-
-			console.info("yAxesminZoom",mApp.db2Chart.yAxes._values[0].minZoomed);
-			console.info("yAxesmaxZoom",mApp.db2Chart.yAxes._values[0].maxZoomed);
-			console.info("xAxesminZoom",mApp.db2Chart.xAxes._values[0].minZoomed);
-			console.info("xAxesmaxZoom",mApp.db2Chart.xAxes._values[0].maxZoomed);
 			if (customer.db2 > mApp.db2Chart.yAxes._values[0].maxZoomed || customer.db2 < mApp.db2Chart.yAxes._values[0].minZoomed) {
 				return;
 			}
