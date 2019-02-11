@@ -56,7 +56,8 @@ export class CustomersService {
   //   });
   //   return salesOrder;
   // }
-  async updateDash() {
+
+   async updateDash() {
     const data = [];
     this.logger.log('Updating dash -- total customers.');
     r.db('salesDASH')
@@ -130,7 +131,7 @@ export class CustomersService {
     // get header
     const header = [];
     const data = [];
-    if (type === 'htm') {
+    if (type === '.htm') {
       $('tbody')
         .first()
         .children()
@@ -183,7 +184,7 @@ export class CustomersService {
             data.push(row);
           });
       });
-    } else if (type === 'HTM') {
+    } else if (type === '.HTM') {
       $('tbody')
         .first()
         .find('tr')

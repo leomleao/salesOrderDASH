@@ -45,7 +45,7 @@ export class InvoicesService implements OnModuleInit {
   constructor(
     @Inject('rethinkDB') private readonly rethinkDB,
     @InjectConfig() private readonly config,
-  ) { }
+  ) {}
 
   onModuleInit() {
     // console.log(`Initialization...`);
@@ -218,25 +218,25 @@ export class InvoicesService implements OnModuleInit {
           .first()
           .children()
           .find('nobr')
-          .each(function (i, elem) {
+          .each(function(i, elem) {
             const columnHeader = $(this)
               .text()
               .replace(/^\s+|\s+$/g, '');
             header.push(columnHeader);
           });
 
-        $('tbody').each(function (i, tbodyElem) {
+        $('tbody').each(function(i, tbodyElem) {
           $(this)
             .next()
             .find('tr')
-            .each(function (j, trElem) {
+            .each(function(j, trElem) {
               const row: InvoiceItem = {} as InvoiceItem;
               row.totalValue = 0;
               let day, month, year, hour, minute, second;
 
               $(this)
                 .find('nobr')
-                .each(function (y, nobrElem) {
+                .each(function(y, nobrElem) {
                   // console.info($(this).children().children().text());
                   const currentCell = $(this)
                     .text()
@@ -254,15 +254,15 @@ export class InvoicesService implements OnModuleInit {
                     row.partnerID = parseInt(currentCell, 10);
                   } else if (header[y].indexOf('totalValue') >= 0) {
                     if (currentCell.indexOf('-') >= 0) {
-                      row.totalValue = '-' + currentCell
-                        .replace(/\-/g, '')
-                        .replace(/\./g, '')
-                        .replace(/\,/g, '.');
+                    row.totalValue = '-' + currentCell
+                      .replace(/\-/g, '')
+                      .replace(/\./g, '')
+                      .replace(/\,/g, '.');
                     } else {
-                      row.totalValue = currentCell
-                        .replace(/\-/g, '')
-                        .replace(/\./g, '')
-                        .replace(/\,/g, '.');
+                    row.totalValue = currentCell
+                      .replace(/\-/g, '')
+                      .replace(/\./g, '')
+                      .replace(/\,/g, '.');
                     }
 
                   } else if (currentCell !== '') {

@@ -39,6 +39,11 @@ $table-inverse-color:           $body-bg !default;
  * Copyright 2011-2018 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
+
+
+ /* FONT PATH
+ * -------------------------- */
+
 :root {
   --blue: #007bff;
   --indigo: #6610f2;
@@ -97,6 +102,12 @@ body {
   color: #212529;
   text-align: left;
   background-color: #fff; }
+
+@media (min-width: 1920px) { 
+  body {
+    overflow: hidden;
+  }
+}
 
 [tabindex="-1"]:focus {
   outline: 0 !important; }

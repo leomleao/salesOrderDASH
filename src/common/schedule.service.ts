@@ -24,11 +24,11 @@ export class ScheduleService extends NestSchedule {
     super();
   }
 
-  @Interval(5000)
+  @Interval(15000)
   async findNewF123123iles() {
-    // await this.salesOrderService.updateDash();
-    // await this.salesOrderService.getTotals();
-    //this.invoiceService.updateDash();
+     await this.salesOrderService.updateDash();
+     await this.salesOrderService.getTotals();
+     this.invoiceService.updateDash();
   }
 
   @Interval(10000)
