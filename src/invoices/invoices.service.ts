@@ -1,9 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  BadRequestException,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import * as soap from 'soap';
 import * as r from 'rethinkdb';
 import * as fs from 'fs';
@@ -34,7 +29,9 @@ interface GraphColumn {
   month: string;
   sales: any;
   salesPast: any;
-  meta: any;
+  negativeSales: any;
+  negativeSalesPast: any;
+  goal: any;
 }
 
 @Injectable()
@@ -70,6 +67,8 @@ export class InvoicesService implements OnModuleInit {
       'Nov',
       'Dez',
     ];
+    const year = new Date().getFullYear();
+    const month = new Date().getMonth();
 
     this.logger.log('Updating dash -- total sales.');
     r.db('salesDASH')
@@ -79,36 +78,66 @@ export class InvoicesService implements OnModuleInit {
         return cursor.toArray();
       })
       .then(invoiceTotals => {
-        // process the results
-        const data = [];
-        const year = new Date().getFullYear();
-
-        for (let i = 0; i <= 11; i++) {
-          const current: GraphColumn = {} as GraphColumn;
-          let test;
-          current.month = months[i];
-          current.sales =
-            typeof (test = invoiceTotals.find(
-              sales => sales.period === i + 1 + '.' + year,
-            )) === 'object'
-              ? test.value
-              : 0;
-          current.salesPast =
-            typeof (test = invoiceTotals.find(
-              sales => sales.period === i + 1 + '.' + (year - 1),
-            )) === 'object'
-              ? test.value
-              : 0;
-          current.meta = current.salesPast > 0 ? current.salesPast * 1.1 : 0;
-          data.push(current);
-        }
-
         r.db('salesDASH')
-          .table('dash')
-          .insert([{ field: 'chartData', value: data }], { conflict: 'update' })
+          .table('goals')
           .run(this.rethinkDB)
-          .then(result => {
-            this.logger.log('Sales graph data updated.');
+          .then(cursor => {
+            return cursor.toArray();
+          })
+          .then(goals => {
+            // process the results
+            const data = [];
+
+            for (let i = 0; i <= 11; i++) {
+              const current: GraphColumn = {} as GraphColumn;
+              let test;
+              current.month = months[i];
+              current.sales =
+                typeof (test = invoiceTotals.find(
+                  sales => sales.period === i + 1 + '.' + year,
+                )) === 'object'
+                  ? test.value
+                  : null;
+              current.salesPast =
+                typeof (test = invoiceTotals.find(
+                  sales => sales.period === i + 1 + '.' + (year - 1),
+                )) === 'object'
+                  ? test.value
+                  : null;
+              current.negativeSales =
+                typeof (test = invoiceTotals.find(
+                  sales => sales.period === i + 1 + '.' + year,
+                )) === 'object'
+                  ? test.negativeValue
+                    ? test.negativeValue
+                    : null
+                  : null;
+              current.negativeSalesPast =
+                typeof (test = invoiceTotals.find(
+                  sales => sales.period === i + 1 + '.' + (year - 1),
+                )) === 'object'
+                  ? test.negativeValue
+                    ? test.negativeValue
+                    : null
+                  : null;
+              current.goal =
+                typeof (test = goals.find(
+                  sales => sales.period === i + 1 + '.' + year,
+                )) === 'object'
+                  ? test.value
+                  : 0;
+              data.push(current);
+            }
+
+            r.db('salesDASH')
+              .table('dash')
+              .insert([{ field: 'chartData', value: data }], {
+                conflict: 'update',
+              })
+              .run(this.rethinkDB)
+              .then(result => {
+                this.logger.log('Sales graph data updated.');
+              });
           });
       })
       .catch(err => {
@@ -140,25 +169,97 @@ export class InvoicesService implements OnModuleInit {
         this.logger.error(err, err.stack);
       });
 
-    // const data = [];
-    // r.db('salesDASH').table('invoices').count().run(this.rethinkDB)
-    // .then((result) => {
-    //   const totalCustomers = result;
-    //   // console.info('total customer --- ', totalCustomers);
-    //   r.db('salesDASH').table('customers').filter((row) => {
-    //     return row('Date').gt(r.now().sub(60 * 60 * 24 * 31)); // only include records from the last 31 days
-    //   }).orderBy(r.desc('Date')).run(this.rethinkDB)
-    //   .then((result) => {
-    //     // console.info('total new customer --- ', result.length);
-    //     data.push({ field: 'newCustomers', value: result.length });
-    //     r.db('salesDASH').table('dash').insert(data, {conflict: 'update'}).run(this.rethinkDB)
-    //     .then((result) => {
-    //       // console.info(JSON.stringify(result, null, 2));
-    //     });
-    //   });
-    // }).catch((err) => {
-    //   // console.info(JSON.stringify(err, null, 2));
-    // });
+    this.logger.log('Updating goal fulfillment.');
+
+    r.db('salesDASH')
+      .table('invoiceTotals')
+      .filter(r.row('period').match(year + '$'))
+      .run(this.rethinkDB)
+      .then(cursor => {
+        return cursor.toArray();
+      })
+      .then(invoiceTotals => {
+        r.db('salesDASH')
+          .table('goals')
+          .run(this.rethinkDB)
+          .then(cursor => {
+            return cursor.toArray();
+          })
+          .then(goals => {
+            // process the results
+            let test;
+            let totalYearlySold;
+            let totalYearlyGoal;
+            const totalMonthlySold =
+              typeof (test = invoiceTotals.find(
+                sales => sales.period === month + 1 + '.' + year,
+              )) === 'object'
+                ? test.value
+                : 0;
+            const totalMonthlyGoal =
+              typeof (test = goals.find(
+                salesGoal => salesGoal.period === month + 1 + '.' + year,
+              )) === 'object'
+                ? test.value
+                : 0;
+
+            const fulfillmentMonth =
+              totalMonthlyGoal > 0
+                ? math.format(math.divide(totalMonthlySold, totalMonthlyGoal))
+                : '0';
+
+            for (let i = 0; i <= 11; i++) {
+              totalYearlySold = math.format(
+                math.add(
+                  totalYearlySold || 0,
+                  typeof (test = invoiceTotals.find(
+                    sales => sales.period === i + 1 + '.' + year,
+                  )) === 'object'
+                    ? test.value
+                    : 0,
+                ),
+              );
+              totalYearlyGoal = math.add(
+                totalYearlyGoal || 0,
+                typeof (test = goals.find(
+                  salesGoals => salesGoals.period === i + 1 + '.' + year,
+                )) === 'object'
+                  ? test.value
+                  : 0,
+              );
+            }
+
+            const fulfillmentYear =
+              totalYearlyGoal > 0
+                ? math.format(math.divide(totalYearlySold, totalYearlyGoal))
+                : '0';
+
+            r.db('salesDASH')
+              .table('dash')
+              .insert(
+                [
+                  {
+                    field: 'goalFulfillmentCurrentMonth',
+                    value: fulfillmentMonth,
+                  },
+                  {
+                    field: 'goalFulfillmentCurrentYear',
+                    value: fulfillmentYear,
+                  },
+                ],
+                {
+                  conflict: 'update',
+                },
+              )
+              .run(this.rethinkDB)
+              .then(result => {
+                this.logger.log('Sales graph data updated.');
+              });
+          });
+      })
+      .catch(err => {
+        this.logger.error(err, err.stack);
+      });
   }
 
   async updateInvoiceTotals() {
@@ -168,7 +269,12 @@ export class InvoicesService implements OnModuleInit {
       .group([r.row('procDate').month(), r.row('procDate').year()])
       .sum(invoice => {
         return r.branch(
-          r.or(invoice('type').eq('ZS1'), invoice('type').eq('Z612'), invoice('type').eq('Z611'), invoice('type').eq('Z310')),
+          r.or(
+            invoice('type').eq('ZS1'),
+            invoice('type').eq('Z612'),
+            invoice('type').eq('Z611'),
+            invoice('type').eq('Z310'),
+          ),
           invoice('totalValue')
             .coerceTo('NUMBER')
             .mul(-1),
@@ -198,6 +304,44 @@ export class InvoicesService implements OnModuleInit {
           .run(this.rethinkDB)
           .then(result => {
             this.logger.log('Invoice totals updated on dash.');
+          });
+      })
+      .catch(err => {
+        this.logger.error(err, err.stack);
+      });
+  }
+
+  async updateInvoiceNegativeValues() {
+    r.db('salesDASH')
+      .table('invoices')
+      .filter(r.or(r.row('type').match('ZS1')))
+      .group([r.row('procDate').month(), r.row('procDate').year()])
+      .sum(invoice => {
+        return invoice('totalValue').coerceTo('NUMBER');
+      })
+      .run(this.rethinkDB)
+      .then(result => {
+        const data = [];
+        for (let i = result.length - 1; i >= 0; i--) {
+          data.push({
+            period: result[i].group[0] + '.' + result[i].group[1],
+            negativeValue: math.number(
+              math.format(result[i].reduction, {
+                notation: 'fixed',
+                precision: 2,
+              }),
+            ),
+          });
+        }
+        return data;
+      })
+      .then(totals => {
+        r.db('salesDASH')
+          .table('invoiceTotals')
+          .insert(totals, { conflict: 'update' })
+          .run(this.rethinkDB)
+          .then(result => {
+            this.logger.log('Invoice negative values updated on dash.');
           });
       })
       .catch(err => {
@@ -254,17 +398,18 @@ export class InvoicesService implements OnModuleInit {
                     row.partnerID = parseInt(currentCell, 10);
                   } else if (header[y].indexOf('totalValue') >= 0) {
                     if (currentCell.indexOf('-') >= 0) {
-                    row.totalValue = '-' + currentCell
-                      .replace(/\-/g, '')
-                      .replace(/\./g, '')
-                      .replace(/\,/g, '.');
+                      row.totalValue =
+                        '-' +
+                        currentCell
+                          .replace(/\-/g, '')
+                          .replace(/\./g, '')
+                          .replace(/\,/g, '.');
                     } else {
-                    row.totalValue = currentCell
-                      .replace(/\-/g, '')
-                      .replace(/\./g, '')
-                      .replace(/\,/g, '.');
+                      row.totalValue = currentCell
+                        .replace(/\-/g, '')
+                        .replace(/\./g, '')
+                        .replace(/\,/g, '.');
                     }
-
                   } else if (currentCell !== '') {
                     row[header[y]] = currentCell;
                   }

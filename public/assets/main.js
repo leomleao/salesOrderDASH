@@ -407,6 +407,7 @@ w
 	 * Initializes Sales History Chart
 	 */
 	var initSalesHistoryChart = function(data) {
+		const year = new Date().getFullYear();
 		// Themes begin
 		am4core.useTheme(am4themes_animated);
 		// Themes end
@@ -435,12 +436,12 @@ w
 		var columnSeries = mApp.salesHistoryChart.series.push(
 			new am4charts.ColumnSeries(),
 		);
-		columnSeries.name = '2018';
+		columnSeries.name = year - 1;
 		columnSeries.dataFields.valueY = 'salesPast';
 		columnSeries.dataFields.categoryX = 'month';
 
 		columnSeries.columns.template.tooltipText =
-			'[#fff font-size: 15px]{name} em {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]';
+			'[#fff font-size: 15px]Faturamento em {categoryX}/{name}:\n[/][#fff font-size: 20px]{valueY}[/][#fff]{additional}[/]';
 		columnSeries.columns.template.propertyFields.fillOpacity = 'fillOpacity';
 		columnSeries.columns.template.propertyFields.stroke = 'stroke';
 		columnSeries.columns.template.propertyFields.strokeWidth = 'strokeWidth';
@@ -451,24 +452,63 @@ w
 		var columnSeries2 = mApp.salesHistoryChart.series.push(
 			new am4charts.ColumnSeries(),
 		);
-		columnSeries2.name = '2019';
-		columnSeries2.dataFields.valueY = 'sales';
+		columnSeries2.name = year - 1;
+		columnSeries2.dataFields.valueY = 'negativeSalesPast';
 		columnSeries2.dataFields.categoryX = 'month';
 
 		columnSeries2.columns.template.tooltipText =
-			'[#fff font-size: 15px]{name} em {categoryX}:\n[/][#fff font-size: 20px]{valueY}[/] [#fff]{additional}[/]';
+			'[#fff font-size: 15px]Cancelamentos em {categoryX}/{name}:\n[/][#fff font-size: 20px]{valueY}[/][#fff]{additional}[/]';
 		columnSeries2.columns.template.propertyFields.fillOpacity = 'fillOpacity';
 		columnSeries2.columns.template.propertyFields.stroke = 'stroke';
-		columnSeries2.columns.template.propertyFields.strokeWidth = 'strokeWidth';
 		columnSeries2.columns.template.propertyFields.strokeDasharray =
 			'columnDash';
 		columnSeries2.tooltip.label.textAlign = 'middle';
+		columnSeries2.fill = am4core.color('red').lighten(0.4);
+		columnSeries2.stroke = am4core.color('red').lighten(0.4);
+		columnSeries2.stacked = true;
+		columnSeries2.hiddenInLegend= true;
+
+		/* Create series */
+		var columnSeries3 = mApp.salesHistoryChart.series.push(
+			new am4charts.ColumnSeries(),
+		);
+		columnSeries3.name = year;
+		columnSeries3.dataFields.valueY = 'sales';
+		columnSeries3.dataFields.categoryX = 'month';
+
+		columnSeries3.columns.template.tooltipText =
+			'[#fff font-size: 15px]Faturamento em {categoryX}/{name}:\n[/][#fff font-size: 20px]{valueY}[/][#fff]{additional}[/]';
+		columnSeries3.columns.template.propertyFields.fillOpacity = 'fillOpacity';
+		columnSeries3.columns.template.propertyFields.stroke = 'stroke';
+		columnSeries3.columns.template.propertyFields.strokeWidth = 'strokeWidth';
+		columnSeries3.columns.template.propertyFields.strokeDasharray =
+			'columnDash';
+		columnSeries3.tooltip.label.textAlign = 'middle';
+
+		/* Create series */
+		var columnSeries4 = mApp.salesHistoryChart.series.push(
+			new am4charts.ColumnSeries(),
+		);
+		columnSeries4.name = year;
+		columnSeries4.dataFields.valueY = 'negativeSales';
+		columnSeries4.dataFields.categoryX = 'month';
+
+		columnSeries4.columns.template.tooltipText =
+			'[#fff font-size: 15px]Cancelamentos em {categoryX}/{name}:\n[/][#fff font-size: 20px]{valueY}[/][#fff]{additional}[/]';
+		columnSeries4.columns.template.propertyFields.fillOpacity = 'fillOpacity';
+		columnSeries4.columns.template.propertyFields.stroke = 'stroke';
+		columnSeries4.columns.template.propertyFields.strokeDasharray =
+			'columnDash';
+		columnSeries4.tooltip.label.textAlign = 'middle';
+		columnSeries4.fill = am4core.color('red').lighten(0.4);
+		columnSeries4.stroke = am4core.color('red').lighten(0.4);
+		columnSeries4.stacked = true;
 
 		var lineSeries = mApp.salesHistoryChart.series.push(
 			new am4charts.LineSeries(),
 		);
 		lineSeries.name = 'Meta';
-		lineSeries.dataFields.valueY = 'meta';
+		lineSeries.dataFields.valueY = 'goal';
 		lineSeries.dataFields.categoryX = 'month';
 
 		lineSeries.stroke = am4core.color('#fdd400');
@@ -626,7 +666,7 @@ w
 	 * Initializes websockets services
 	 */
 	var initWebSockets = function() {
-		const socket = io('http://10.222.4.25');
+		const socket = io('http://localhost');
 		socket.on('connect', function() {
 			console.log('Connected');
 			socket.emit('identity', 0, response =>
@@ -695,16 +735,95 @@ w
 	 * Update field
 	 */
 	var updateField = function(fieldName, value) {
+		if (
+			fieldName === 'goalFulfillmentCurrentYear' ||
+			fieldName === 'goalFulfillmentCurrentMonth'
+		) {
+			updateProgressBar(fieldName, value);
+		}
 		$('#' + fieldName).hide(0, function() {
 			if ($(this).hasClass('currency_format')) {
 				value = numeral(value).format();
 			} else if ($(this).hasClass('percentage_format')) {
 				value = numeral(value).format('0%');
 			}
-
 			$(this)
 				.html(value)
 				.fadeIn(1500);
+		});
+	};
+
+	/**
+	 * Update progress bars
+	 */
+	var updateProgressBar = function(bar, value) {
+		let barWidth = parseFloat(value).toFixed(2) * 100;
+		if (barWidth > 100) {
+			if (barWidth > 200) {
+				barWidth = 200;
+			}
+			$('#' + bar)
+				.prev()
+				.prev()
+				.children('.m--bg-info')
+				.css('width', 100 - (barWidth - 100) + '%');
+			$('#' + bar)
+				.prev()
+				.prev()
+				.children('.bg-warning')
+				.css('width', barWidth - 100 + '%');
+			$('#' + bar)
+				.parent()
+				.parent()
+				.addClass('particletext confetti');
+			initConfetti();
+		} else {
+			if (
+				$('#' + bar)
+					.parent()
+					.parent()
+					.hasClass('particletext confetti')
+			) {
+				$('#' + bar)
+					.parent()
+					.parent()
+					.removeClass('particletext confetti');
+			}
+			$('#' + bar)
+				.prev()
+				.prev()
+				.children('.bg-warning')
+				.css('width', '0%');
+			$('#' + bar)
+				.prev()
+				.prev()
+				.children('.m--bg-info')
+				.css('width', barWidth + '%');
+		}
+	};
+
+	var initConfetti = function() {
+		$.each($('.particletext.confetti'), function() {
+			if ($(this).attr('party')) return;
+			var confetticount = ($(this).width() / 50) * 10;
+			for (var i = 0; i <= confetticount; i++) {
+				$(this).append(
+					'<span class="particle c' +
+						$.rnd($.rnd(1, 2), $.rnd(3, 4)) +
+						'" style="top:' +
+						$.rnd(10, 50) +
+						'%; left:' +
+						$.rnd(0, 100) +
+						'%;width:' +
+						$.rnd(6, 8) +
+						'px; height:' +
+						$.rnd(3, 4) +
+						'px;animation-delay: ' +
+						$.rnd(0, 30) / 10 +
+						's;"></span>',
+				);
+			}
+			$(this).attr('party', true);
 		});
 	};
 
@@ -721,7 +840,7 @@ w
 				.find('tr')
 				.each(function(index) {
 					const procDate = new Date(newData[index].procDate);
-          			const totalValue = numeral(newData[index].totalValue).format();
+					const totalValue = numeral(newData[index].totalValue).format();
 					$(this)
 						.children()
 						.first()
@@ -740,7 +859,9 @@ w
 						.first()
 						.next()
 						.html(
-						procDate.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+							procDate.toLocaleString('pt-BR', {
+								timeZone: 'America/Sao_Paulo',
+							}),
 						);
 					$(this)
 						.children()
@@ -754,7 +875,7 @@ w
 				.find('tbody')
 				.find('tr')
 				.each(function(index) {
-          const creationDate = new Date(newData[index].creationDate);
+					const creationDate = new Date(newData[index].creationDate);
 					const totalValue = numeral(newData[index].totalValue).format();
 					$(this)
 						.children()
@@ -766,7 +887,7 @@ w
 						.children()
 						.first()
 						.children()
-            .first()
+						.first()
 						.next()
 						.html(newData[index].customer);
 					$(this)
@@ -774,7 +895,9 @@ w
 						.first()
 						.next()
 						.html(
-              creationDate.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+							creationDate.toLocaleString('pt-BR', {
+								timeZone: 'America/Sao_Paulo',
+							}),
 						);
 					$(this)
 						.children()
@@ -839,6 +962,7 @@ w
 			initAccordions();
 			initCustomTabs();
 			initPopulateData();
+			initConfetti();
 			// initDailySalesChart();
 			// initSalesBySegmentChart();
 			// initSalesHistoryChart();
@@ -1707,6 +1831,12 @@ numeral.register('locale', 'pt-br', {
 });
 numeral.locale('pt-br');
 numeral.defaultFormat('($ 0.00.00 a)');
+
+jQuery.rnd = function(m, n) {
+	m = parseInt(m);
+	n = parseInt(n);
+	return Math.floor(Math.random() * (n - m + 1)) + m;
+};
 
 Chart.elements.Rectangle.prototype.draw = function() {
 	var ctx = this._chart.ctx;

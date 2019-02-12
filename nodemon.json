@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ext": "ts",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "node --inspect-brk --max_old_space_size=3072 -r ts-node/register -r ./src/server"
+  "exec": "node  --max_old_space_size=3072 -r ts-node/register -r ./src/server"
 }
